@@ -1,0 +1,308 @@
+:root {
+    --primary-color: #4361ee;
+    --primary-dark: #3a0ca3;
+    --secondary-color: #7209b7;
+    --success-color: #06ffa5;
+    --danger-color: #f72585;
+    --warning-color: #f8961e;
+    --dark-color: #1a1a2e;
+    --light-color: #f8f9fa;
+    --gray-color: #6c757d;
+    --border-radius: 16px;
+    --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.payment-card {
+    border: none;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--box-shadow);
+    transform: translateY(0);
+    transition: var(--transition);
+}
+
+.payment-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    padding: 1.5rem;
+}
+
+.card-header h4 {
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.card-header i {
+    font-size: 1.5rem;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+.card-body {
+    padding: 2rem;
+    background: white;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.alert-info h5 {
+    color: var(--dark-color);
+    font-weight: 600;
+}
+
+.alert-info strong {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+.card-icons {
+    margin: 1.5rem 0;
+}
+
+.card-icons i {
+    font-size: 2.5rem;
+    margin: 0 10px;
+    color: var(--gray-color);
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.card-icons i:hover {
+    color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+}
+
+.input-group-text {
+    background: white;
+    border-right: none;
+    color: var(--primary-color);
+}
+
+.form-control {
+    border: 2px solid #e1e5e9;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    transition: var(--transition);
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+}
+
+.input-group .form-control {
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+}
+
+.input-group .input-group-text {
+    border-radius: 10px 0 0 10px;
+    border: 2px solid #e1e5e9;
+    border-right: none;
+}
+
+.form-control::placeholder {
+    color: #adb5bd;
+    font-size: 0.9rem;
+}
+
+.btn {
+    border-radius: 10px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: none;
+    font-size: 1.1rem;
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-outline-secondary {
+    border: 2px solid #e1e5e9;
+    color: var(--gray-color);
+}
+
+.btn-outline-secondary:hover {
+    background: var(--light-color);
+    border-color: var(--gray-color);
+    transform: translateY(-2px);
+}
+
+.card-footer {
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    padding: 1rem;
+}
+
+.card-footer small {
+    color: var(--gray-color);
+}
+
+.card-footer i {
+    color: var(--success-color);
+    margin-right: 5px;
+}
+
+.invalid-feedback {
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    color: var(--danger-color);
+}
+
+.alert-danger {
+    background: #fee2e2;
+    border: none;
+    border-radius: 10px;
+    color: #dc2626;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.payment-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.form-control.is-invalid {
+    border-color: var(--danger-color);
+    background-image: none;
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .card-icons i {
+        font-size: 2rem;
+        margin: 0 5px;
+    }
+
+    .btn {
+        padding: 0.6rem 1.2rem;
+    }
+
+    .form-control {
+        padding: 0.6rem 1rem;
+    }
+}
+
+.btn-success:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+#numeroTarjeta {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+}
+
+[data-tooltip] {
+    position: relative;
+    cursor: help;
+}
+
+[data-tooltip]:before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px 10px;
+    background: var(--dark-color);
+    color: white;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    display: none;
+    z-index: 1000;
+}
+
+[data-tooltip]:hover:before {
+    display: block;
+}
+
+#fechaCaducidad, #cvv {
+    font-family: 'Courier New', monospace;
+    text-align: center;
+}
+
+.btn-success {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-success:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-success:active:after {
+    width: 300px;
+    height: 300px;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
