@@ -1,10 +1,10 @@
-package es.sportshop.repositorios;
+package es.sportshop.repositories;
+import java.util.Optional;
 import es.sportshop.model.Usuario;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 // Anotación de Spring para indicar que es un repositorio
 @Repository
