@@ -1,9 +1,9 @@
 package es.sportshop.servicios;
-import es.sportshop.model.Detalle;
-import es.sportshop.repositorios.DetalleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import java.util.List;
+import es.sportshop.model.Detalle;
+import org.springframework.stereotype.Service;
+import es.sportshop.repositories.DetalleRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 // Anotación de Spring para crear un bean
 @Service
