@@ -25,6 +25,11 @@ public class ServicioProductos {
         return productoRepository.buscarProductoPorNombre(nombre);
     }
 
+    // Función para buscar producto por id
+    public Producto buscarProductoPorId(int idProducto) {
+        return productoRepository.findById(idProducto).orElse(null);
+    }
+
     // Función para guardar un producto
     public Producto guardarProducto(Producto producto) {
         return productoRepository.save(producto);

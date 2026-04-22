@@ -50,7 +50,7 @@ public class AdminController {
     }
 
     // Anotación de Spring para mostrar la página para ver los productos
-    @GetMapping("zonaAdmin/productos")
+    @GetMapping("/zonaAdmin/productos")
 
     // Función para mostrar la página de los productos
     public ModelAndView productos(Authentication aut) {
@@ -70,13 +70,13 @@ public class AdminController {
     }
 
     // Anotación de Spring para mostrar la página para añadir productos
-    @PostMapping("zonaAdmin/anadirProducto")
+    @PostMapping("/zonaAdmin/anadirProducto")
 
     // Función para mostrar la página para añadir productos
     public ModelAndView anadirProducto(Authentication aut, @RequestParam String nombre, @RequestParam String descripcion, @RequestParam int precio, @RequestParam int stock) {
 
         // Comprobar que el producto no exista
-        if(servicioProductos.buscarProductoPorNombre(nombre) == null) {
+        if(servicioProductos.buscarProductoPorNombre(nombre).isEmpty()) {
 
             // Si no existe ningún producto con ese nombre crear y guardar un nuevo producto
             Producto producto = new Producto();
@@ -87,7 +87,7 @@ public class AdminController {
             servicioProductos.guardarProducto(producto);
             System.out.println("Se ha añadido el producto");
         }
-        ModelAndView mv = new ModelAndView("redirect:admin/zonaAdmin/productos");
+        ModelAndView mv = new ModelAndView("redirect:/zonaAdmin/productos");
 
         // Comprobar que usuario ha iniciado sesión
         if(aut != null) {
@@ -147,6 +147,19 @@ public class AdminController {
         }
 
         // Devolver la vista
+        return mv;
+    }
+
+    // Anotación de Spring para mostrar la página de usuarios
+    @GetMapping("/zonaAdmin/usuarios")
+    public ModelAndView usuarios(Authentication aut) {
+        ModelAndView mv = new ModelAndView("admin/usuarios");
+
+        if(aut != null) {
+            mv.addObject("usuario", aut.getName());
+        }
+
+        mv.addObject("listaUsuarios", servicioUsuarios.verUsuarios());
         return mv;
     }
 }
