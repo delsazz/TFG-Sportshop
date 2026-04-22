@@ -19,7 +19,7 @@ public class ConfiguracionFrontend implements WebMvcConfigurer {
     public SpringResourceTemplateResolver resolvedorPlantillas(ApplicationContext applicationContext) {
         SpringResourceTemplateResolver springResourceTemplateResolver = new SpringResourceTemplateResolver();
         springResourceTemplateResolver.setApplicationContext(applicationContext);
-        springResourceTemplateResolver.setPrefix(resolverDirectorioFrontend("vistas"));
+        springResourceTemplateResolver.setPrefix(verDirectorioFrontend("vistas"));
         springResourceTemplateResolver.setSuffix(".html");
         springResourceTemplateResolver.setTemplateMode("HTML");
         springResourceTemplateResolver.setCharacterEncoding("UTF-8");
