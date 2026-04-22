@@ -20,6 +20,11 @@ CREATE TABLE usuario (
     direccion VARCHAR(100)
 );
 
+CREATE TABLE foto (
+    id_foto INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_foto VARCHAR(100)
+);
+
 CREATE TABLE producto (
     id_producto INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100),
@@ -48,9 +53,4 @@ CREATE TABLE detalle (
     unidades INT,
     FOREIGN KEY (id_pedido) REFERENCES pedido(id_pedido),
     FOREIGN KEY (id_producto) REFERENCES producto(id_producto)
-);
-
-CREATE TABLE foto (
-    id_foto INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_foto VARCHAR(100)
 );

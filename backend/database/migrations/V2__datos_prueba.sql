@@ -23,6 +23,13 @@ INSERT INTO usuario
 '$2a$10$lF6/TEVcza8fTHUq2atoCulPDDSYu68aWKQnrW4cG6EpJVEmwNv.S', 
 'cliente', '56789012E', 'Bilbao', 'España', '48001', 'Calle E 5');
 
+INSERT INTO foto (nombre_foto) VALUES
+('camiseta_nike.jpg'),
+('zapatillas_adidas.jpg'),
+('mochila_puma.jpg'),
+('pesas_10kg.jpg'),
+('proteina_whey.jpg');
+
 INSERT INTO producto (nombre, id_categoria, precio, stock, descripcion, id_foto) VALUES
 ('Camiseta Nike', 1, 25, 50, 'Camiseta deportiva de la marca Nike, ideal para entrenamientos', 1),
 ('Zapatillas Adidas', 2, 80, 30, 'Zapatillas deportivas Adidas, cómodas y resistentes', 2),
@@ -43,10 +50,3 @@ INSERT INTO detalle (id_pedido, id_producto, precio, unidades) VALUES
 (2, 2, 80, 1),
 (3, 5, 45, 2),
 (4, 4, 60, 1);
-
-INSERT INTO foto (nombre_foto) VALUES
-('camiseta_nike.jpg'),
-('zapatillas_adidas.jpg'),
-('mochila_puma.jpg'),
-('pesas_10kg.jpg'),
-('proteina_whey.jpg');

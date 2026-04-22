@@ -1,11 +1,16 @@
 package es.sportshop.controladores;
 import java.util.List;
 import java.util.ArrayList;
+import java.time.LocalDate;
 import es.sportshop.model.Usuario;
+import es.sportshop.model.Pedido;
+import es.sportshop.model.Detalle;
 import es.sportshop.model.Producto;
 import jakarta.servlet.http.HttpSession;
 import es.sportshop.servicios.ServicioUsuarios;
 import es.sportshop.servicios.ServicioProductos;
+import es.sportshop.servicios.ServicioPedidos;
+import es.sportshop.servicios.ServicioDetalle;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.security.core.Authentication;
@@ -21,12 +26,16 @@ public class UsuarioController {
     // Atributos para la clase UsuarioController
     private final ServicioProductos servicioProductos;
     private final ServicioUsuarios servicioUsuarios;
+    private final ServicioPedidos servicioPedidos;
+    private final ServicioDetalle servicioDetalle;
     private final PasswordEncoder passwordEncoder;
 
     // Constructor con parámetros para la clase UsuarioController
-    public UsuarioController(ServicioProductos servicioProductos, ServicioUsuarios servicioUsuarios, PasswordEncoder passwordEncoder) {
+    public UsuarioController(ServicioProductos servicioProductos, ServicioUsuarios servicioUsuarios, ServicioPedidos servicioPedidos, ServicioDetalle servicioDetalle, PasswordEncoder passwordEncoder) {
         this.servicioProductos = servicioProductos;
         this.servicioUsuarios = servicioUsuarios;
+        this.servicioPedidos = servicioPedidos;
+        this.servicioDetalle = servicioDetalle;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -97,6 +106,7 @@ public class UsuarioController {
             usuario.setPais(pais);
             usuario.setCodigoPostal(codigoPostal);
             usuario.setDireccion(direccion);
+            usuario.setRol("cliente");
             servicioUsuarios.registrarUsuario(usuario);
             System.out.println("Se ha añadido el usuario");
 
@@ -172,7 +182,7 @@ public class UsuarioController {
         }
 
         // Buscar el producto
-        Producto producto = servicioProductos.verProductos().stream().filter(p -> p.getIdProducto() == idProducto).findFirst().orElse(null);
+        Producto producto = servicioProductos.buscarProductoPorId(idProducto);
 
         // Si el producto existe añadirlo al carrito
         if(producto != null) {
@@ -203,11 +213,113 @@ public class UsuarioController {
 
         // Si el carrito no está vacío eliminar el producto
         if(carrito != null) {
-            carrito.removeIf(p -> p.getIdProducto() == idProducto);
+            for(int i = 0; i < carrito.size(); i++) {
+                if(carrito.get(i).getIdProducto() == idProducto) {
+                    carrito.remove(i);
+                    break;
+                }
+            }
             session.setAttribute("carrito", carrito);
         }
 
         // Devolver la vista
         return mv;
+    }
+
+    // Anotación de Spring para mostrar la página de pago
+    @GetMapping("/pagar_pedido")
+    public ModelAndView pagarPedido(Authentication aut, HttpSession session) {
+        if(aut == null) {
+            return new ModelAndView("redirect:/login");
+        }
+
+        List<Producto> carrito = obtenerCarrito(session);
+        if(carrito.isEmpty()) {
+            return new ModelAndView("redirect:/carrito");
+        }
+
+        ModelAndView mv = new ModelAndView("usuario/pagar_pedido");
+        mv.addObject("usuario", aut.getName());
+        mv.addObject("productosCarrito", carrito.size());
+        mv.addObject("total", calcularTotal(carrito));
+        return mv;
+    }
+
+    // Anotación de Spring para procesar el pago
+    @PostMapping("/procesarPago")
+    public ModelAndView procesarPago(Authentication aut, HttpSession session) {
+        if(aut == null) {
+            return new ModelAndView("redirect:/login");
+        }
+
+        List<Producto> carrito = obtenerCarrito(session);
+        if(carrito.isEmpty()) {
+            return new ModelAndView("redirect:/carrito");
+        }
+
+        Usuario usuario = servicioUsuarios.buscarUsuarioPorEmail(aut.getName()).orElse(null);
+        if(usuario == null) {
+            return new ModelAndView("redirect:/login");
+        }
+
+        Pedido pedido = new Pedido();
+        pedido.setUsuario(usuario);
+        pedido.setFechaPedido(LocalDate.now());
+        pedido.setFechaEntrega(LocalDate.now().plusDays(3));
+        Pedido pedidoGuardado = servicioPedidos.guardarPedido(pedido);
+
+        for(Producto producto : carrito) {
+            Detalle detalle = new Detalle();
+            detalle.setPedido(pedidoGuardado);
+            detalle.setProducto(producto);
+            detalle.setPrecio(producto.getPrecio());
+            detalle.setUnidades(1);
+            servicioDetalle.guardarDetalle(detalle);
+        }
+
+        session.setAttribute("carrito", new ArrayList<Producto>());
+        return new ModelAndView("redirect:/usuariopedidos?pagado");
+    }
+
+    // Anotación de Spring para mostrar los pedidos del usuario
+    @GetMapping("/usuariopedidos")
+    public ModelAndView usuarioPedidos(Authentication aut, HttpSession session) {
+        if(aut == null) {
+            return new ModelAndView("redirect:/login");
+        }
+
+        ModelAndView mv = new ModelAndView("usuario/pedidos");
+        mv.addObject("usuario", aut.getName());
+        mv.addObject("listaPedidos", servicioPedidos.verPedidosUsuario(aut.getName()));
+        mv.addObject("productosCarrito", obtenerCarrito(session).size());
+        return mv;
+    }
+
+    // Anotación de Spring para mostrar una página de acceso denegado
+    @GetMapping("/denegado")
+    public ModelAndView denegado(Authentication aut, HttpSession session) {
+        ModelAndView mv = new ModelAndView("denegado");
+        if(aut != null) {
+            mv.addObject("usuario", aut.getName());
+        }
+        mv.addObject("productosCarrito", obtenerCarrito(session).size());
+        return mv;
+    }
+
+    private List<Producto> obtenerCarrito(HttpSession session) {
+        List<Producto> carrito = (List<Producto>) session.getAttribute("carrito");
+        if(carrito == null) {
+            carrito = new ArrayList<>();
+            session.setAttribute("carrito", carrito);
+        }
+        return carrito;
+    }
+
+    private int calcularTotal(List<Producto> carrito) {
+        int total = 0;
+        for(Producto producto : carrito) {
+            total += producto.getPrecio();
+        }
+        return total;
     }
 }

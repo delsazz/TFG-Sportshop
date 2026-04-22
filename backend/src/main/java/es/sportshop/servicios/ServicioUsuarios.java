@@ -1,4 +1,5 @@
 package es.sportshop.servicios;
+import java.util.List;
 import java.util.Optional;
 import es.sportshop.model.Usuario;
 import org.springframework.stereotype.Service;
@@ -23,5 +24,10 @@ public class ServicioUsuarios {
     // Función para buscar un usuario
     public Optional<Usuario> buscarUsuarioPorEmail(String correoElectronico) {
         return usuarioRepository.findById(String.valueOf(correoElectronico));
+    }
+
+    // Función para ver todos los usuarios
+    public List<Usuario> verUsuarios() {
+        return usuarioRepository.findAll();
     }
 }

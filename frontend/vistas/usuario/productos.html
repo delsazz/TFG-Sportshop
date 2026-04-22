@@ -32,7 +32,7 @@
           <i class="bi bi-cart"></i>
           <span class="visually-hidden">Carrito</span>
           <span id="badge-carrito" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-            <span>0</span>
+            <span th:text="${productosCarrito}">0</span>
             <span class="visually-hidden">Productos en el carrito</span>
           </span>
         </a>
@@ -69,14 +69,17 @@
       </thead>
       <tbody>
       <tr th:each="producto : ${listaProductos}">
-        <td th:text="${producto.foto}"></td>
+        <td>
+          <img th:if="${producto.foto != null}" th:src="@{/img/{nombre}(nombre=${producto.foto.nombreFoto})}" alt="Foto del producto" class="img-thumbnail" style="width:80px; height:80px; object-fit:cover;">
+          <span th:if="${producto.foto == null}">Sin foto</span>
+        </td>
         <td th:text="${producto.nombre}"></td>
         <td th:text="${producto.precio} + ' €'"></td>
         <td th:text="${producto.stock}"></td>
         <td>
-          <button type="button" class="btn btn-sm btn-primary btn-cart-add">
+          <a th:href="@{/anadirProductoCarrito(id=${producto.idProducto})}" class="btn btn-sm btn-primary">
             <i class="bi bi-cart-plus"></i> Añadir al carrito
-          </button>
+          </a>
         </td>
       </tr>
       </tbody>
@@ -85,6 +88,5 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/JavaScript/usuario/script_productos.js"></script>
 </body>
 </html>
