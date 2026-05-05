@@ -1,28 +1,28 @@
 package es.sportshop.controladores;
 
-import es.sportshop.model.Categoria;
+import java.util.List;
+import java.util.ArrayList;
 import es.sportshop.model.Foto;
 import es.sportshop.model.Producto;
-import es.sportshop.servicios.ServicioProductos;
+import es.sportshop.model.Categoria;
 import jakarta.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import es.sportshop.servicios.ServicioProductos;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
-public class ApiProductosController {
+public class ProductosController {
 
     private final ServicioProductos servicioProductos;
 
-    public ApiProductosController(ServicioProductos servicioProductos) {
+    public ProductosController(ServicioProductos servicioProductos) {
         this.servicioProductos = servicioProductos;
     }
 
