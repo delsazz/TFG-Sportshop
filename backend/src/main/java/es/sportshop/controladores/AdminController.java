@@ -2,9 +2,14 @@ package es.sportshop.controladores;
 import es.sportshop.model.Pedido;
 import es.sportshop.model.Producto;
 import es.sportshop.model.Usuario;
+import es.sportshop.model.Categoria;
+import es.sportshop.model.Foto;
+import es.sportshop.model.ConfiguracionPago;
 import es.sportshop.servicios.*;
+import java.io.IOException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,16 +25,20 @@ public class AdminController {
     // Atrubutos para la clase AdminController
     private final ServicioProductos servicioProductos;
     private final ServicioPedidos servicioPedidos;
-    private final ServicioDetalle servicioDetalle;
     private final ServicioFotos servicioFotos;
+    private final ServicioCategorias servicioCategorias;
+    private final ServicioConfiguracionPago servicioConfiguracionPago;
+    private final ServicioArchivos servicioArchivos;
     private final ServicioUsuarios servicioUsuarios;
 
     // Constructor con parámetros para la clase AdminController
-    public AdminController(ServicioProductos servicioProductos, ServicioPedidos servicioPedidos, ServicioDetalle servicioDetalle, ServicioFotos servicioFotos, ServicioUsuarios servicioUsuarios) {
+    public AdminController(ServicioProductos servicioProductos, ServicioPedidos servicioPedidos, ServicioFotos servicioFotos, ServicioCategorias servicioCategorias, ServicioConfiguracionPago servicioConfiguracionPago, ServicioArchivos servicioArchivos, ServicioUsuarios servicioUsuarios) {
         this.servicioProductos = servicioProductos;
         this.servicioPedidos = servicioPedidos;
-        this.servicioDetalle = servicioDetalle;
         this.servicioFotos = servicioFotos;
+        this.servicioCategorias = servicioCategorias;
+        this.servicioConfiguracionPago = servicioConfiguracionPago;
+        this.servicioArchivos = servicioArchivos;
         this.servicioUsuarios = servicioUsuarios;
     }
 
@@ -64,6 +73,7 @@ public class AdminController {
         // Mostrar los productos
         List<Producto> productos = servicioProductos.verProductos();
         mv.addObject("listaProductos", productos);
+        mv.addObject("listaCategorias", servicioCategorias.verCategorias());
 
         // Devolver la vista
         return mv;
@@ -73,7 +83,7 @@ public class AdminController {
     @PostMapping("/zonaAdmin/anadirProducto")
 
     // Función para mostrar la página para añadir productos
-    public ModelAndView anadirProducto(Authentication aut, @RequestParam String nombre, @RequestParam String descripcion, @RequestParam int precio, @RequestParam int stock) {
+    public ModelAndView anadirProducto(Authentication aut, @RequestParam String nombre, @RequestParam String descripcion, @RequestParam int precio, @RequestParam int stock, @RequestParam int idCategoria, @RequestParam(required = false) String tallas, @RequestParam("fotoProducto") MultipartFile fotoProducto) throws IOException {
 
         // Comprobar que el producto no exista
         if(servicioProductos.buscarProductoPorNombre(nombre).isEmpty()) {
@@ -84,6 +94,14 @@ public class AdminController {
             producto.setDescripcion(descripcion);
             producto.setPrecio(precio);
             producto.setStock(stock);
+            producto.setTallas(tallas);
+            producto.setCategoria(servicioCategorias.buscarCategoriaPorId(idCategoria));
+            String nombreFoto = servicioArchivos.guardarImagen(fotoProducto);
+            if(nombreFoto != null) {
+                Foto foto = new Foto();
+                foto.setNombreFoto(nombreFoto);
+                producto.setFoto(servicioFotos.anadirFoto(foto));
+            }
             servicioProductos.guardarProducto(producto);
             System.out.println("Se ha añadido el producto");
         }
@@ -95,6 +113,21 @@ public class AdminController {
         }
 
         // Devolver la vista
+        return mv;
+    }
+
+    // Anotación de Spring para añadir categorías
+    @PostMapping("/zonaAdmin/anadirCategoria")
+    public ModelAndView anadirCategoria(Authentication aut, @RequestParam String nombreCategoria, @RequestParam("fotoCategoria") MultipartFile fotoCategoria) throws IOException {
+        Categoria categoria = new Categoria();
+        categoria.setCategoria(nombreCategoria);
+        categoria.setNombreFoto(servicioArchivos.guardarImagen(fotoCategoria));
+        servicioCategorias.guardarCategoria(categoria);
+
+        ModelAndView mv = new ModelAndView("redirect:/zonaAdmin/productos?categoriaGuardada");
+        if(aut != null) {
+            mv.addObject("usuario", aut.getName());
+        }
         return mv;
     }
 
@@ -160,6 +193,46 @@ public class AdminController {
         }
 
         mv.addObject("listaUsuarios", servicioUsuarios.verUsuarios());
+        return mv;
+    }
+
+    // Anotación de Spring para mostrar la configuración de pagos
+    @GetMapping("/zonaAdmin/pagos")
+    public ModelAndView configuracionPagos(Authentication aut) {
+        ModelAndView mv = new ModelAndView("admin/pagos");
+
+        if(aut != null) {
+            mv.addObject("usuario", aut.getName());
+        }
+
+        mv.addObject("configuracionPago", servicioConfiguracionPago.obtenerConfiguracion());
+        return mv;
+    }
+
+    // Anotación de Spring para guardar la configuración de pagos
+    @PostMapping("/zonaAdmin/pagos")
+    public ModelAndView guardarConfiguracionPagos(Authentication aut,
+                                                  @RequestParam String telefonoBizum,
+                                                  @RequestParam String urlBancoBizum,
+                                                  @RequestParam String titularTransferencia,
+                                                  @RequestParam String ibanTransferencia,
+                                                  @RequestParam String conceptoTransferencia,
+                                                  @RequestParam(required = false) String stripePublicKey,
+                                                  @RequestParam(required = false) String stripeSecretKey) {
+        ConfiguracionPago configuracionPago = new ConfiguracionPago();
+        configuracionPago.setTelefonoBizum(telefonoBizum);
+        configuracionPago.setUrlBancoBizum(urlBancoBizum);
+        configuracionPago.setTitularTransferencia(titularTransferencia);
+        configuracionPago.setIbanTransferencia(ibanTransferencia);
+        configuracionPago.setConceptoTransferencia(conceptoTransferencia);
+        configuracionPago.setStripePublicKey(stripePublicKey);
+        configuracionPago.setStripeSecretKey(stripeSecretKey);
+        servicioConfiguracionPago.guardarConfiguracion(configuracionPago);
+
+        ModelAndView mv = new ModelAndView("redirect:/zonaAdmin/pagos?guardado");
+        if(aut != null) {
+            mv.addObject("usuario", aut.getName());
+        }
         return mv;
     }
 }

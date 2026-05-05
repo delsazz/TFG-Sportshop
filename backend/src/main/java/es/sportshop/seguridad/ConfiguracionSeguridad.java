@@ -35,9 +35,14 @@ public class ConfiguracionSeguridad {
                 .requestMatchers("/css/**", "/img/**", "/JavaScript/**").permitAll()
                 .requestMatchers("/", "/productos", "/login", "/registro", "/denegado").permitAll()
                 .requestMatchers("/zonaAdmin", "/zonaAdmin/**").hasAuthority("admin")
-                .requestMatchers("/carrito", "/anadirProductoCarrito", "/eliminarProductoCarrito", "/pagar_pedido", "/procesarPago", "/usuariopedidos")
+                .requestMatchers("/carrito", "/anadirProductoCarrito", "/eliminarProductoCarrito", "/pagar_pedido", "/seleccionarMetodoPago", "/procesarPago", "/pago/**", "/usuariopedidos")
                 .hasAnyAuthority("cliente", "admin")
                 .anyRequest().authenticated()
+        );
+        http.sessionManagement(session -> session
+                .invalidSessionUrl("/login?sesionExpirada")
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(false)
         );
         http.formLogin(form -> form
                 .loginPage("/login")
@@ -47,6 +52,9 @@ public class ConfiguracionSeguridad {
         http.logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .deleteCookies("SPORTSHOP_SESION", "JSESSIONID")
                 .permitAll()
         );
         http.exceptionHandling(exception -> exception.accessDeniedPage("/denegado"));

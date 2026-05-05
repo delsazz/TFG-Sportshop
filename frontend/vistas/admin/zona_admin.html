@@ -28,6 +28,9 @@
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/zonaAdmin/usuarios}">Usuarios</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/zonaAdmin/pagos}">Pagos</a>
+                </li>
             </ul>
 
             <div th:if="${usuario != null}" class="d-flex align-items-center">
@@ -49,7 +52,7 @@
             Bienvenido al área de administración de SportShop.
         </p>
         <div class="row mt-5">
-            <div class="col-md-4 mb-4">
+            <div class="col-md-3 mb-4">
                 <div class="card h-100">
                     <div class="card-body text-center">
                         <i class="bi bi-box-seam" style="font-size: 3rem;"></i>
@@ -59,7 +62,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
+            <div class="col-md-3 mb-4">
                 <div class="card h-100">
                     <div class="card-body text-center">
                         <i class="bi bi-cart" style="font-size: 3rem;"></i>
@@ -69,13 +72,23 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
+            <div class="col-md-3 mb-4">
                 <div class="card h-100">
                     <div class="card-body text-center">
                         <i class="bi bi-people" style="font-size: 3rem;"></i>
                         <h5 class="card-title mt-3">Usuarios</h5>
                         <p class="card-text">Gestionar los usuarios registrados</p>
                         <a th:href="@{/zonaAdmin/usuarios}" class="btn btn-primary">Ver usuarios</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-credit-card" style="font-size: 3rem;"></i>
+                        <h5 class="card-title mt-3">Pagos</h5>
+                        <p class="card-text">Configurar Bizum, transferencia y Stripe</p>
+                        <a th:href="@{/zonaAdmin/pagos}" class="btn btn-primary">Configurar pagos</a>
                     </div>
                 </div>
             </div>

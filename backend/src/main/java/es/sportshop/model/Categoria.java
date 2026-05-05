@@ -23,16 +23,32 @@ public class Categoria {
     @Column(name = "categoria")
     private String categoria;
 
+    // Anotación de Spring para indicar la foto representativa de la categoría
+    @Column(name = "nombre_foto")
+    private String nombreFoto;
+
     // Anotación de Spring para indicar la relación de los categorías con los productos
     @OneToMany(mappedBy = "categoria")
     private List<Producto> productos;
 
     // Usar getters y setters para obtener datos de las categorias
+    public void setIdCategoria(int idCategoria) {
+        this.idCategoria = idCategoria;
+    }
+    public int getIdCategoria() {
+        return idCategoria;
+    }
     public void setCategoria(String categoria) {
         this.categoria = categoria;
     }
     public String getCategoria() {
         return categoria;
+    }
+    public void setNombreFoto(String nombreFoto) {
+        this.nombreFoto = nombreFoto;
+    }
+    public String getNombreFoto() {
+        return nombreFoto;
     }
     public void setProductos(List<Producto> productos) {
         this.productos = productos;

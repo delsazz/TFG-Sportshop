@@ -28,6 +28,8 @@
                 <th>ID</th>
                 <th>Fecha pedido</th>
                 <th>Fecha entrega</th>
+                <th>Método de pago</th>
+                <th>Productos</th>
             </tr>
             </thead>
             <tbody>
@@ -35,6 +37,16 @@
                 <td th:text="${pedido.idPedido}"></td>
                 <td th:text="${pedido.fechaPedido}"></td>
                 <td th:text="${pedido.fechaEntrega}"></td>
+                <td th:text="${pedido.metodoPago != null ? pedido.metodoPago : 'No indicado'}"></td>
+                <td>
+                    <ul class="mb-0 ps-3" th:if="${pedido.detalles != null}">
+                        <li th:each="detalle : ${pedido.detalles}">
+                            <span th:text="${detalle.producto != null ? detalle.producto.nombre : 'Producto eliminado'}"></span>
+                            <span th:text="${' x' + detalle.unidades}"></span>
+                            <span th:text="${' - ' + detalle.precio + ' €'}"></span>
+                        </li>
+                    </ul>
+                </td>
             </tr>
             </tbody>
         </table>

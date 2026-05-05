@@ -24,6 +24,7 @@ public class Producto {
     private int precio;
     private int stock;
     private String descripcion;
+    private String tallas;
 
     // Anotación de Spring para indicar la relación de los productos con las categorías
     @ManyToOne
@@ -72,6 +73,12 @@ public class Producto {
     }
     public String getDescripcion() {
         return descripcion;
+    }
+    public void setTallas(String tallas) {
+        this.tallas = tallas;
+    }
+    public String getTallas() {
+        return tallas;
     }
     public void  setCategoria(Categoria categoria) {
         this.categoria = categoria;

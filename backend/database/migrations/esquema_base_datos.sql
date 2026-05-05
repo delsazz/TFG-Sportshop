@@ -3,7 +3,8 @@ USE sportshop;
 
 CREATE TABLE categoria (
     id_categoria INT AUTO_INCREMENT PRIMARY KEY,
-    categoria VARCHAR(100) NOT NULL
+    categoria VARCHAR(100) NOT NULL,
+    nombre_foto VARCHAR(100)
 );
 
 CREATE TABLE usuario (
@@ -32,6 +33,7 @@ CREATE TABLE producto (
     precio INT,
     stock INT,
     descripcion VARCHAR(100),
+    tallas VARCHAR(100),
     id_foto INT,
     FOREIGN KEY (id_categoria) REFERENCES categoria(id_categoria),
     FOREIGN KEY(id_foto) REFERENCES foto(id_foto)
@@ -42,6 +44,7 @@ CREATE TABLE pedido (
     correo_electronico VARCHAR(100),
     fecha_pedido DATE,
     fecha_entrega DATE,
+    metodo_pago VARCHAR(50),
     FOREIGN KEY (correo_electronico) REFERENCES usuario(correo_electronico)
 );
 
@@ -53,6 +56,17 @@ CREATE TABLE detalle (
     unidades INT,
     FOREIGN KEY (id_pedido) REFERENCES pedido(id_pedido),
     FOREIGN KEY (id_producto) REFERENCES producto(id_producto)
+);
+
+CREATE TABLE configuracion_pago (
+    id INT PRIMARY KEY,
+    telefono_bizum VARCHAR(20),
+    url_banco_bizum VARCHAR(255),
+    titular_transferencia VARCHAR(100),
+    iban_transferencia VARCHAR(34),
+    concepto_transferencia VARCHAR(100),
+    stripe_public_key VARCHAR(255),
+    stripe_secret_key VARCHAR(255)
 );
 
 INSERT INTO categoria (categoria) VALUES
@@ -87,12 +101,12 @@ INSERT INTO foto (nombre_foto) VALUES
 ('pesas_10kg.jpg'),
 ('proteina_whey.jpg');
 
-INSERT INTO producto (nombre, id_categoria, precio, stock, descripcion, id_foto) VALUES
-('Camiseta Nike', 1, 25, 50, 'Camiseta deportiva de la marca Nike, ideal para entrenamientos', 1),
-('Zapatillas Adidas', 2, 80, 30, 'Zapatillas deportivas Adidas, cómodas y resistentes', 2),
-('Mochila Puma', 3, 40, 20, 'Mochila Puma con gran capacidad y diseño moderno', 3),
-('Pesas 10kg', 4, 60, 15, 'Juego de pesas de 10kg para entrenamiento de fuerza', 4),
-('Proteina Whey', 5, 45, 25, 'Proteína Whey de alta calidad para recuperación muscular', 5);
+INSERT INTO producto (nombre, id_categoria, precio, stock, descripcion, tallas, id_foto) VALUES
+('Camiseta Nike', 1, 25, 50, 'Camiseta deportiva de la marca Nike, ideal para entrenamientos', 'S, M, L, XL', 1),
+('Zapatillas Adidas', 2, 80, 30, 'Zapatillas deportivas Adidas, cómodas y resistentes', '39, 40, 41, 42, 43', 2),
+('Mochila Puma', 3, 40, 20, 'Mochila Puma con gran capacidad y diseño moderno', 'Única', 3),
+('Pesas 10kg', 4, 60, 15, 'Juego de pesas de 10kg para entrenamiento de fuerza', '10 kg', 4),
+('Proteina Whey', 5, 45, 25, 'Proteína Whey de alta calidad para recuperación muscular', '1 kg', 5);
 
 INSERT INTO pedido (correo_electronico, fecha_pedido, fecha_entrega) VALUES
 ('juan@sportshop.com', '2026-02-01', '2026-02-05'),
@@ -107,3 +121,8 @@ INSERT INTO detalle (id_pedido, id_producto, precio, unidades) VALUES
 (2, 2, 80, 1),
 (3, 5, 45, 2),
 (4, 4, 60, 1);
+
+INSERT INTO configuracion_pago
+(id, telefono_bizum, url_banco_bizum, titular_transferencia, iban_transferencia, concepto_transferencia, stripe_public_key, stripe_secret_key)
+VALUES
+(1, '600123456', 'https://www.caixabank.es/particular/home/particulares_es.html', 'SportShop', 'ES7620770024003102575766', 'Pedido SportShop', '', '');

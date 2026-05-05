@@ -22,4 +22,9 @@ public class ServicioFotos {
     public List<Foto> verFotosProductos() {
         return fotoRepository.findAll();
     }
+
+    // Función para buscar una foto por id
+    public Foto buscarFotoPorId(int idFoto) {
+        return fotoRepository.findById(idFoto).orElse(null);
+    }
 }
