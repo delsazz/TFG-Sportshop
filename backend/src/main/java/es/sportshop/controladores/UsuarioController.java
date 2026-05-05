@@ -1,16 +1,23 @@
 package es.sportshop.controladores;
+import com.stripe.exception.StripeException;
+import com.stripe.model.checkout.Session;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.time.LocalDate;
-import es.sportshop.model.Usuario;
+import es.sportshop.model.ConfiguracionPago;
 import es.sportshop.model.Pedido;
+import es.sportshop.model.Usuario;
 import es.sportshop.model.Detalle;
 import es.sportshop.model.Producto;
 import jakarta.servlet.http.HttpSession;
-import es.sportshop.servicios.ServicioUsuarios;
-import es.sportshop.servicios.ServicioProductos;
 import es.sportshop.servicios.ServicioPedidos;
 import es.sportshop.servicios.ServicioDetalle;
+import es.sportshop.servicios.ServicioUsuarios;
+import es.sportshop.servicios.ServicioProductos;
+import es.sportshop.servicios.ServicioConfiguracionPago;
+import es.sportshop.servicios.ServicioStripe;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.security.core.Authentication;
@@ -28,14 +35,18 @@ public class UsuarioController {
     private final ServicioUsuarios servicioUsuarios;
     private final ServicioPedidos servicioPedidos;
     private final ServicioDetalle servicioDetalle;
+    private final ServicioConfiguracionPago servicioConfiguracionPago;
+    private final ServicioStripe servicioStripe;
     private final PasswordEncoder passwordEncoder;
 
     // Constructor con parámetros para la clase UsuarioController
-    public UsuarioController(ServicioProductos servicioProductos, ServicioUsuarios servicioUsuarios, ServicioPedidos servicioPedidos, ServicioDetalle servicioDetalle, PasswordEncoder passwordEncoder) {
+    public UsuarioController(ServicioProductos servicioProductos, ServicioUsuarios servicioUsuarios, ServicioPedidos servicioPedidos, ServicioDetalle servicioDetalle, ServicioConfiguracionPago servicioConfiguracionPago, ServicioStripe servicioStripe, PasswordEncoder passwordEncoder) {
         this.servicioProductos = servicioProductos;
         this.servicioUsuarios = servicioUsuarios;
         this.servicioPedidos = servicioPedidos;
         this.servicioDetalle = servicioDetalle;
+        this.servicioConfiguracionPago = servicioConfiguracionPago;
+        this.servicioStripe = servicioStripe;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -65,14 +76,17 @@ public class UsuarioController {
 
     // Función para mostrar el inicio de sesión
     public ModelAndView inicioSesion() {
+
         // Devolver la vista
         return new ModelAndView("login");
     }
 
     // Anotación de Spring para mostrar la página de registro
     @GetMapping("/registro")
+
     // Función para mostrar la página de registro
     public ModelAndView registro() {
+
         // Devolver la vista
         return new ModelAndView("usuario/registro");
     }
@@ -185,7 +199,7 @@ public class UsuarioController {
         Producto producto = servicioProductos.buscarProductoPorId(idProducto);
 
         // Si el producto existe añadirlo al carrito
-        if(producto != null) {
+        if(producto != null && contarProductoEnCarrito(carrito, idProducto) < producto.getStock()) {
             carrito.add(producto);
         }
 
@@ -242,12 +256,123 @@ public class UsuarioController {
         mv.addObject("usuario", aut.getName());
         mv.addObject("productosCarrito", carrito.size());
         mv.addObject("total", calcularTotal(carrito));
+        mv.addObject("configuracionPago", servicioConfiguracionPago.obtenerConfiguracion());
         return mv;
     }
 
-    // Anotación de Spring para procesar el pago
+    // Anotación de Spring para seleccionar el método de pago
+    @PostMapping("/seleccionarMetodoPago")
+    public ModelAndView seleccionarMetodoPago(@RequestParam("metodoPago") String metodoPago) {
+        if("bizum".equals(metodoPago)) {
+            return new ModelAndView("redirect:/pago/bizum");
+        }
+        if("tarjeta".equals(metodoPago)) {
+            return new ModelAndView("redirect:/pago/tarjeta");
+        }
+        if("transferencia".equals(metodoPago)) {
+            return new ModelAndView("redirect:/pago/transferencia");
+        }
+        return new ModelAndView("redirect:/pagar_pedido");
+    }
+
+    // Anotación de Spring para mostrar el pago por Bizum
+    @GetMapping("/pago/bizum")
+    public ModelAndView pagoBizum(Authentication aut, HttpSession session) {
+        ModelAndView mv = prepararVistaPago("usuario/pago_bizum", aut, session);
+        mv.addObject("configuracionPago", servicioConfiguracionPago.obtenerConfiguracion());
+        return mv;
+    }
+
+    // Anotación de Spring para confirmar el pago por Bizum
+    @PostMapping("/pago/bizum/confirmar")
+    public ModelAndView confirmarBizum(Authentication aut, HttpSession session) {
+        return procesarPedido(aut, session, "Bizum");
+    }
+
+    // Anotación de Spring para mostrar el pago por transferencia
+    @GetMapping("/pago/transferencia")
+    public ModelAndView pagoTransferencia(Authentication aut, HttpSession session) {
+        ModelAndView mv = prepararVistaPago("usuario/pago_transferencia", aut, session);
+        mv.addObject("configuracionPago", servicioConfiguracionPago.obtenerConfiguracion());
+        return mv;
+    }
+
+    // Anotación de Spring para confirmar el pago por transferencia
+    @PostMapping("/pago/transferencia/confirmar")
+    public ModelAndView confirmarTransferencia(Authentication aut, HttpSession session) {
+        return procesarPedido(aut, session, "Transferencia bancaria");
+    }
+
+    // Anotación de Spring para mostrar el pago con tarjeta
+    @GetMapping("/pago/tarjeta")
+    public ModelAndView pagoTarjeta(Authentication aut, HttpSession session) {
+        ModelAndView mv = prepararVistaPago("usuario/pago_tarjeta", aut, session);
+        ConfiguracionPago configuracionPago = servicioConfiguracionPago.obtenerConfiguracion();
+        mv.addObject("stripeConfigurado", configuracionPago.getStripeSecretKey() != null && !configuracionPago.getStripeSecretKey().isBlank());
+        return mv;
+    }
+
+    // Anotación de Spring para iniciar el pago con Stripe Checkout
+    @PostMapping("/pago/tarjeta/stripe")
+    public ModelAndView iniciarPagoStripe(Authentication aut, HttpSession session) {
+        if(aut == null) {
+            return new ModelAndView("redirect:/login");
+        }
+
+        List<Producto> carrito = obtenerCarrito(session);
+        if(carrito.isEmpty()) {
+            return new ModelAndView("redirect:/carrito");
+        }
+
+        try {
+            int total = calcularTotal(carrito);
+            Session stripeSession = servicioStripe.crearSesionPago(aut.getName(), total, "http://localhost:8095/pago/tarjeta/exito", "http://localhost:8095/pago/tarjeta");
+            return new ModelAndView("redirect:" + stripeSession.getUrl());
+        } catch(StripeException | IllegalStateException ex) {
+            ModelAndView mv = prepararVistaPago("usuario/pago_tarjeta", aut, session);
+            mv.addObject("error", ex.getMessage());
+            mv.addObject("stripeConfigurado", false);
+            return mv;
+        }
+    }
+
+    // Anotación de Spring para finalizar después de Stripe
+    @GetMapping("/pago/tarjeta/exito")
+    public ModelAndView pagoTarjetaExito(Authentication aut, HttpSession session) {
+        return procesarPedido(aut, session, "Tarjeta Stripe");
+    }
+
+    // Anotación de Spring para procesar tarjeta en modo demostración
+    @PostMapping("/pago/tarjeta/confirmar")
+    public ModelAndView confirmarTarjetaDemo(Authentication aut, HttpSession session) {
+        return procesarPedido(aut, session, "Tarjeta");
+    }
+
+    // Anotación de Spring para mantener compatibilidad con la ruta antigua
     @PostMapping("/procesarPago")
     public ModelAndView procesarPago(Authentication aut, HttpSession session) {
+        return procesarPedido(aut, session, "Tarjeta");
+    }
+
+    private ModelAndView prepararVistaPago(String vista, Authentication aut, HttpSession session) {
+        if(aut == null) {
+            return new ModelAndView("redirect:/login");
+        }
+
+        List<Producto> carrito = obtenerCarrito(session);
+        if(carrito.isEmpty()) {
+            return new ModelAndView("redirect:/carrito");
+        }
+
+        ModelAndView mv = new ModelAndView(vista);
+        mv.addObject("usuario", aut.getName());
+        mv.addObject("productosCarrito", carrito.size());
+        mv.addObject("total", calcularTotal(carrito));
+        return mv;
+    }
+
+    // Función para procesar el pedido después de confirmar el pago
+    private ModelAndView procesarPedido(Authentication aut, HttpSession session, String metodoPago) {
         if(aut == null) {
             return new ModelAndView("redirect:/login");
         }
@@ -262,23 +387,54 @@ public class UsuarioController {
             return new ModelAndView("redirect:/login");
         }
 
+        Map<Integer, Detalle> detallesPedido = new LinkedHashMap<>();
+        for(Producto producto : carrito) {
+            Detalle detalle = detallesPedido.get(producto.getIdProducto());
+            if(detalle == null) {
+                detalle = new Detalle();
+                detalle.setProducto(producto);
+                detalle.setPrecio(producto.getPrecio());
+                detalle.setUnidades(0);
+                detallesPedido.put(producto.getIdProducto(), detalle);
+            }
+            detalle.setUnidades(detalle.getUnidades() + 1);
+        }
+
+        for(Detalle detalle : detallesPedido.values()) {
+            Producto producto = servicioProductos.buscarProductoPorId(detalle.getProducto().getIdProducto());
+            if(producto == null || producto.getStock() < detalle.getUnidades()) {
+                return new ModelAndView("redirect:/carrito");
+            }
+            detalle.setProducto(producto);
+        }
+
         Pedido pedido = new Pedido();
         pedido.setUsuario(usuario);
         pedido.setFechaPedido(LocalDate.now());
         pedido.setFechaEntrega(LocalDate.now().plusDays(3));
+        pedido.setMetodoPago(metodoPago);
         Pedido pedidoGuardado = servicioPedidos.guardarPedido(pedido);
 
-        for(Producto producto : carrito) {
-            Detalle detalle = new Detalle();
+        for(Detalle detalle : detallesPedido.values()) {
+            Producto producto = detalle.getProducto();
             detalle.setPedido(pedidoGuardado);
-            detalle.setProducto(producto);
-            detalle.setPrecio(producto.getPrecio());
-            detalle.setUnidades(1);
+            producto.setStock(producto.getStock() - detalle.getUnidades());
+            servicioProductos.guardarProducto(producto);
             servicioDetalle.guardarDetalle(detalle);
         }
 
         session.setAttribute("carrito", new ArrayList<Producto>());
         return new ModelAndView("redirect:/usuariopedidos?pagado");
+    }
+
+    private int contarProductoEnCarrito(List<Producto> carrito, int idProducto) {
+        int unidades = 0;
+        for(Producto producto : carrito) {
+            if(producto.getIdProducto() == idProducto) {
+                unidades++;
+            }
+        }
+        return unidades;
     }
 
     // Anotación de Spring para mostrar los pedidos del usuario

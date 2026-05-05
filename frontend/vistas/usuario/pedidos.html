@@ -27,6 +27,7 @@
                 <th>ID</th>
                 <th>Fecha pedido</th>
                 <th>Fecha entrega</th>
+                <th>Método de pago</th>
             </tr>
             </thead>
             <tbody>
@@ -34,6 +35,7 @@
                 <td th:text="${pedido.idPedido}"></td>
                 <td th:text="${pedido.fechaPedido}"></td>
                 <td th:text="${pedido.fechaEntrega}"></td>
+                <td th:text="${pedido.metodoPago != null ? pedido.metodoPago : 'No indicado'}"></td>
             </tr>
             </tbody>
         </table>

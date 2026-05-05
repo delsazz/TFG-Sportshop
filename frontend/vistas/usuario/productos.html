@@ -63,6 +63,7 @@
         <th>Foto</th>
         <th>Nombre</th>
         <th>Precio</th>
+        <th>Tallas</th>
         <th>Stock</th>
         <th>Acciones</th>
       </tr>
@@ -75,6 +76,7 @@
         </td>
         <td th:text="${producto.nombre}"></td>
         <td th:text="${producto.precio} + ' €'"></td>
+        <td th:text="${producto.tallas != null && !producto.tallas.isEmpty() ? producto.tallas : 'Sin tallas'}"></td>
         <td th:text="${producto.stock}"></td>
         <td>
           <a th:href="@{/anadirProductoCarrito(id=${producto.idProducto})}" class="btn btn-sm btn-primary">

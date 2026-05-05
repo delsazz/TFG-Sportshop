@@ -28,6 +28,10 @@ public class Pedido {
     @Column(name = "fecha_entrega")
     private LocalDate fechaEntrega;
 
+    // Anotación de Spring para indicar el método de pago usado
+    @Column(name = "metodo_pago")
+    private String metodoPago;
+
     // Anotación de Spring para indicar la relación de los pedidos con el usuario
     @ManyToOne
 
@@ -57,6 +61,12 @@ public class Pedido {
     }
     public LocalDate getFechaEntrega() {
         return fechaEntrega;
+    }
+    public void setMetodoPago(String metodoPago) {
+        this.metodoPago = metodoPago;
+    }
+    public String getMetodoPago() {
+        return metodoPago;
     }
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
