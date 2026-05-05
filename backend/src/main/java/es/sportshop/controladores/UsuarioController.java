@@ -136,20 +136,6 @@ public class UsuarioController {
     public ModelAndView productos(Authentication aut, HttpSession session) {
         ModelAndView mv = new ModelAndView("usuario/productos");
 
-        // Mostrar que usuario ha iniciado sesión
-        if(aut != null) {
-            mv.addObject("usuario", aut.getName());
-        }
-
-        // Mostrar los productos
-        List<Producto> productos = servicioProductos.verProductos();
-        mv.addObject("listaProductos", productos);
-
-        // Contar los productos en el carrito
-        List<Producto> carrito = (List<Producto>) session.getAttribute("carrito");
-        int productosCarrito = carrito != null ? carrito.size() : 0;
-        mv.addObject("productosCarrito", productosCarrito);
-
         // Devolver la vista
         return mv;
     }
