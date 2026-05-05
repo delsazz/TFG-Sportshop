@@ -33,7 +33,7 @@ public class ConfiguracionSeguridad {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/css/**", "/img/**", "/JavaScript/**").permitAll()
-                .requestMatchers("/", "/productos", "/login", "/registro", "/denegado").permitAll()
+                .requestMatchers("/", "/productos", "/login", "/registro", "/denegado", "/api/productos/**", "/api/sesion", "/api/carrito/**").permitAll()
                 .requestMatchers("/zonaAdmin", "/zonaAdmin/**").hasAuthority("admin")
                 .requestMatchers("/carrito", "/anadirProductoCarrito", "/eliminarProductoCarrito", "/pagar_pedido", "/seleccionarMetodoPago", "/procesarPago", "/pago/**", "/usuariopedidos")
                 .hasAnyAuthority("cliente", "admin")
