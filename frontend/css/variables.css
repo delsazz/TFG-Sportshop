@@ -1,0 +1,22 @@
+:root {
+    /* Sporty Frontend Colors */
+    --primary: #FF4D00; /* Dynamic Orange */
+    --secondary: #00E5FF; /* Electric Cyan */
+    --accent: #D4FF00; /* Acid Lime */
+    --bg-dark: #050505;
+    --bg-surface: #121212;
+    --bg-card: #1E1E1E;
+    --text-white: #FFFFFF;
+    --text-gray: #A0A0A0;
+    
+    /* Gradients */
+    --grad-primary: linear-gradient(135deg, #FF4D00 0%, #FF8000 100%);
+    --grad-dark: linear-gradient(180deg, #121212 0%, #050505 100%);
+    
+    /* Borders */
+    --border-radius: 4px; /* Sporty sharp look */
+    --border-radius-lg: 12px;
+    
+    /* Animations */
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
