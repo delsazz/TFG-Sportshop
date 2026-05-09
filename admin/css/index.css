@@ -1,12 +1,36 @@
-/* index.css - Converted from src/index.css */
-/* Tailwind is loaded via CDN in the HTML files, but custom styles go here. */
+@import url('admin-base.css');
 
-.nav-link.active {
-    background-color: #2563eb; /* blue-600 */
-    color: white;
+/* Dashboard Specific Styles */
+#statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
 }
 
-/* Custom transitions or global styles */
-body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+.stat-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(0, 102, 255, 0.05), transparent);
+    transform: rotate(45deg);
+    transition: var(--transition-slow);
+}
+
+.stat-card:hover::after {
+    right: 150%;
+}
+
+#recentOrdersTable {
+    margin-top: 1rem;
+    border-radius: 0.75rem;
+    overflow: hidden;
 }
