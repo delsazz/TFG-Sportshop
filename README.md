@@ -1,112 +1,78 @@
-# SportShop - TFG
+# CampusFP - Gestión de Uniformes
 
-SportShop es una tienda online desarrollada como proyecto de TFG con Spring Boot, Thymeleaf, Spring Security, JPA y MySQL. La aplicación permite consultar productos deportivos, registrarse, iniciar sesión, gestionar un carrito, realizar pedidos y administrar productos, usuarios y pedidos desde una zona privada.
+Aplicación web para gestionar los uniformes de Protección Civil y Emergencias Sanitarias de CampusFP.
 
-## Funcionalidades principales
+## Estructura del monorepo
 
-- Catálogo público de productos con foto, precio y stock.
-- Registro e inicio de sesión de usuarios.
-- Carrito por sesión y creación de pedidos.
-- Descuento de stock al confirmar un pedido.
-- Pago por Bizum, tarjeta o transferencia bancaria.
-- Integración preparada con Stripe Checkout para tarjetas.
-- Historial de pedidos para cada usuario.
-- Panel de administración protegido por rol `admin`.
-- Gestión básica de productos desde la zona de administración.
-- Configuración de teléfono Bizum, IBAN y claves de Stripe desde administración.
-- Scripts SQL con esquema inicial y datos de prueba.
-
-## Tecnologías
-
-- Java 17
-- Spring Boot
-- Spring MVC
-- Spring Security
-- Spring Data JPA
-- Thymeleaf
-- MySQL
-- Bootstrap 5
-
-## Estructura
-
-```text
-backend/
-  src/main/java/es/sportshop/
-    controladores/     Controladores MVC
-    model/             Entidades JPA
-    repositories/      Repositorios de datos
-    seguridad/         Configuración de seguridad y frontend
-    servicios/         Lógica de negocio
-  database/migrations/ Scripts SQL del proyecto
-frontend/
-  vistas/              Plantillas Thymeleaf
-  static/              CSS, JavaScript e imágenes
+```
+campusfp-uniformes/
+├── frontend/          → React + TypeScript (tienda del alumno)
+├── admin/             → React + TypeScript (panel de administración)
+├── backend/           → Spring Boot (API REST)
+├── database/          → Migraciones Flyway y seeds
+├── nginx/             → Configuración del proxy inverso
+├── .github/           → Plantillas de issues y pull requests
+├── docker-compose.yml → Orquestación local
+├── docker-compose.prod.yml → Orquestación producción
+└── Jenkinsfile        → Pipeline CI/CD
 ```
 
-## Base de datos
+## Pila tecnológica
 
-1. Crea la base de datos y las tablas ejecutando:
+- **Frontend**: React + TypeScript + Vite + Tailwind CSS
+- **Admin**: React + TypeScript + Vite + Tailwind CSS
+- **Backend**: Spring Boot + Java + JWT + Stripe
+- **Base de datos**: PostgreSQL + Flyway
+- **Proxy inverso**: Nginx
+- **Contenedores**: Docker + Docker Compose
+- **CI/CD**: Jenkins
 
-```sql
-source backend/database/migrations/V1__esquema_inicial.sql;
+## Enrutado Nginx
+
+| Ruta | Servicio | Puerto |
+|------|----------|--------|
+| `/` | frontend | 3000 |
+| `/admin` | admin | 3001 |
+| `/api` | backend | 8080 |
+
+## Arranque en local
+
+```bash
+docker compose up --build
 ```
 
-2. Inserta los datos de prueba:
+La aplicación estará disponible en `http://localhost`.
 
-```sql
-source backend/database/migrations/V2__datos_prueba.sql;
+## Email de notificaciones
+
+El backend envia emails cuando un pedido cambia de estado si el SMTP esta configurado. Copia `.env.example` a `.env.production` en el servidor y rellena:
+
+```bash
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=tu_correo@gmail.com
+MAIL_PASSWORD=tu_password_de_aplicacion
+NOTIFICATIONS_EMAIL_FROM=tu_correo@gmail.com
+NOTIFICATIONS_EMAIL_ENABLED=true
 ```
 
-3. Añade la configuración de pagos:
+Para Gmail hay que usar una contrasena de aplicacion, no la contrasena normal de la cuenta.
 
-```sql
-source backend/database/migrations/V3__configuracion_pagos.sql;
-```
+## Estrategia de ramas
 
-4. Añade tallas y fotos representativas para productos/categorías:
+| Rama | Entorno | Descripción |
+|------|---------|-------------|
+| `main` | Producción | Solo merges desde release con aprobación manual |
+| `release` | Preproducción | Tests completos antes de pasar a main |
+| `develop` | QA | Integración continua de features |
+| `feature/*` | Local | Ramas individuales por issue |
 
-```sql
-source backend/database/migrations/V4__productos_categorias_imagenes_tallas.sql;
-```
+## Normas de trabajo
 
-La configuración actual espera MySQL en `localhost:3306` con la base de datos `sportshop`, usuario `root` y contraseña `curso`. Estos datos están en `backend/src/main/resources/application.properties`.
+1. Nunca se trabaja directamente en `main` ni en `develop`.
+2. Formato de ramas: `feature/nombre-funcionalidad` o `fix/nombre-error`.
+3. Pull request hacia `develop` con `Closes #numero-issue`.
+4. Revisión obligatoria por otro miembro del equipo.
 
-## Usuarios de prueba
-
-Todos los usuarios de prueba usan la contraseña codificada incluida en el script de datos.
-
-- Cliente: `juan@sportshop.com`
-- Cliente: `ana@sportshop.com`
-- Admin: `admin@sportshop.com`
-
-## Ejecución
-
-Desde la raíz del proyecto:
-
-```powershell
-.\mvnw.cmd -f backend\pom.xml spring-boot:run
-```
-
-La aplicación arranca en:
-
-```text
-http://localhost:8095
-```
-
-## Rutas principales
-
-- `/` Inicio
-- `/productos` Catálogo
-- `/registro` Registro
-- `/login` Inicio de sesión
-- `/carrito` Carrito
-- `/usuariopedidos` Pedidos del usuario
-- `/zonaAdmin` Panel de administración
-- `/zonaAdmin/productos` Administración de productos
-- `/zonaAdmin/pedidos` Administración de pedidos
-- `/zonaAdmin/usuarios` Administración de usuarios
-- `/zonaAdmin/pagos` Configuración de Bizum, transferencia y Stripe
-
-## Notas para la memoria
-
-El proyecto separa la lógica en capas: controladores para las rutas web, servicios para la lógica de negocio, repositorios para el acceso a datos y entidades para representar el modelo relacional. La seguridad se basa en usuarios almacenados en base de datos y roles simples (`cliente` y `admin`). La sesión usa una cookie HTTP-only llamada `SPORTSHOP_SESION` y se invalida al cerrar sesión.
+# Prueba CI
+Este cambio es solo para disparar GitHub Actions

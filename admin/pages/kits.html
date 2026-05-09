@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kits - Panel Admin Sportshop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50 flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gray-900 text-white flex flex-col fixed inset-y-0">
+        <div class="p-6 border-b border-gray-700">
+            <a href="index.html" class="flex items-center gap-3">
+                <span class="flex h-10 w-24 items-center justify-center rounded-xl bg-white px-2">
+                    <img src="img/campusfp.png" alt="CampusFP" class="max-h-8 w-full object-contain">
+                </span>
+                <span class="font-bold">Panel Admin</span>
+            </a>
+        </div>
+        <nav class="flex-1 p-4 space-y-1">
+            <a href="index.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Dashboard</a>
+            <a href="pedidos.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Pedidos</a>
+            <a href="pagos.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Pagos</a>
+            <a href="alumnos.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Alumnos</a>
+            <a href="catalogo.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Catálogo</a>
+            <a href="kits.html" class="nav-link bg-blue-600 text-white block px-4 py-2 rounded transition-colors">Kits</a>
+            <a href="categorias.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Categorías</a>
+            <a href="inventario.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Inventario</a>
+            <a href="reportes.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Reportes</a>
+            <a href="devoluciones.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Devoluciones</a>
+            <a href="analisis.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Análisis</a>
+        </nav>
+        <div class="p-4 border-t border-gray-700 text-sm text-gray-500">CampusFP Uniformes</div>
+    </aside>
+
+    <div class="flex-1 flex flex-col ml-64">
+        <header class="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
+            <h1 class="text-lg font-semibold text-gray-800">Administración</h1>
+            <button id="logoutBtn" class="text-sm text-gray-500 hover:text-gray-700">Cerrar sesión</button>
+        </header>
+
+        <main class="flex-1 p-8">
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-3xl font-bold">Gestión de Kits</h1>
+                    <button id="btnNewKit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Crear Kit</button>
+                </div>
+
+                <div id="alertContainer"></div>
+
+                <!-- Formulario -->
+                <form id="kitForm" class="hidden bg-white p-6 rounded-lg shadow-md space-y-4">
+                    <h2 id="formTitle" class="text-xl font-bold">Crear Kit</h2>
+                    <input type="hidden" id="editingId">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Nombre</label>
+                            <input id="formNombre" required class="w-full border rounded-lg px-3 py-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Precio</label>
+                            <input id="formPrecio" type="number" step="0.01" required class="w-full border rounded-lg px-3 py-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Stock</label>
+                            <input id="formStock" type="number" required class="w-full border rounded-lg px-3 py-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Categoría</label>
+                            <select id="formCategoria" class="w-full border rounded-lg px-3 py-2"></select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Descripción</label>
+                        <textarea id="formDescripcion" class="w-full border rounded-lg px-3 py-2 h-20"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Prendas en el Kit</label>
+                        <div id="kitProductsList" class="space-y-3 max-h-64 overflow-y-auto border rounded-lg p-4"></div>
+                    </div>
+
+                    <div class="flex gap-2 justify-end pt-4 border-t">
+                        <button type="button" id="btnCancel" class="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancelar</button>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Guardar</button>
+                    </div>
+                </form>
+
+                <!-- Filtros -->
+                <div class="flex gap-4 flex-wrap">
+                    <input id="filterNombre" type="text" placeholder="Buscar por nombre..." class="flex-1 min-w-64 border rounded-lg px-4 py-2">
+                    <select id="filterCategoria" class="border rounded-lg px-4 py-2">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                </div>
+
+                <!-- Tabla -->
+                <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2">Nombre</th>
+                                <th class="px-4 py-2">Categoría</th>
+                                <th class="px-4 py-2">Prendas</th>
+                                <th class="px-4 py-2">Precio</th>
+                                <th class="px-4 py-2">Stock</th>
+                                <th class="px-4 py-2">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="kitsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="js/kits.js"></script>
+    <script type="module" src="js/layout.js"></script>
+</body>
+</html>

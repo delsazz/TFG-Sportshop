@@ -1,0 +1,12 @@
+/* index.css - Converted from src/index.css */
+/* Tailwind is loaded via CDN in the HTML files, but custom styles go here. */
+
+.nav-link.active {
+    background-color: #2563eb; /* blue-600 */
+    color: white;
+}
+
+/* Custom transitions or global styles */
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}

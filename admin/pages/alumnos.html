@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumnos - Panel Admin Sportshop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50 flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gray-900 text-white flex flex-col fixed inset-y-0">
+        <div class="p-6 border-b border-gray-700">
+            <a href="index.html" class="flex items-center gap-3">
+                <span class="flex h-10 w-24 items-center justify-center rounded-xl bg-white px-2">
+                    <img src="img/campusfp.png" alt="CampusFP" class="max-h-8 w-full object-contain">
+                </span>
+                <span class="font-bold">Panel Admin</span>
+            </a>
+        </div>
+        <nav class="flex-1 p-4 space-y-1">
+            <a href="index.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Dashboard</a>
+            <a href="pedidos.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Pedidos</a>
+            <a href="pagos.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Pagos</a>
+            <a href="alumnos.html" class="nav-link bg-blue-600 text-white block px-4 py-2 rounded transition-colors">Alumnos</a>
+            <a href="catalogo.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Catálogo</a>
+            <a href="kits.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Kits</a>
+            <a href="categorias.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Categorías</a>
+            <a href="inventario.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Inventario</a>
+            <a href="reportes.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Reportes</a>
+            <a href="devoluciones.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Devoluciones</a>
+            <a href="analisis.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Análisis</a>
+        </nav>
+        <div class="p-4 border-t border-gray-700 text-sm text-gray-500">CampusFP Uniformes</div>
+    </aside>
+
+    <div class="flex-1 flex flex-col ml-64">
+        <header class="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
+            <h1 class="text-lg font-semibold text-gray-800">Administración</h1>
+            <button id="logoutBtn" class="text-sm text-gray-500 hover:text-gray-700">Cerrar sesión</button>
+        </header>
+
+        <main class="flex-1 p-8">
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900">Alumnos Registrados</h2>
+                        <p class="mt-1 text-sm text-gray-600">Gestión de alumnos con sus pedidos activos y datos personales.</p>
+                    </div>
+                </div>
+
+                <div id="alertContainer"></div>
+
+                <!-- Filtros -->
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <input id="filterNombre" type="text" placeholder="Buscar por nombre, email o teléfono..." class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm sm:flex-1">
+                    <span id="userCount" class="text-sm text-gray-500">0 alumnos</span>
+                </div>
+
+                <!-- Tabla -->
+                <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                    <table class="min-w-full text-left">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-sm font-medium text-gray-500">Nombre</th>
+                                <th class="px-4 py-3 text-sm font-medium text-gray-500">Email</th>
+                                <th class="px-4 py-3 text-sm font-medium text-gray-500">Teléfono</th>
+                                <th class="px-4 py-3 text-sm font-medium text-gray-500">Roles</th>
+                                <th class="px-4 py-3 text-sm font-medium text-gray-500">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="js/alumnos.js"></script>
+    <script type="module" src="js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="/img/campusfp.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catálogo - CampusFP</title>
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="bg-slate-50">
+  <div id="layout-container">
+    <!-- Navbar placeholder (if needed) -->
+  </div>
+
+  <div id="loading" class="mx-auto max-w-7xl px-4 py-12 text-center text-lg text-gray-600">
+    Cargando productos...
+  </div>
+
+  <div id="error" class="hidden mx-auto max-w-7xl px-4 py-12 text-center text-lg text-red-600">
+    Error cargando categoria
+  </div>
+
+  <div id="catalog-content" class="hidden mx-auto max-w-7xl px-4 py-12">
+    <!-- Category Header -->
+    <div class="mb-10 overflow-hidden rounded-3xl bg-white shadow-lg">
+      <img
+        id="categoria-img"
+        src=""
+        alt="Categoria"
+        class="h-72 w-full object-cover hidden"
+      />
+      <div class="p-8">
+        <h1 id="categoria-nombre" class="text-4xl font-bold text-slate-900"></h1>
+        <p id="categoria-desc" class="mt-3 text-lg text-gray-600"></p>
+      </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div id="products-grid" class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <!-- Kits and Products will be injected here -->
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <div class="mx-4 w-full max-w-md rounded-2xl bg-white p-10 text-center">
+        <div class="mb-6 text-6xl">🔒</div>
+        <h2 class="mb-4 text-3xl font-bold">Acceso restringido</h2>
+        <p class="mb-8 text-gray-600">Para añadir productos al carrito debes iniciar sesión o registrarte.</p>
+        <div class="flex flex-col justify-center gap-4 sm:flex-row">
+          <a href="/login.html" class="rounded-xl bg-slate-900 px-8 py-3.5 font-medium text-white hover:bg-slate-800">
+            Iniciar sesión
+          </a>
+          <a href="/registro.html" class="rounded-xl bg-gray-800 px-8 py-3.5 font-medium text-white hover:bg-gray-900">
+            Registrarse
+          </a>
+        </div>
+        <button id="close-login-modal" class="mt-6 text-gray-500 underline hover:text-gray-700">
+          Cancelar
+        </button>
+      </div>
+    </div>
+
+    <!-- Added to Cart Modal -->
+    <div id="added-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <div class="mx-4 w-full max-w-md rounded-2xl bg-white p-10 text-center">
+        <div class="mb-6 text-6xl">✅</div>
+        <h2 class="mb-4 text-2xl font-bold">Añadido al carrito</h2>
+        <p id="added-product-name" class="mb-8 text-gray-600"></p>
+        <button id="close-added-modal" class="rounded-xl bg-slate-900 px-8 py-3.5 font-medium text-white hover:bg-slate-800">
+          Continuar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/authStorage.js"></script>
+  <script src="js/catalogo.js"></script>
+</body>
+</html>

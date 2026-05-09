@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusFP Uniformes</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 2rem;
+        }
+        .logo {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+        .status {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .status h3 {
+            color: #3b82f6;
+            margin-bottom: 0.75rem;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 0.25rem;
+        }
+        .badge-ok { background: #064e3b; color: #34d399; }
+        .badge-wip { background: #451a03; color: #fbbf24; }
+        .badge-pending { background: #1e293b; color: #64748b; }
+        .services {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            text-align: left;
+            margin-top: 1rem;
+        }
+        .service {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: #0f172a;
+            border-radius: 8px;
+        }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot-green { background: #34d399; }
+        .dot-yellow { background: #fbbf24; }
+        .dot-gray { background: #475569; }
+        .footer { color: #475569; font-size: 0.85rem; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">CampusFP Uniformes</div>
+        <p class="subtitle">Gestión de uniformes de Protección Civil y Emergencias Sanitarias</p>
+
+        <div class="status">
+            <h3>Estado del proyecto</h3>
+            <span class="badge badge-ok">Servidor activo</span>
+            <span class="badge badge-ok">Base de datos</span>
+            <span class="badge badge-wip">Backend en desarrollo</span>
+            <span class="badge badge-pending">Frontend pendiente</span>
+
+            <div class="services">
+                <div class="service"><span class="dot dot-green"></span> PostgreSQL 16</div>
+                <div class="service"><span class="dot dot-green"></span> Nginx</div>
+                <div class="service"><span class="dot dot-yellow"></span> Spring Boot</div>
+                <div class="service"><span class="dot dot-gray"></span> React + Vite</div>
+            </div>
+        </div>
+
+        <p class="footer">Proyecto formativo CampusFP — Sprint 1</p>
+    </div>
+</body>
+</html>

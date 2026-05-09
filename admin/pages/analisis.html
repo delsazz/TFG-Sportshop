@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis - Panel Admin Sportshop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50 flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gray-900 text-white flex flex-col fixed inset-y-0">
+        <div class="p-6 border-b border-gray-700">
+            <a href="index.html" class="flex items-center gap-3">
+                <span class="flex h-10 w-24 items-center justify-center rounded-xl bg-white px-2">
+                    <img src="img/campusfp.png" alt="CampusFP" class="max-h-8 w-full object-contain">
+                </span>
+                <span class="font-bold">Panel Admin</span>
+            </a>
+        </div>
+        <nav class="flex-1 p-4 space-y-1">
+            <a href="index.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Dashboard</a>
+            <a href="pedidos.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Pedidos</a>
+            <a href="pagos.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Pagos</a>
+            <a href="alumnos.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Alumnos</a>
+            <a href="catalogo.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Catálogo</a>
+            <a href="kits.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Kits</a>
+            <a href="categorias.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Categorías</a>
+            <a href="inventario.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Inventario</a>
+            <a href="reportes.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Reportes</a>
+            <a href="devoluciones.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Devoluciones</a>
+            <a href="analisis.html" class="nav-link bg-blue-600 text-white block px-4 py-2 rounded transition-colors">Análisis</a>
+        </nav>
+        <div class="p-4 border-t border-gray-700 text-sm text-gray-500">CampusFP Uniformes</div>
+    </aside>
+
+    <div class="flex-1 flex flex-col ml-64">
+        <header class="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
+            <h1 class="text-lg font-semibold text-gray-800">Administración</h1>
+            <button id="logoutBtn" class="text-sm text-gray-500 hover:text-gray-700">Cerrar sesión</button>
+        </header>
+
+        <main class="flex-1 p-8">
+            <div class="space-y-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900">Análisis Comercial</h2>
+                    <p class="mt-1 text-sm text-gray-600">Visualización de tendencias y rendimiento de ventas.</p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    <!-- Gráfico -->
+                    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6">Ventas Mensuales (EUR)</h3>
+                        <div id="salesChart" class="flex items-end justify-between h-48 gap-2"></div>
+                    </div>
+
+                    <!-- Distribución -->
+                    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6">Estado de la Base de Usuarios</h3>
+                        <div class="space-y-6">
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span class="text-gray-600">Usuarios Activos</span>
+                                    <span id="activeUsersCount" class="font-bold text-gray-900">0</span>
+                                </div>
+                                <div class="h-4 bg-gray-100 rounded-full overflow-hidden">
+                                    <div id="activeUsersBar" class="h-full bg-emerald-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 pt-4 border-t">
+                                <div>
+                                    <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Total Registrados</p>
+                                    <p id="totalUsersCount" class="text-2xl font-bold text-gray-900">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Conversión</p>
+                                    <p id="conversionRate" class="text-2xl font-bold text-emerald-600">0%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Clientes -->
+                <div class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Alumnos más activos</h3>
+                    </div>
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th class="px-6 py-3 text-left font-medium text-gray-700">Nombre</th>
+                                <th class="px-6 py-3 text-left font-medium text-gray-700">Email</th>
+                                <th class="px-6 py-3 text-center font-medium text-gray-700">Pedidos</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topUsersBody" class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="js/analisis.js"></script>
+    <script type="module" src="js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos - Panel Admin Sportshop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50 flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gray-900 text-white flex flex-col fixed inset-y-0">
+        <div class="p-6 border-b border-gray-700">
+            <a href="index.html" class="flex items-center gap-3">
+                <span class="flex h-10 w-24 items-center justify-center rounded-xl bg-white px-2">
+                    <img src="img/campusfp.png" alt="CampusFP" class="max-h-8 w-full object-contain">
+                </span>
+                <span class="font-bold">Panel Admin</span>
+            </a>
+        </div>
+        <nav class="flex-1 p-4 space-y-1">
+            <a href="index.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Dashboard</a>
+            <a href="pedidos.html" class="nav-link bg-blue-600 text-white block px-4 py-2 rounded transition-colors">Pedidos</a>
+            <a href="pagos.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Pagos</a>
+            <a href="alumnos.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Alumnos</a>
+            <a href="catalogo.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Catálogo</a>
+            <a href="kits.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Kits</a>
+            <a href="categorias.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Categorías</a>
+            <a href="inventario.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Inventario</a>
+            <a href="reportes.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Reportes</a>
+            <a href="devoluciones.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Devoluciones</a>
+            <a href="analisis.html" class="nav-link text-gray-300 hover:bg-gray-800 block px-4 py-2 rounded transition-colors">Análisis</a>
+        </nav>
+        <div class="p-4 border-t border-gray-700 text-sm text-gray-500">CampusFP Uniformes</div>
+    </aside>
+
+    <div class="flex-1 flex flex-col ml-64">
+        <header class="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
+            <h1 class="text-lg font-semibold text-gray-800">Administración</h1>
+            <button id="logoutBtn" class="text-sm text-gray-500 hover:text-gray-700">Cerrar sesión</button>
+        </header>
+
+        <main class="flex-1 p-8">
+            <div class="space-y-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Gestión de pedidos</h2>
+                    <p class="mt-1 text-sm text-gray-500">Consulta, filtra y gestiona entregas.</p>
+                </div>
+
+                <div id="alertContainer"></div>
+
+                <!-- Filtros -->
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <input id="filterId" type="text" placeholder="ID exacto (ej: 5)" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500">
+                    <input id="filterUser" type="text" placeholder="Nombre o email alumno..." class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500">
+                    <select id="filterStatus" class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                        <option value="">Todos los estados</option>
+                        <option value="PENDIENTE">Pendiente</option>
+                        <option value="PAGADO">Pagado</option>
+                        <option value="EN_PREPARACION">En preparación</option>
+                        <option value="ENVIADO">Enviado</option>
+                        <option value="ENTREGADO_PARCIAL">Entregado parcial</option>
+                        <option value="ENTREGADO_COMPLETO">Entregado completo</option>
+                        <option value="CANCELADO">Cancelado</option>
+                    </select>
+                </div>
+
+                <!-- Tabla de Pedidos -->
+                <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                    <table class="min-w-full text-left">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-sm font-medium text-gray-500">ID</th>
+                                <th class="px-4 py-3 text-sm font-medium text-gray-500">Alumno</th>
+                                <th class="px-4 py-3 text-sm font-medium text-gray-500">Fecha</th>
+                                <th class="px-4 py-3 text-sm font-medium text-gray-500">Estado</th>
+                                <th class="px-4 py-3 text-sm font-medium text-gray-500">Unidades</th>
+                                <th class="px-4 py-3 text-sm font-medium text-gray-500">Total</th>
+                                <th class="px-4 py-3 text-sm font-medium text-gray-500 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersBody" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+
+                <!-- Detalle Pedido (Inyectado dinámicamente) -->
+                <div id="orderDetail" class="hidden rounded-xl border-2 border-blue-500 bg-white p-6 shadow-lg"></div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="js/pedidos.js"></script>
+    <script type="module" src="js/layout.js"></script>
+</body>
+</html>
