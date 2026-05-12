@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="/img/campusfp.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis Pedidos — CampusFP</title>
+<link rel="stylesheet" href="/css/my-orders.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50">
+  <div id="layout-container">
+    <!-- Navbar placeholder (if needed) -->
+  </div>
+
+  <div id="loading-container" class="text-center py-12 text-slate-600">
+    Cargando tus pedidos...
+  </div>
+
+  <div id="error-container" class="text-center py-12 text-red-600 hidden">
+    Error al cargar tus pedidos.
+  </div>
+
+  <div id="content-container" class="mx-auto max-w-5xl px-4 py-8 sm:py-10 hidden">
+    <h1 class="text-2xl font-bold mb-6 sm:mb-8 sm:text-3xl">Mis Pedidos</h1>
+
+    <div id="empty-state" class="text-center py-16 bg-slate-50 rounded-3xl hidden ring-1 ring-slate-200 shadow-sm">
+      <p class="text-xl text-slate-600">Aún no has realizado ningún pedido</p>
+      <a href="/catalogo.html" class="mt-4 inline-block text-blue-600 font-medium hover:underline">
+        Ir al catálogo →
+      </a>
+    </div>
+
+    <div id="orders-list" class="space-y-4">
+      <!-- Orders loaded by JS -->
+    </div>
+  </div>
+
+  <script src="js/almacenamiento_autenticacion.js"></script>
+  <script src="js/script_mis_pedidos.js"></script>
+</body>
+</html>
+
+
+

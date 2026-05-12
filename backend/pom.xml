@@ -13,11 +13,11 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.campusfp</groupId>
-    <artifactId>uniformes</artifactId>
+    <groupId>com.tfg</groupId>
+    <artifactId>sportshop</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>CampusFP Uniformes</name>
-    <description>Aplicacion web de gestion de uniformes de Proteccion Civil y Emergencias Sanitarias</description>
+    <name>TFG Sportshop</name>
+    <description>Aplicacion web de gestion de tienda deportiva</description>
 
     <properties>
         <java.version>21</java.version>

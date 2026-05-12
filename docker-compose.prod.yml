@@ -1,0 +1,56 @@
+version: '3.9'
+
+services:
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - certbot_certs:/etc/letsencrypt:ro
+    depends_on:
+      - frontend
+      - admin
+      - backend
+    restart: always
+
+  frontend:
+    build: ./frontend
+    expose:
+      - "3000"
+    environment:
+      - VITE_API_URL=/api
+    restart: always
+
+  admin:
+    build: ./admin
+    expose:
+      - "3001"
+    environment:
+      - VITE_API_URL=/api
+    restart: always
+
+  backend:
+    build: ./backend
+    expose:
+      - "8080"
+    env_file:
+      - .env.production
+    depends_on:
+      - database
+    restart: always
+
+  database:
+    image: postgres:15
+    env_file:
+      - .env.production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  postgres_data:
+  certbot_certs:
