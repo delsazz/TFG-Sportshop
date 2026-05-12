@@ -1,0 +1,2 @@
+ALTER TABLE producto
+ALTER COLUMN id_categoria DROP NOT NULL;

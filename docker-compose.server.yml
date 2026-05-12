@@ -1,0 +1,97 @@
+# CampusFP Uniformes — Docker Compose para el servidor
+# Uso: docker compose -f docker-compose.server.yml --env-file .env.production up -d --build
+#
+# Levanta: Frontend (React) + Admin (React) + Backend (Spring Boot) + Nginx (proxy) + PostgreSQL
+
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "${NGINX_PORT:-80}:80"
+    volumes:
+      - ./nginx/nginx.server.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/html:/usr/share/nginx/html:ro
+    depends_on:
+      - frontend
+      - admin
+      - backend
+      - database
+    networks:
+      - dotes-net
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_BASE: ${VITE_BASE:-/}
+    expose:
+      - "3000"
+    networks:
+      - dotes-net
+    restart: always
+
+  admin:
+    build:
+      context: ./admin
+      args:
+        VITE_BASE: ${VITE_BASE_ADMIN:-/admin/}
+    expose:
+      - "3001"
+    networks:
+      - dotes-net
+    restart: always
+
+  backend:
+    build:
+      context: ./backend
+    expose:
+      - "8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${DB_NAME:-uniformes}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-uniformes}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASS:-uniformes_pass}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      MAIL_HOST: ${MAIL_HOST:-}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_SMTP_AUTH: ${MAIL_SMTP_AUTH:-true}
+      MAIL_SMTP_STARTTLS_ENABLE: ${MAIL_SMTP_STARTTLS_ENABLE:-true}
+      MAIL_SMTP_STARTTLS_REQUIRED: ${MAIL_SMTP_STARTTLS_REQUIRED:-true}
+      NOTIFICATIONS_EMAIL_ENABLED: ${NOTIFICATIONS_EMAIL_ENABLED:-true}
+      NOTIFICATIONS_EMAIL_FROM: ${NOTIFICATIONS_EMAIL_FROM:-}
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - dotes-net
+    restart: always
+
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER:-uniformes}
+      POSTGRES_PASSWORD: ${DB_PASS:-uniformes_pass}
+      POSTGRES_DB: ${DB_NAME:-uniformes}
+      TZ: Europe/Madrid
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/migrations:/docker-entrypoint-initdb.d/migrations:ro
+      - ./database/seeds:/docker-entrypoint-initdb.d/seeds:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-uniformes} -d ${DB_NAME:-uniformes}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dotes-net
+    restart: always
+
+volumes:
+  postgres_data:
+
+networks:
+  dotes-net:
+    driver: bridge
