@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Categoría</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="container">
+    <div class="category-banner">
+      <img
+        id="category-image"
+        class="category-image"
+        src=""
+        alt=""
+      >
+      <div class="category-info">
+        <h1 id="category-title"></h1>
+        <p id="category-description"></p>
+      </div>
+    </div>
+
+    <div id="products-grid" class="products-grid"></div>
+
+  </div>
+  <div id="login-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Acceso restringido</h2>
+      <p>
+        Para añadir productos al carrito debes iniciar sesión.
+      </p>
+      <a href="/login">Iniciar sesión</a>
+      <button onclick="closeLoginModal()">
+        Cancelar
+      </button>
+    </div>
+  </div>
+
+  <div id="added-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Producto añadido</h2>
+      <p id="added-product-text"></p>
+      <button onclick="closeAddedModal()">
+        Cerrar
+      </button>
+    </div>
+  </div>
+  <script src="script_categorias_catalogo.js"></script>
+</body>
+</html>

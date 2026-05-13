@@ -1,15 +1,15 @@
 package com.tfg.sportshop.model;
 
+import lombok.Data;
+import jakarta.persistence.Id;
 import java.time.LocalDateTime;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "configuracion_sitio")
@@ -55,6 +55,30 @@ public class ConfiguracionSitio {
     @Column(name = "transferencia_notas", nullable = false, length = 500)
     private String transferenciaNotas;
 
+    @Column(name = "email_bienvenida_asunto", nullable = false, length = 255)
+    private String emailBienvenidaAsunto;
+
+    @Column(name = "email_bienvenida_cuerpo", nullable = false, length = 4000)
+    private String emailBienvenidaCuerpo;
+
+    @Column(name = "email_pedido_creado_asunto", nullable = false, length = 255)
+    private String emailPedidoCreadoAsunto;
+
+    @Column(name = "email_pedido_creado_cuerpo", nullable = false, length = 4000)
+    private String emailPedidoCreadoCuerpo;
+
+    @Column(name = "email_cambio_estado_asunto", nullable = false, length = 255)
+    private String emailCambioEstadoAsunto;
+
+    @Column(name = "email_cambio_estado_cuerpo", nullable = false, length = 4000)
+    private String emailCambioEstadoCuerpo;
+
+    @Column(name = "email_cambio_password_asunto", nullable = false, length = 255)
+    private String emailCambioPasswordAsunto;
+
+    @Column(name = "email_cambio_password_cuerpo", nullable = false, length = 4000)
+    private String emailCambioPasswordCuerpo;
+
     @Column(name = "tarjeta_habilitada", nullable = false)
     private boolean tarjetaHabilitada;
 
@@ -70,4 +94,3 @@ public class ConfiguracionSitio {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 }
-

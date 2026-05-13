@@ -15,6 +15,14 @@ public record ConfiguracionSitioResponse(
     String transferenciaIban,
     String transferenciaConcepto,
     String transferenciaNotas,
+    String emailBienvenidaAsunto,
+    String emailBienvenidaCuerpo,
+    String emailPedidoCreadoAsunto,
+    String emailPedidoCreadoCuerpo,
+    String emailCambioEstadoAsunto,
+    String emailCambioEstadoCuerpo,
+    String emailCambioPasswordAsunto,
+    String emailCambioPasswordCuerpo,
     boolean tarjetaHabilitada,
     boolean bizumHabilitado,
     boolean transferenciaHabilitada,
@@ -22,4 +30,3 @@ public record ConfiguracionSitioResponse(
     LocalDateTime updatedAt
 ) {
 }
-
