@@ -1,43 +1,47 @@
 package com.tfg.sportshop.controller;
-
-import com.tfg.sportshop.dto.admin.AdminCrearUsuarioRequest;
-import com.tfg.sportshop.dto.admin.AdminActualizarUsuarioRequest;
-import com.tfg.sportshop.dto.admin.AdminUsuarioResponse;
-import com.tfg.sportshop.dto.admin.AdminRolResponse;
-import com.tfg.sportshop.dto.perfil.ActualizarPerfilRequest;
-import com.tfg.sportshop.dto.perfil.ActualizarPerfilResponse;
-import com.tfg.sportshop.dto.perfil.PerfilUsuarioResponse;
+import java.util.Map;
+import java.util.List;
+import jakarta.validation.Valid;
 import com.tfg.sportshop.model.Roles;
 import com.tfg.sportshop.model.Usuario;
-import com.tfg.sportshop.security.JWTTokenProvider;
 import com.tfg.sportshop.services.RolesService;
-import com.tfg.sportshop.services.UsuarioService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.tfg.sportshop.services.UsuarioService;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
+import com.tfg.sportshop.security.JWTTokenProvider;
+import com.tfg.sportshop.dto.admin.AdminRolResponse;
+import com.tfg.sportshop.services.RegistroEmailService;
+import com.tfg.sportshop.dto.admin.AdminUsuarioResponse;
+import com.tfg.sportshop.services.CorreoTemplateService;
+import org.springframework.security.core.Authentication;
+import com.tfg.sportshop.dto.perfil.PerfilUsuarioResponse;
+import com.tfg.sportshop.dto.admin.AdminCrearUsuarioRequest;
+import com.tfg.sportshop.dto.perfil.ActualizarPerfilRequest;
+import com.tfg.sportshop.dto.perfil.ActualizarPerfilResponse;
+import com.tfg.sportshop.dto.admin.AdminActualizarUsuarioRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
 public class UsuarioController {
-
     private final UsuarioService usuarioService;
     private final RolesService rolesService;
+    private final RegistroEmailService registroEmailService;
+    private final CorreoTemplateService correoTemplateService;
     private final PasswordEncoder passwordEncoder;
     private final JWTTokenProvider jwtTokenProvider;
-
     public UsuarioController(
             UsuarioService usuarioService,
             RolesService rolesService,
+            RegistroEmailService registroEmailService,
+            CorreoTemplateService correoTemplateService,
             PasswordEncoder passwordEncoder,
             JWTTokenProvider jwtTokenProvider) {
         this.usuarioService = usuarioService;
         this.rolesService = rolesService;
+        this.registroEmailService = registroEmailService;
+        this.correoTemplateService = correoTemplateService;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
     }
@@ -110,6 +114,7 @@ public class UsuarioController {
 
         usuario.setPassword(passwordEncoder.encode(newPassword));
         usuarioService.registrarUsuario(usuario);
+        correoTemplateService.enviarCambioPassword(usuario);
 
         return ResponseEntity.ok(Map.of("mensaje", "Contraseña cambiada correctamente"));
     }
@@ -156,6 +161,7 @@ public class UsuarioController {
         usuario.setRoles(List.of(rol));
 
         Usuario creado = usuarioService.registrarUsuario(usuario);
+        registroEmailService.enviarConfirmacionRegistro(creado);
         return ResponseEntity.ok(toUsuarioResponse(creado));
     }
 
@@ -365,4 +371,4 @@ public class UsuarioController {
             );
         }
     }
-} 
+}

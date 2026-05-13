@@ -1,38 +1,43 @@
 package com.tfg.sportshop.controller;
-import com.tfg.sportshop.dto.LoginRequest;
-import com.tfg.sportshop.dto.LoginResponse;
-import com.tfg.sportshop.dto.ForgotPasswordRequest;
-import com.tfg.sportshop.dto.ResetPasswordRequest;
-import com.tfg.sportshop.dto.perfil.ActualizarPerfilRequest;
-import com.tfg.sportshop.dto.perfil.ActualizarPerfilResponse;
-import com.tfg.sportshop.dto.perfil.PerfilUsuarioResponse;
+import java.util.Map;
+import java.util.List;
+import java.util.Arrays;
+import java.util.Optional;
+import jakarta.servlet.http.Cookie;
+import org.springframework.ui.Model;
 import com.tfg.sportshop.model.Roles;
 import com.tfg.sportshop.model.Usuario;
+import jakarta.servlet.http.HttpSession;
+import com.tfg.sportshop.dto.LoginRequest;
+import com.tfg.sportshop.dto.LoginResponse;
+import org.springframework.http.HttpHeaders;
+import com.tfg.sportshop.services.RolesService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseCookie;
+import com.tfg.sportshop.services.UsuarioService;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import com.tfg.sportshop.dto.ResetPasswordRequest;
+import com.tfg.sportshop.dto.ForgotPasswordRequest;
 import com.tfg.sportshop.security.JWTTokenProvider;
 import com.tfg.sportshop.services.PasswordResetService;
 import com.tfg.sportshop.services.RegistroEmailService;
-import com.tfg.sportshop.services.RolesService;
-import com.tfg.sportshop.services.UsuarioService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
+import com.tfg.sportshop.services.CorreoTemplateService;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import com.tfg.sportshop.dto.perfil.PerfilUsuarioResponse;
+import com.tfg.sportshop.dto.perfil.ActualizarPerfilRequest;
+import com.tfg.sportshop.dto.perfil.ActualizarPerfilResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.http.ResponseCookie;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+// Anotación de Spring para indicar que es un controlador
 @Controller
 public class AuthController {
+
+    // Anotación de Spring para inyección de dependencias
     @Autowired
     private UsuarioService usuarioService;
     @Autowired
@@ -45,6 +50,8 @@ public class AuthController {
     private RegistroEmailService registroEmailService;
     @Autowired
     private PasswordResetService passwordResetService;
+    @Autowired
+    private CorreoTemplateService correoTemplateService;
     @GetMapping("/auth/login")
     public Object loginPage(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -236,6 +243,7 @@ public class AuthController {
 
         usuario.setPassword(passwordEncoder.encode(newPassword));
         usuarioService.registrarUsuario(usuario);
+        correoTemplateService.enviarCambioPassword(usuario);
 
         return ResponseEntity.ok(Map.of("mensaje", "Contrasena cambiada correctamente"));
     }
