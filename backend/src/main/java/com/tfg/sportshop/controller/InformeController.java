@@ -59,10 +59,8 @@ public class InformeController {
     }
 
     @PatchMapping("/proveedor/productos/{idProducto}")
-    public InformeProveedorLineaResponse actualizarProveedorProducto(
-        @PathVariable Integer idProducto,
-        @Valid @RequestBody ActualizarProveedorProductoRequest request
-    ) {
+    public InformeProveedorLineaResponse actualizarProveedorProducto(@PathVariable Integer idProducto,
+        @Valid @RequestBody ActualizarProveedorProductoRequest request ) {
         validarAdministrador();
         return informeService.actualizarProveedorProducto(idProducto, request);
     }
@@ -80,10 +78,8 @@ public class InformeController {
     }
 
     @PatchMapping("/proveedor/pedidos/{idPedidoProveedor}/estado")
-    public PedidoProveedorResponse actualizarEstadoPedidoProveedor(
-        @PathVariable Integer idPedidoProveedor,
-        @Valid @RequestBody ActualizarEstadoPedidoProveedorRequest request
-    ) {
+    public PedidoProveedorResponse actualizarEstadoPedidoProveedor(@PathVariable Integer idPedidoProveedor,
+        @Valid @RequestBody ActualizarEstadoPedidoProveedorRequest request) {
         validarAdministrador();
         return informeService.actualizarEstadoPedidoProveedor(idPedidoProveedor, request);
     }
@@ -92,8 +88,7 @@ public class InformeController {
     public InformePagosResponse informePagos(
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
-        @RequestParam(required = false) String estado
-    ) {
+        @RequestParam(required = false) String estado) {
         validarAdministrador();
         return informeService.obtenerInformePagos(fechaDesde, fechaHasta, estado);
     }

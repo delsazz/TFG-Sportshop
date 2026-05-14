@@ -120,14 +120,8 @@ public class CatalogoController {
 
     @GetMapping("/catalogo/{id}/tallas")
     public ResponseEntity<List<TallaStockDTO>> tallasPorProducto(@PathVariable Integer id) {
-        List<TallaStockDTO> tallaStockDTO = productoTallaService.buscarTallasPorProducto(id)
-                .stream()
-                .map(pt -> new TallaStockDTO(
-                        pt.getTalla().getIdTalla(),
-                        pt.getTalla().getNombre(),
-                        pt.getStock()
-                ))
-                .toList();
+        List<TallaStockDTO> tallaStockDTO = productoTallaService.buscarTallasPorProducto(id).stream()
+                .map(pt -> new TallaStockDTO(pt.getTalla().getIdTalla(), pt.getTalla().getNombre(), pt.getStock())).toList();
         return ResponseEntity.ok(tallaStockDTO);
     }
 
@@ -137,11 +131,8 @@ public class CatalogoController {
 
     @PostMapping("/catalogo/{id}/imagen")
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductoImagenResponse subirImagen(
-            @PathVariable Long id,
-            @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "esPrincipal", defaultValue = "false") Boolean esPrincipal
-    ) throws IOException {
+    public ProductoImagenResponse subirImagen(@PathVariable Long id, @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "esPrincipal", defaultValue = "false") Boolean esPrincipal) throws IOException {
         validarAdministrador();
         ProductoImagen imagen = productoImagenService.subirImagen(id, file, esPrincipal);
         return toImagenResponse(imagen);
@@ -149,18 +140,12 @@ public class CatalogoController {
 
     @GetMapping("/catalogo/{id}/imagenes")
     public List<ProductoImagenResponse> obtenerImagenesProducto(@PathVariable Long id) {
-        return productoImagenService.obtenerImagenesProducto(id)
-                .stream()
-                .map(this::toImagenResponse)
-                .toList();
+        return productoImagenService.obtenerImagenesProducto(id).stream().map(this::toImagenResponse).toList();     
     }
 
     @PostMapping("/catalogo/{id}/imagenes")
-    public List<ProductoImagenResponse> subirImagenes(
-            @PathVariable Long id,
-            @RequestParam("files") MultipartFile[] files,
-            @RequestParam(value = "principalIndex", required = false) Integer principalIndex
-    ) throws IOException {
+    public List<ProductoImagenResponse> subirImagenes(@PathVariable Long id, @RequestParam("files") MultipartFile[] files,
+            @RequestParam(value = "principalIndex", required = false) Integer principalIndex) throws IOException {
         validarAdministrador();
         List<ProductoImagenResponse> responses = new java.util.ArrayList<>();
         for(int i = 0; i < files.length; i++) {
@@ -173,11 +158,8 @@ public class CatalogoController {
 
     // Documentos (PDF)
     @PostMapping("/catalogo/{id}/documentos")
-    public ProductoDocumentoResponse subirDocumento(
-            @PathVariable Long id,
-            @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "nombre", required = false) String nombre
-    ) throws IOException {
+    public ProductoDocumentoResponse subirDocumento(@PathVariable Long id, @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "nombre", required = false) String nombre ) throws IOException {
         validarAdministrador();
         var doc = productoDocumentoService.subirDocumento(id, file, nombre);
         return toDocumentoResponse(doc);
@@ -185,10 +167,8 @@ public class CatalogoController {
 
     @GetMapping("/catalogo/{id}/documentos")
     public List<ProductoDocumentoResponse> obtenerDocumentosProducto(@PathVariable Long id) {
-        return productoDocumentoService.obtenerDocumentosPorProducto(id)
-                .stream()
-                .map(d -> toDocumentoResponse(d))
-                .toList();
+        return productoDocumentoService.obtenerDocumentosPorProducto(id).stream()
+                .map(d -> toDocumentoResponse(d)).toList();
     }
 
     @DeleteMapping("/catalogo/documentos/{idDocumento}")
@@ -245,31 +225,17 @@ public class CatalogoController {
     @ResponseStatus(HttpStatus.CREATED)
     public AdminCategoriaResponse crearCategoria(@Valid @RequestBody AdminCategoriaRequest request) {
         validarAdministrador();
-        Categoria categoria = categoriaService.crearCategoria(
-                request.nombreCategoria(),
-                request.slug(),
-                request.descripcion(),
-                request.imagenUrl(),
-                request.ordenVisualizacion(),
-                request.productoIds()
-        );
+        Categoria categoria = categoriaService.crearCategoria(request.nombreCategoria(), request.slug(),
+                request.descripcion(), request.imagenUrl(),  request.ordenVisualizacion(), request.productoIds());
         return toCategoriaResponse(categoria);
     }
 
     @PutMapping("/categorias/{id}")
-    public AdminCategoriaResponse actualizarCategoria(
-            @PathVariable Integer id,
-            @Valid @RequestBody AdminCategoriaRequest request) {
+    public AdminCategoriaResponse actualizarCategoria(@PathVariable Integer id, @Valid @RequestBody AdminCategoriaRequest request) {
         validarAdministrador();
-        Categoria categoria = categoriaService.actualizarCategoria(
-                id,
-                request.nombreCategoria(),
-                request.slug(),
-                request.descripcion(),
-                request.imagenUrl(),
-                request.ordenVisualizacion(),
-                request.productoIds()
-        );
+        Categoria categoria = categoriaService.actualizarCategoria(id, request.nombreCategoria(), request.slug(),   
+                request.descripcion(), request.imagenUrl(), request.ordenVisualizacion(), request.productoIds());
+
         return toCategoriaResponse(categoria);
     }
 
@@ -287,10 +253,7 @@ public class CatalogoController {
     @GetMapping("/admin/kits")
     public List<AdminKitResponse> obtenerTodosLosKitsAdmin() {
         validarAdministrador();
-        return kitService.obtenerTodosLosKits()
-            .stream()
-            .map(this::toKitResponse)
-            .toList();
+        return kitService.obtenerTodosLosKits().stream().map(this::toKitResponse).toList();   
     }
 
     @GetMapping("/admin/kits/{id}")
@@ -328,34 +291,23 @@ public class CatalogoController {
     @GetMapping("/admin/backorders")
     public List<BackorderResponse> obtenerBackordersPendientes() {
         validarAdministrador();
-        return backorderPedidoService.obtenerBackordersPendientes()
-                .stream()
-                .map(backorderPedidoService::toResponse)
-                .toList();
+        return backorderPedidoService.obtenerBackordersPendientes().stream().map(backorderPedidoService::toResponse).toList();
     }
 
     @GetMapping("/admin/backorders/todos")
     public List<BackorderResponse> obtenerTodosBackorders() {
         validarAdministrador();
-        return backorderPedidoService.obtenerTodosBackorders()
-                .stream()
-                .map(backorderPedidoService::toResponse)
-                .toList();
+        return backorderPedidoService.obtenerTodosBackorders().stream().map(backorderPedidoService::toResponse).toList();    
     }
 
     @GetMapping("/admin/backorders/producto/{id}")
     public List<BackorderResponse> obtenerBackordersPorProducto(@PathVariable Integer id) {
         validarAdministrador();
-        return backorderPedidoService.obtenerBackordersPorProducto(id)
-                .stream()
-                .map(backorderPedidoService::toResponse)
-                .toList();
+        return backorderPedidoService.obtenerBackordersPorProducto(id).stream().map(backorderPedidoService::toResponse).toList();
     }
 
     @PutMapping("/admin/backorders/{id}")
-    public BackorderResponse actualizarBackorder(
-            @PathVariable Integer id,
-            @RequestParam String estado,
+    public BackorderResponse actualizarBackorder(@PathVariable Integer id, @RequestParam String estado,
             @RequestParam(required = false) String observaciones) {
         validarAdministrador();
         BackorderPedido backorder = backorderPedidoService.actualizar(id, estado, observaciones);
@@ -374,77 +326,36 @@ public class CatalogoController {
     // =========================
 
     private AdminProductoResponse toProductoResponse(Producto producto) {
-        return new AdminProductoResponse(
-                producto.getIdProducto(),
-                producto.getNombre(),
-                producto.getTipoPrenda(),
-                producto.getColor(),
-                producto.getPrecio(),
-                producto.getStock(),
-                producto.getImagen(),
-                producto.getDescripcion(),
-                producto.getComposicion(),
-                producto.getNormativa(),
-                producto.getInstruccionesLavado(),
-                producto.getConsejos(),
-                producto.getCategoria() == null ? null : toCategoriaResponse(producto.getCategoria())
-        );
+        return new AdminProductoResponse(producto.getIdProducto(), producto.getNombre(), producto.getTipoPrenda(),
+                producto.getColor(), producto.getPrecio(), producto.getStock(), producto.getImagen(),
+                producto.getDescripcion(), producto.getComposicion(), producto.getNormativa(),
+                producto.getInstruccionesLavado(), producto.getConsejos(),
+                producto.getCategoria() == null ? null : toCategoriaResponse(producto.getCategoria()));
     }
 
     private ProductoImagenResponse toImagenResponse(ProductoImagen imagen) {
-        return new ProductoImagenResponse(
-                imagen.getIdImagen(),
-                imagen.getUrlImagen(),
-                imagen.getAltText(),
-                imagen.getOrden(),
-                imagen.getEsPrincipal()
-        );
+        return new ProductoImagenResponse(imagen.getIdImagen(), imagen.getUrlImagen(), imagen.getAltText(),
+                imagen.getOrden(), imagen.getEsPrincipal());
     }
 
     private ProductoDocumentoResponse toDocumentoResponse(com.tfg.sportshop.model.ProductoDocumento doc) {
-        return new ProductoDocumentoResponse(
-                doc.getIdDocumento(),
-                doc.getNombre(),
-                doc.getUrlDocumento(),
-                doc.getTipo()
-        );
+        return new ProductoDocumentoResponse(doc.getIdDocumento(), doc.getNombre(), doc.getUrlDocumento(), doc.getTipo());
     }
 
     private AdminCategoriaResponse toCategoriaResponse(Categoria categoria) {
-        return new AdminCategoriaResponse(
-                categoria.getIdCategoria(),
-                categoria.getNombreCategoria(),
-                categoria.getSlug(),
-                categoria.getDescripcion(),
-                categoria.getImagenUrl(),
-                categoria.getOrdenVisualizacion(),
-                productoService.verProductosPorCategoria(categoria.getIdCategoria()).size()
-        );
+        return new AdminCategoriaResponse(categoria.getIdCategoria(), categoria.getNombreCategoria(), categoria.getSlug(),
+                categoria.getDescripcion(),  categoria.getImagenUrl(), categoria.getOrdenVisualizacion(),
+                productoService.verProductosPorCategoria(categoria.getIdCategoria()).size());
     }
 
     private AdminKitResponse toKitResponse(Kit kit) {
         List<AdminKitResponse.AdminKitProductoResponse> productosResponse = kit.getProductos() != null
             ? kit.getProductos().stream()
-                .map(kp -> new AdminKitResponse.AdminKitProductoResponse(
-                    kp.getIdKitProducto(),
-                    toProductoResponse(kp.getProducto()),
-                    kp.getCantidad()
-                ))
-                .toList()
-            : List.of();
-        return new AdminKitResponse(
-                kit.getIdKit(),
-                kit.getNombre(),
-                kit.getDescripcion(),
-                kit.getPrecio(),
-                kit.getStock(),
-                kit.getImagen(),
-                kit.getActivo(),
-                kit.getFechaCreacion(),
-                kit.getFechaActualizacion(),
-                kit.getCategoria() == null ? null : toCategoriaResponse(kit.getCategoria()),
-                productosResponse
-        );
+                .map(kp -> new AdminKitResponse.AdminKitProductoResponse(kp.getIdKitProducto(), toProductoResponse(kp.getProducto()),
+                    kp.getCantidad())).toList() : List.of();
+        return new AdminKitResponse( kit.getIdKit(), kit.getNombre(), kit.getDescripcion(), kit.getPrecio(),
+                kit.getStock(), kit.getImagen(), kit.getActivo(), kit.getFechaCreacion(), kit.getFechaActualizacion(),
+                kit.getCategoria() == null ? null : toCategoriaResponse(kit.getCategoria()), productosResponse);  
     }
 
     private KitResponse toKitResponsePublico(Kit kit) {
@@ -452,34 +363,14 @@ public class CatalogoController {
             ? kit.getProductos().stream()
                 .map(kp -> {
                     Producto p = kp.getProducto();
-                    List<String> tallas = productoTallaService.buscarTallasPorProducto(p.getIdProducto())
-                        .stream()
-                        .map(pt -> pt.getTalla().getNombre())
-                        .toList();
-                    return new KitResponse.KitProductoResponse(
-                        p.getIdProducto(),
-                        p.getNombre(),
-                        p.getTipoPrenda(),
-                        p.getColor(),
-                        p.getPrecio(),
-                        p.getImagen(),
-                        kp.getCantidad(),
-                        tallas
-                    );
-                })
-                .toList()
-            : List.of();
-        return new KitResponse(
-                kit.getIdKit(),
-                kit.getNombre(),
-                kit.getDescripcion(),
-                kit.getPrecio(),
-                kit.getImagen(),
-                kit.getStock(),
-                kit.getCategoria() == null ? null : kit.getCategoria().getIdCategoria(),
-                kit.getCategoria() == null ? null : kit.getCategoria().getNombreCategoria(),
-                productosResponse
-        );
+                    List<String> tallas = productoTallaService.buscarTallasPorProducto(p.getIdProducto()).stream()
+                        .map(pt -> pt.getTalla().getNombre()).toList();
+                    return new KitResponse.KitProductoResponse(p.getIdProducto(), p.getNombre(), p.getTipoPrenda(), p.getColor(),
+                        p.getPrecio(), p.getImagen(), kp.getCantidad(), tallas);
+                        }).toList() : List.of();
+        return new KitResponse(kit.getIdKit(), kit.getNombre(), kit.getDescripcion(), kit.getPrecio(), kit.getImagen(), 
+                kit.getStock(), kit.getCategoria() == null ? null : kit.getCategoria().getIdCategoria(),
+                kit.getCategoria() == null ? null : kit.getCategoria().getNombreCategoria(), productosResponse);  
     }
 
     // =========================
@@ -488,7 +379,6 @@ public class CatalogoController {
 
     private void validarAdministrador() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
         if(auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof Usuario usuarioAutenticado) {
             if(esAdmin(usuarioAutenticado)) {
                 return;
@@ -522,9 +412,9 @@ public class CatalogoController {
             Cookie[] cookies = request.getCookies();
             if(cookies != null) {
                 for(Cookie cookie : cookies) {
-                    if ("campusfp_auth".equals(cookie.getName())) {
+                    if("campusfp_auth".equals(cookie.getName())) {
                         String token = cookie.getValue();
-                        if (token != null && jwtTokenProvider.validateToken(token)) {
+                        if(token != null && jwtTokenProvider.validateToken(token)) {
                             email = jwtTokenProvider.getUsernameFromToken(token);
                         }
                         break;

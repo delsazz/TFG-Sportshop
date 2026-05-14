@@ -63,27 +63,16 @@ public class DevolucionController {
 
     private DevolucionResponse toResponse(Devolucion devolucion) {
         List<DevolucionItemResponse> items = devolucion.getItems().stream()
-                .map(item -> new DevolucionItemResponse(
-                        item.getIdDevolucionItem(),
+                .map(item -> new DevolucionItemResponse(item.getIdDevolucionItem(),            
                         item.getDetallePedido().getIdDetalle(),
                         item.getDetallePedido().getProducto().getNombre(),
                         item.getDetallePedido().getTalla() != null ? item.getDetallePedido().getTalla().getNombre() : null,
-                        item.getCantidad(),
-                        item.getDetallePedido().getPrecioUnitario(),
-                        item.getDetallePedido().getProducto().getImagen()
-                )).toList();
-        return new DevolucionResponse(
-                devolucion.getIdDevolucion(),
-                devolucion.getPedido().getIdPedido(),
-                devolucion.getUsuario().getIdUsuario(),
-                devolucion.getUsuario().getNombre() + " " + devolucion.getUsuario().getApellidos(),
-                devolucion.getMotivo(),
-                devolucion.getEstado(),
-                devolucion.getFechaSolicitud(),
-                devolucion.getFechaResolucion(),
-                devolucion.getComentariosAdmin(),
-                items
-        );
+                        item.getCantidad(), item.getDetallePedido().getPrecioUnitario(),item.getDetallePedido().getProducto().getImagen()))
+                .toList();
+        return new DevolucionResponse(devolucion.getIdDevolucion(), devolucion.getPedido().getIdPedido(),
+                devolucion.getUsuario().getIdUsuario(),  devolucion.getUsuario().getNombre() + " " + devolucion.getUsuario().getApellidos(),
+                devolucion.getMotivo(), devolucion.getEstado(), devolucion.getFechaSolicitud(), devolucion.getFechaResolucion(),
+                devolucion.getComentariosAdmin(), items);   
     }
 
     private Usuario getUsuarioAutenticado() {

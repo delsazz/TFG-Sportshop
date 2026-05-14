@@ -57,75 +57,51 @@ public class PagoController {
     }
 
     @PostMapping("/{idPago}/confirmar-tarjeta")
-    public ResponseEntity<Map<String, Object>> confirmarPagoTarjeta(
-        @PathVariable Integer idPago,
-        @Valid @RequestBody ConfirmarPagoTarjetaRequest request
-    ) {
+    public ResponseEntity<Map<String, Object>> confirmarPagoTarjeta(@PathVariable Integer idPago,
+        @Valid @RequestBody ConfirmarPagoTarjetaRequest request) {
         Usuario usuario = requireUsuario();
         Pago pago = pagoService.confirmarPagoTarjeta(idPago, request.paymentIntentId(), usuario);
-        return ResponseEntity.ok(Map.of(
-            "idPago", pago.getIdPago(),
-            "estado", pago.getEstado(),
-            "fechaConfirmacion", pago.getFechaConfirmacion()
-        ));
+        return ResponseEntity.ok(Map.of("idPago", pago.getIdPago(), "estado", pago.getEstado(), 
+            "fechaConfirmacion", pago.getFechaConfirmacion()));
     }
 
     @PostMapping("/webhook")
-    public ResponseEntity<Map<String, String>> stripeWebhook(
-        @RequestBody String payload,
-        @RequestHeader("Stripe-Signature") String stripeSignature
-    ) {
+    public ResponseEntity<Map<String, String>> stripeWebhook(@RequestBody String payload, 
+        @RequestHeader("Stripe-Signature") String stripeSignature) {
         pagoService.procesarWebhookStripe(payload, stripeSignature);
         return ResponseEntity.ok(Map.of("received", "true"));
     }
 
     @PostMapping("/{idPago}/comprobante")
-    public ResponseEntity<?> subirComprobante(
-        @PathVariable Integer idPago,
-        @RequestParam("file") MultipartFile file
-    ) {
+    public ResponseEntity<?> subirComprobante(@PathVariable Integer idPago, @RequestParam("file") MultipartFile file) {
         Usuario usuario = requireUsuario();
         Pago pago = pagoService.subirComprobante(idPago, usuario, file);
-        return ResponseEntity.ok(Map.of(
-            "idPago", pago.getIdPago(),
-            "estado", pago.getEstado(),
-            "comprobanteUrl", pago.getComprobanteUrl(),
-            "comprobanteNombreArchivo", pago.getComprobanteNombreArchivo()
-        ));
+        return ResponseEntity.ok(Map.of("idPago", pago.getIdPago(), "estado", pago.getEstado(), 
+            "comprobanteUrl", pago.getComprobanteUrl(), "comprobanteNombreArchivo", pago.getComprobanteNombreArchivo()));
     }
 
     @GetMapping("/{idPago}/comprobante")
     public ResponseEntity<Resource> descargarComprobante(@PathVariable Integer idPago) {
         Usuario usuario = requireUsuario();
         var descarga = pagoService.descargarComprobante(idPago, usuario);
-        return ResponseEntity.ok()
-            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + descarga.fileName() + "\"")
-            .body(descarga.resource());
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + descarga.fileName() + "\"") .body(descarga.resource());
     }
 
     @PutMapping("/{idPago}/estado")
-    public ResponseEntity<?> actualizarEstadoPago(
-        @PathVariable Integer idPago,
-        @Valid @RequestBody ActualizarPagoEstadoRequest request
-    ) {
+    public ResponseEntity<?> actualizarEstadoPago(@PathVariable Integer idPago,
+        @Valid @RequestBody ActualizarPagoEstadoRequest request) {
         requireAdmin();
         Pago pago = pagoService.actualizarEstadoPago(idPago, request.estado(), request.notasAdmin());
-        return ResponseEntity.ok(Map.of(
-            "idPago", pago.getIdPago(),
-            "estado", pago.getEstado(),
-            "fechaConfirmacion", pago.getFechaConfirmacion(),
-            "notasAdmin", pago.getNotasAdmin()
-        ));
+        return ResponseEntity.ok(Map.of("idPago", pago.getIdPago(), "estado", pago.getEstado(), 
+            "fechaConfirmacion", pago.getFechaConfirmacion(), "notasAdmin", pago.getNotasAdmin()));
     }
 
     private Usuario requireUsuario() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if(auth == null || !(auth.getPrincipal() instanceof Usuario usuario)) {
             throw new org.springframework.web.server.ResponseStatusException(
-                org.springframework.http.HttpStatus.UNAUTHORIZED,
-                "Usuario no autenticado"
-            );
+                org.springframework.http.HttpStatus.UNAUTHORIZED,"Usuario no autenticado"); 
         }
         return usuario;
     }
@@ -134,11 +110,9 @@ public class PagoController {
         Usuario usuario = requireUsuario();
         boolean isAdmin = usuario.getRoles() != null && usuario.getRoles().stream()
             .anyMatch(rol -> "ADMIN".equalsIgnoreCase(rol.getNombreRol()));
-        if isAdmin) {
+        if(!isAdmin) {
             throw new org.springframework.web.server.ResponseStatusException(
-                org.springframework.http.HttpStatus.FORBIDDEN,
-                "Se requieren permisos de administrador"
-            );
+                org.springframework.http.HttpStatus.FORBIDDEN, "Se requieren permisos de administrador");   
         }
     }
 }

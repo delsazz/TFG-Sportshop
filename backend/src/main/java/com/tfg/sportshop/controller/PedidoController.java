@@ -33,10 +33,7 @@ public class PedidoController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
         }
         Usuario usuario = (Usuario) auth.getPrincipal();
-        return pedidoService.buscarPedidosPorUsuario(usuario.getIdUsuario())
-                .stream()
-                .map(this::toPedidoResponse)
-                .toList();
+        return pedidoService.buscarPedidosPorUsuario(usuario.getIdUsuario()).stream().map(this::toPedidoResponse).toList();
     }
 
     @PostMapping("/api/pedidos")
@@ -60,17 +57,10 @@ public class PedidoController {
     }
 
     @PutMapping("/api/admin/pedidos/{id}")
-    public AdminPedidoResponse actualizarPedidoAdmin(
-            @PathVariable Long id,
-            @Valid @RequestBody AdminActualizarPedidoRequest request
-    ) {
+    public AdminPedidoResponse actualizarPedidoAdmin(@PathVariable Long id, @Valid @RequestBody AdminActualizarPedidoRequest request) {
         validarAdministrador();
-        Pedido pedido = pedidoService.actualizarPedidoAdmin(
-                id,
-                request.idUsuario(),
-                request.estado(),
-                new CrearPedidoRequest(request.items(), "ADMIN")
-        );
+        Pedido pedido = pedidoService.actualizarPedidoAdmin(id, request.idUsuario(), request.estado(), 
+                new CrearPedidoRequest(request.items(), "ADMIN"));
         return toPedidoAdminResponse(pedido);
     }
 
@@ -126,27 +116,15 @@ public class PedidoController {
                 ? List.of() : pedido.getPagos().stream().map(this::toPagoResponse).toList();       
         List<EntregaResponse> entregas = pedidoService.verEntregas(pedido.getIdPedido()).stream()
                 .map(entrega -> toEntregaResponse(entrega, pedido.getEstado())).toList();        
-        return new PedidoResponse(
-                pedido.getIdPedido(),
-                pedido.getFecha(),
-                pedido.getTotal(),
-                pedido.getEstado(),
-                detalles,
-                pagos,
-                entregas
-        );
+        return new PedidoResponse(pedido.getIdPedido(), pedido.getFecha(), pedido.getTotal(), pedido.getEstado(), detalles, pagos, entregas);  
     }
 
     private PedidoLineaResponse toPedidoLineaResponse(DetallePedido detalle) {
-        return new PedidoLineaResponse(
-                detalle.getIdDetalle(),
+        return new PedidoLineaResponse(detalle.getIdDetalle(), 
                 detalle.getProducto() == null ? null : detalle.getProducto().getIdProducto(),
                 detalle.getProducto() == null ? null : (detalle.getProducto().getNombre() != null ? detalle.getProducto().getNombre() : "Producto " + detalle.getProducto().getIdProducto()),
-                detalle.getTalla() == null ? null : detalle.getTalla().getNombre(),
-                detalle.getCantidad(),
-                detalle.getPrecioUnitario(),
-                detalle.getProducto() == null ? null : detalle.getProducto().getImagen()
-        );
+                detalle.getTalla() == null ? null : detalle.getTalla().getNombre(), detalle.getCantidad(), detalle.getPrecioUnitario(),
+                detalle.getProducto() == null ? null : detalle.getProducto().getImagen() );
     }
 
     private AdminPedidoResponse toPedidoAdminResponse(Pedido pedido) {
@@ -162,17 +140,10 @@ public class PedidoController {
             }
         }
 
-        return new AdminPedidoResponse(
-                pedido.getIdPedido(),
-                pedido.getFecha(),
-                pedido.getTotal(),
-                pedido.getEstado(),
+        return new AdminPedidoResponse(pedido.getIdPedido(), pedido.getFecha(), pedido.getTotal(), pedido.getEstado(),
                 toPedidoUsuarioResponse(pedido.getUsuario()),
-                pedido.getDetalles() == null ? 0 : pedido.getDetalles().size(),
-                totalUnidades,
-                unidadesEntregadas,
-                Math.max(totalUnidades - unidadesEntregadas, 0)
-        );
+                pedido.getDetalles() == null ? 0 : pedido.getDetalles().size(), totalUnidades, unidadesEntregadas,
+                Math.max(totalUnidades - unidadesEntregadas, 0));
     }
 
     private AdminPedidoDetalleResponse toPedidoDetalleResponse(Pedido pedido) {
@@ -185,91 +156,50 @@ public class PedidoController {
                 : pedido.getPagos().stream().map(this::toPagoResponse).toList();
         List<AdminPedidoHistorialResponse> historial = pedidoService.verHistorial(pedido.getIdPedido().longValue())
                 .stream().map(this::toPedidoHistorialResponse).toList();
-        return new AdminPedidoDetalleResponse(
-                pedido.getIdPedido(),
-                pedido.getFecha(),
-                pedido.getTotal(),
-                pedido.getEstado(),
-                toPedidoUsuarioResponse(pedido.getUsuario()),
-                detalles,
-                pagos,
-                historial,
+        return new AdminPedidoDetalleResponse(pedido.getIdPedido(), pedido.getFecha(), pedido.getTotal(), pedido.getEstado(),
+                toPedidoUsuarioResponse(pedido.getUsuario()), detalles, pagos, historial, 
                 pedidoService.verEntregas(pedido.getIdPedido()).stream()
-                        .map(entrega -> toEntregaResponse(entrega, pedido.getEstado()))
-                        .toList()
-        );
+                        .map(entrega -> toEntregaResponse(entrega, pedido.getEstado())).toList());
     }
 
     private AdminPedidoUsuarioResponse toPedidoUsuarioResponse(Usuario usuario) {
-        if(usuario == null) return null;
-        return new AdminPedidoUsuarioResponse(
-                usuario.getIdUsuario(),
-                usuario.getNombre(),
-                usuario.getApellidos(),
-                usuario.getEmail()
-        );
+        if(usuario == null) {
+            return null;
+        } 
+        return new AdminPedidoUsuarioResponse(usuario.getIdUsuario(), usuario.getNombre(), usuario.getApellidos(), usuario.getEmail());
     }
 
     private AdminPedidoLineaResponse toPedidoLineaResponse(DetallePedido detalle, java.util.Map<Integer, Integer> cantidadesEntregadas, java.util.Map<Integer, String> estadosEntrega) {
         int cantidadEntregada = cantidadesEntregadas.getOrDefault(detalle.getIdDetalle(), 0);
-        return new AdminPedidoLineaResponse(
-                detalle.getIdDetalle(),
-                detalle.getCantidad(),
-                cantidadEntregada,
-                Math.max(detalle.getCantidad() - cantidadEntregada, 0),
-                detalle.getPrecioUnitario(),
+        return new AdminPedidoLineaResponse(detalle.getIdDetalle(), detalle.getCantidad(), cantidadEntregada,
+                Math.max(detalle.getCantidad() - cantidadEntregada, 0),  detalle.getPrecioUnitario(),
                 detalle.getProducto() == null ? null : detalle.getProducto().getIdProducto(),
                 detalle.getProducto() == null ? null : (detalle.getProducto().getNombre() != null ? detalle.getProducto().getNombre() 
-                : "Producto " + detalle.getProducto().getIdProducto()),
-                detalle.getIdTalla(),
+                : "Producto " + detalle.getProducto().getIdProducto()), detalle.getIdTalla(),
                 detalle.getTalla() == null ? null : detalle.getTalla().getNombre(),
                 estadosEntrega.getOrDefault(detalle.getIdDetalle(), "SIN_ENTREGAR"),
-                detalle.getProducto() == null ? null : detalle.getProducto().getImagen()
-        );
+                detalle.getProducto() == null ? null : detalle.getProducto().getImagen());
     }
 
     private AdminPagoResponse toPagoResponse(Pago pago) {
-        return new AdminPagoResponse(
-                pago.getIdPago(),
-                pago.getMetodoPago(),
-                pago.getFechaPago(),
-                pago.getMonto(),
-                pago.getEstado(),
-                pago.getComprobanteUrl(),
-                pago.getComprobanteNombreArchivo(),
-                pago.getFechaConfirmacion(),
-                pago.getNotasAdmin()
-        );
+        return new AdminPagoResponse(pago.getIdPago(), pago.getMetodoPago(), pago.getFechaPago(),
+                pago.getMonto(), pago.getEstado(), pago.getComprobanteUrl(), pago.getComprobanteNombreArchivo(),
+                pago.getFechaConfirmacion(), pago.getNotasAdmin());
     }
 
     private AdminPedidoHistorialResponse toPedidoHistorialResponse(PedidoHistorial historial) {
-        return new AdminPedidoHistorialResponse(
-                historial.getIdHistorial(),
-                historial.getFechaCambio(),
-                historial.getTipoEvento(),
-                historial.getEstadoAnterior(),
-                historial.getEstadoNuevo(),
-                historial.getDescripcion()
-        );
+        return new AdminPedidoHistorialResponse(historial.getIdHistorial(), historial.getFechaCambio(), 
+                historial.getTipoEvento(), historial.getEstadoAnterior(), historial.getEstadoNuevo(), 
+                historial.getDescripcion());
     }
 
     private EntregaResponse toEntregaResponse(PedidoEntrega entrega, String estadoPedido) {
         List<EntregaLineaResponse> lineas = entrega.getLineas() == null  ? List.of()  
                 : entrega.getLineas().stream().map(this::toEntregaLineaResponse).toList();
         boolean completo = lineas.stream().allMatch(linea -> linea.cantidadPendiente() != null && linea.cantidadPendiente() == 0);
-        return new EntregaResponse(
-                entrega.getIdEntrega(),
-                entrega.getFechaEntrega(),
-                lineas,
-                entrega.getComprobanteEntregaUrl(),
-                entrega.getComprobanteEntregaNombreArchivo(),
-                entrega.getFirmaRecepcion(),
-                entrega.getNombreRecibe(),
-                entrega.getDocumentoRecibe(),
-                entrega.getObservaciones(),
-                estadoPedido,
-                completo
-        );
+        return new EntregaResponse(entrega.getIdEntrega(), entrega.getFechaEntrega(), lineas, entrega.getComprobanteEntregaUrl(),
+                entrega.getComprobanteEntregaNombreArchivo(), entrega.getFirmaRecepcion(), entrega.getNombreRecibe(),
+                entrega.getDocumentoRecibe(), entrega.getObservaciones(), estadoPedido, completo);
     }
 
     private EntregaLineaResponse toEntregaLineaResponse(PedidoEntregaLinea linea) {
@@ -279,12 +209,7 @@ public class PedidoController {
         return new EntregaLineaResponse(
                 detalle == null ? null : detalle.getIdDetalle(),
                 detalle == null || detalle.getProducto() == null ? null : detalle.getProducto().getNombre(),
-                cantidadPedida,
-                0,
-                cantidadEntregada,
-                cantidadEntregada,
-                Math.max(cantidadPedida - cantidadEntregada, 0)
-        );
+                cantidadPedida, 0, cantidadEntregada, cantidadEntregada, Math.max(cantidadPedida - cantidadEntregada, 0);
     }
 
     private void validarAdministrador() {
