@@ -1,39 +1,37 @@
 package com.tfg.sportshop.controller;
 
-import com.tfg.sportshop.dto.admin.ActualizarProveedorProductoRequest;
-import com.tfg.sportshop.dto.admin.ActualizarEstadoPedidoProveedorRequest;
-import com.tfg.sportshop.dto.admin.CrearPedidoProveedorRequest;
-import com.tfg.sportshop.dto.admin.InformePagosResponse;
-import com.tfg.sportshop.dto.admin.InformePedidosResponse;
-import com.tfg.sportshop.dto.admin.InformeProveedorLineaResponse;
-import com.tfg.sportshop.dto.admin.InformeProveedorResponse;
-import com.tfg.sportshop.dto.admin.InformeStockResponse;
-import com.tfg.sportshop.dto.admin.PedidoProveedorResponse;
-import com.tfg.sportshop.services.InformeService;
-import jakarta.validation.Valid;
-import java.time.LocalDate;
 import java.util.List;
-import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDate;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import com.tfg.sportshop.services.InformeService;
+import com.tfg.sportshop.dto.admin.InformePagosResponse;
+import com.tfg.sportshop.dto.admin.InformeStockResponse;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import com.tfg.sportshop.dto.admin.InformePedidosResponse;
 import org.springframework.web.bind.annotation.GetMapping;
+import com.tfg.sportshop.dto.admin.PedidoProveedorResponse;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import com.tfg.sportshop.dto.admin.InformeProveedorResponse;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import com.tfg.sportshop.dto.admin.CrearPedidoProveedorRequest;
+import com.tfg.sportshop.dto.admin.InformeProveedorLineaResponse;
+import com.tfg.sportshop.dto.admin.ActualizarProveedorProductoRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.tfg.sportshop.dto.admin.ActualizarEstadoPedidoProveedorRequest;
 
 @RestController
 @RequestMapping("/api/admin/informes")
 public class InformeController {
-
     private final InformeService informeService;
-
     public InformeController(InformeService informeService) {
         this.informeService = informeService;
     }
@@ -102,14 +100,12 @@ public class InformeController {
 
     private void validarAdministrador() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) {
+        if(auth == null || !auth.isAuthenticated()) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
         }
-
         boolean esAdmin = auth.getAuthorities().stream()
             .anyMatch(authority -> "ROLE_ADMIN".equalsIgnoreCase(authority.getAuthority()));
-
-        if (!esAdmin) {
+        if(!esAdmin) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Se requieren permisos de administrador");
         }
     }

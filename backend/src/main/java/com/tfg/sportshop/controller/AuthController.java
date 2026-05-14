@@ -232,19 +232,16 @@ public class AuthController {
         Usuario usuario = getUsuarioDesdeToken(httpRequest);
         String currentPassword = request.get("currentPassword");
         String newPassword = request.get("newPassword");
-
-        if (currentPassword == null || newPassword == null || newPassword.length() < 8) {
+        if(currentPassword == null || newPassword == null || newPassword.length() < 8) {
             return ResponseEntity.badRequest().body(Map.of("error", "Datos invalidos"));
         }
 
-        if (!passwordEncoder.matches(currentPassword, usuario.getPassword())) {
+        if(!passwordEncoder.matches(currentPassword, usuario.getPassword())) {
             return ResponseEntity.badRequest().body(Map.of("error", "La contrasena actual es incorrecta"));
         }
-
         usuario.setPassword(passwordEncoder.encode(newPassword));
         usuarioService.registrarUsuario(usuario);
         correoTemplateService.enviarCambioPassword(usuario);
-
         return ResponseEntity.ok(Map.of("mensaje", "Contrasena cambiada correctamente"));
     }
 
@@ -353,17 +350,16 @@ public class AuthController {
             }
         }
 
-        if (email == null || email.isBlank()) {
+        if(email == null || email.isBlank()) {
             email = request.getHeader("X-User-Email");
         }
 
-        if (email == null || email.isBlank()) {
+        if(email == null || email.isBlank()) {
             throw new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.UNAUTHORIZED,
                     "Usuario no autenticado"
             );
         }
-
         return usuarioService.buscarUsuarioPorEmail(email)
                 .flatMap(usuario -> usuarioService.buscarUsuarioPorIdConRelaciones(usuario.getIdUsuario()))
                 .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
@@ -374,7 +370,7 @@ public class AuthController {
 
     private String extractTokenFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
+        if(cookies == null) {
             return null;
         }
         return Arrays.stream(cookies)
@@ -419,8 +415,7 @@ public class AuthController {
                 usuario.getDireccionProvincia() != null ? usuario.getDireccionProvincia() : "",
                 usuario.getCodigoPostal() != null ? usuario.getCodigoPostal() : "",
                 Math.toIntExact(usuarioService.contarPedidosUsuario(usuario.getIdUsuario())),
-                usuario.getRoles() == null ? List.of() :
-                        usuario.getRoles().stream().map(Roles::getNombreRol).toList()
+                usuario.getRoles() == null ? List.of() : usuario.getRoles().stream().map(Roles::getNombreRol).toList()                      
         );
     }
 
@@ -436,23 +431,20 @@ public class AuthController {
         if (List.of(direccion, calle, numero, piso, ciudad, provincia, codigoPostal).stream().allMatch(valor -> valor == null)) {
             return;
         }
-
         usuario.setDireccionCalle(normalizar(calle));
         usuario.setDireccionNumero(normalizar(numero));
         usuario.setDireccionPiso(normalizar(piso));
         usuario.setDireccionCiudad(normalizar(ciudad));
         usuario.setDireccionProvincia(normalizar(provincia));
         usuario.setCodigoPostal(normalizar(codigoPostal));
-
         String direccionCompuesta = construirDireccion(usuario);
         usuario.setDireccion(direccionCompuesta.isBlank() ? normalizar(direccion) : direccionCompuesta);
     }
 
     private String normalizar(String valor) {
-        if (valor == null) {
+        if(valor == null) {
             return null;
         }
-
         String limpio = valor.trim();
         return limpio.isEmpty() ? null : limpio;
     }
@@ -466,7 +458,6 @@ public class AuthController {
                 .filter(valor -> valor != null && !valor.isBlank())
                 .reduce((actual, siguiente) -> actual + ", " + siguiente)
                 .orElse("");
-
         String localidad = List.of(
                         usuario.getCodigoPostal(),
                         usuario.getDireccionCiudad(),
@@ -475,7 +466,6 @@ public class AuthController {
                 .filter(valor -> valor != null && !valor.isBlank())
                 .reduce((actual, siguiente) -> actual + " " + siguiente)
                 .orElse("");
-
         return List.of(via, localidad).stream()
                 .filter(valor -> valor != null && !valor.isBlank())
                 .reduce((actual, siguiente) -> actual + " - " + siguiente)

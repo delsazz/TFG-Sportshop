@@ -1,7 +1,7 @@
 package com.tfg.sportshop.controller;
 
-import org.springframework.web.bind.annotation.*;
 import java.util.Map;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class WelcomeController {

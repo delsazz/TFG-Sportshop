@@ -1,25 +1,24 @@
 package com.tfg.sportshop.controller;
 
-import com.tfg.sportshop.dto.configuracion.ActualizarConfiguracionSitioRequest;
-import com.tfg.sportshop.dto.configuracion.ConfiguracionSitioResponse;
 import com.tfg.sportshop.model.Usuario;
-import com.tfg.sportshop.services.ConfiguracionSitioService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
+import com.tfg.sportshop.services.ConfiguracionSitioService;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
+import com.tfg.sportshop.dto.configuracion.ConfiguracionSitioResponse;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.tfg.sportshop.dto.configuracion.ActualizarConfiguracionSitioRequest;
 
 @RestController
 @RequestMapping("/api/configuracion")
 public class ConfiguracionSitioController {
     private final ConfiguracionSitioService configuracionSitioService;
-
     public ConfiguracionSitioController(ConfiguracionSitioService configuracionSitioService) {
         this.configuracionSitioService = configuracionSitioService;
     }
@@ -57,7 +56,7 @@ public class ConfiguracionSitioController {
 
     private void requireAdmin() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof Usuario usuario)) {
+        if(auth == null || !(auth.getPrincipal() instanceof Usuario usuario)) {
             throw new org.springframework.web.server.ResponseStatusException(
                 org.springframework.http.HttpStatus.UNAUTHORIZED,
                 "Usuario no autenticado"
@@ -66,7 +65,7 @@ public class ConfiguracionSitioController {
 
         boolean isAdmin = usuario.getRoles() != null && usuario.getRoles().stream()
             .anyMatch(rol -> "ADMIN".equalsIgnoreCase(rol.getNombreRol()));
-        if (!isAdmin) {
+        if(!isAdmin) {
             throw new org.springframework.web.server.ResponseStatusException(
                 org.springframework.http.HttpStatus.FORBIDDEN,
                 "Se requieren permisos de administrador"
@@ -74,4 +73,3 @@ public class ConfiguracionSitioController {
         }
     }
 }
-

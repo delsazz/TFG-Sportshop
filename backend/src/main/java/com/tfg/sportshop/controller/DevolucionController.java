@@ -1,17 +1,17 @@
 package com.tfg.sportshop.controller;
 
-import com.tfg.sportshop.dto.devoluciones.*;
-import com.tfg.sportshop.model.Devolucion;
-import com.tfg.sportshop.model.DevolucionItem;
-import com.tfg.sportshop.model.Usuario;
-import com.tfg.sportshop.services.DevolucionService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.tfg.sportshop.model.Usuario;
+import com.tfg.sportshop.model.Devolucion;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import com.tfg.sportshop.dto.devoluciones.*;
+import com.tfg.sportshop.model.DevolucionItem;
 import org.springframework.web.bind.annotation.*;
+import com.tfg.sportshop.services.DevolucionService;
+import org.springframework.security.core.Authentication;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 
@@ -31,33 +31,24 @@ public class DevolucionController {
     @GetMapping("/api/devoluciones/mis-devoluciones")
     public List<DevolucionResponse> misDevoluciones() {
         Usuario usuario = getUsuarioAutenticado();
-        return devolucionService.listarDevolucionesUsuario(usuario)
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        return devolucionService.listarDevolucionesUsuario(usuario).stream().map(this::toResponse) .toList();
     }
 
     @GetMapping("/api/admin/devoluciones")
     public List<DevolucionResponse> verTodas() {
         validarAdministrador();
-        return devolucionService.listarTodasLasDevoluciones()
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        return devolucionService.listarTodasLasDevoluciones().stream().map(this::toResponse).toList();
     }
 
     @GetMapping("/api/devoluciones/{id}")
     public DevolucionResponse verDetalle(@PathVariable Integer id) {
         Usuario usuario = getUsuarioAutenticado();
         Devolucion devolucion = devolucionService.obtenerDevolucion(id);
-
         boolean esAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-
-        if (!esAdmin && !devolucion.getUsuario().getIdUsuario().equals(usuario.getIdUsuario())) {
+        if(!esAdmin && !devolucion.getUsuario().getIdUsuario().equals(usuario.getIdUsuario())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permiso para ver esta devolución");
         }
-
         return toResponse(devolucion);
     }
 
@@ -81,7 +72,6 @@ public class DevolucionController {
                         item.getDetallePedido().getPrecioUnitario(),
                         item.getDetallePedido().getProducto().getImagen()
                 )).toList();
-
         return new DevolucionResponse(
                 devolucion.getIdDevolucion(),
                 devolucion.getPedido().getIdPedido(),
@@ -98,7 +88,7 @@ public class DevolucionController {
 
     private Usuario getUsuarioAutenticado() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof Usuario)) {
+        if(auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof Usuario)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
         }
         return (Usuario) auth.getPrincipal();
@@ -108,8 +98,7 @@ public class DevolucionController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean esAdmin = auth != null && auth.getAuthorities().stream()
                 .anyMatch(authority -> "ROLE_ADMIN".equalsIgnoreCase(authority.getAuthority()));
-
-        if (!esAdmin) {
+        if(!esAdmin) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Se requieren permisos de administrador");
         }
     }

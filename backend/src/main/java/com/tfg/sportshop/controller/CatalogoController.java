@@ -1,49 +1,49 @@
 package com.tfg.sportshop.controller;
 
-import com.tfg.sportshop.dto.KitResponse;
-import com.tfg.sportshop.dto.TallaStockDTO;
-import com.tfg.sportshop.dto.admin.AdminCategoriaRequest;
-import com.tfg.sportshop.dto.admin.AdminCategoriaResponse;
-import com.tfg.sportshop.dto.admin.AdminKitRequest;
-import com.tfg.sportshop.dto.admin.AdminKitResponse;
-import com.tfg.sportshop.dto.admin.AdminProductoRequest;
-import com.tfg.sportshop.dto.admin.AdminProductoResponse;
-import com.tfg.sportshop.dto.admin.ProductoImagenResponse;
-import com.tfg.sportshop.dto.admin.ProductoDocumentoResponse;
-import com.tfg.sportshop.dto.admin.BackorderResponse;
-import com.tfg.sportshop.model.ProductoDocumento;
-import com.tfg.sportshop.model.BackorderPedido;
-import com.tfg.sportshop.model.Categoria;
+import java.util.List;
+import java.io.IOException;
+import jakarta.validation.Valid;
 import com.tfg.sportshop.model.Kit;
-import com.tfg.sportshop.model.KitProducto;
-import com.tfg.sportshop.model.Producto;
-import com.tfg.sportshop.model.ProductoImagen;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 import com.tfg.sportshop.model.Usuario;
+import com.tfg.sportshop.model.Producto;
+import com.tfg.sportshop.dto.KitResponse;
+import com.tfg.sportshop.model.Categoria;
+import com.tfg.sportshop.dto.TallaStockDTO;
+import com.tfg.sportshop.model.KitProducto;
+import org.springframework.http.HttpStatus;
+import com.tfg.sportshop.services.KitService;
+import com.tfg.sportshop.model.ProductoImagen;
+import com.tfg.sportshop.model.BackorderPedido;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ResponseEntity;
+import com.tfg.sportshop.model.ProductoDocumento;
+import com.tfg.sportshop.services.UsuarioService;
+import org.springframework.web.bind.annotation.*;
+import com.tfg.sportshop.services.ProductoService;
+import com.tfg.sportshop.dto.admin.AdminKitRequest;
 import com.tfg.sportshop.security.JWTTokenProvider;
 import com.tfg.sportshop.services.CategoriaService;
-import com.tfg.sportshop.services.KitService;
-import com.tfg.sportshop.services.ProductoImagenService;
-import com.tfg.sportshop.services.ProductoDocumentoService;
-import com.tfg.sportshop.services.ProductoService;
+import com.tfg.sportshop.dto.admin.AdminKitResponse;
+import com.tfg.sportshop.dto.admin.BackorderResponse;
 import com.tfg.sportshop.services.ProductoTallaService;
-import com.tfg.sportshop.services.UsuarioService;
-import com.tfg.sportshop.services.BackorderPedidoService;
-import jakarta.validation.Valid;
-import java.io.IOException;
-import java.util.List;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.tfg.sportshop.dto.admin.AdminProductoRequest;
+import com.tfg.sportshop.services.ProductoImagenService;
+import org.springframework.security.core.Authentication;
+import com.tfg.sportshop.dto.admin.AdminCategoriaRequest;
+import com.tfg.sportshop.dto.admin.AdminProductoResponse;
+import com.tfg.sportshop.services.BackorderPedidoService;
+import com.tfg.sportshop.dto.admin.AdminCategoriaResponse;
+import com.tfg.sportshop.dto.admin.ProductoImagenResponse;
+import com.tfg.sportshop.services.ProductoDocumentoService;
+import com.tfg.sportshop.dto.admin.ProductoDocumentoResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import jakarta.servlet.http.Cookie;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -84,10 +84,7 @@ public class CatalogoController {
 
     @GetMapping("/catalogo")
     public List<AdminProductoResponse> todos() {
-        return productoService.verProductos()
-                .stream()
-                .map(this::toProductoResponse)
-                .toList();
+        return productoService.verProductos().stream().map(this::toProductoResponse) .toList();     
     }
 
     @GetMapping("/catalogo/{id}")
@@ -99,9 +96,7 @@ public class CatalogoController {
     @ResponseStatus(HttpStatus.CREATED)
     public AdminProductoResponse crearProducto(@Valid @RequestBody AdminProductoRequest request) {
         validarAdministrador();
-
         Producto producto = productoService.crearProductoConTallas(request);
-
         return toProductoResponse(producto);
     }
 
@@ -133,7 +128,6 @@ public class CatalogoController {
                         pt.getStock()
                 ))
                 .toList();
-
         return ResponseEntity.ok(tallaStockDTO);
     }
 
@@ -148,9 +142,7 @@ public class CatalogoController {
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "esPrincipal", defaultValue = "false") Boolean esPrincipal
     ) throws IOException {
-
         validarAdministrador();
-
         ProductoImagen imagen = productoImagenService.subirImagen(id, file, esPrincipal);
         return toImagenResponse(imagen);
     }
@@ -170,14 +162,12 @@ public class CatalogoController {
             @RequestParam(value = "principalIndex", required = false) Integer principalIndex
     ) throws IOException {
         validarAdministrador();
-
         List<ProductoImagenResponse> responses = new java.util.ArrayList<>();
-        for (int i = 0; i < files.length; i++) {
+        for(int i = 0; i < files.length; i++) {
             MultipartFile f = files[i];
             Boolean esPrincipal = (principalIndex != null && principalIndex == i);
             responses.add(toImagenResponse(productoImagenService.subirImagen(id, f, esPrincipal)));
         }
-
         return responses;
     }
 
@@ -221,10 +211,7 @@ public class CatalogoController {
 
     @GetMapping("/kits")
     public List<KitResponse> obtenerKitsPublicos() {
-        return kitService.obtenerTodosLosKits()
-            .stream()
-            .map(this::toKitResponsePublico)
-            .toList();
+        return kitService.obtenerTodosLosKits().stream().map(this::toKitResponsePublico).toList();
     }
 
     @GetMapping("/kits/{id}")
@@ -235,10 +222,7 @@ public class CatalogoController {
 
     @GetMapping("/categorias/{categoriaId}/kits")
     public List<KitResponse> obtenerKitsPublicosPorCategoria(@PathVariable Integer categoriaId) {
-        return kitService.obtenerKitsPorCategoria(categoriaId)
-            .stream()
-            .map(this::toKitResponsePublico)
-            .toList();
+        return kitService.obtenerKitsPorCategoria(categoriaId).stream().map(this::toKitResponsePublico).toList();
     }
 
     // =========================
@@ -247,19 +231,13 @@ public class CatalogoController {
 
     @GetMapping("/categorias")
     public List<AdminCategoriaResponse> verCategorias() {
-        return categoriaService.verCategorias()
-                .stream()
-                .map(this::toCategoriaResponse)
-                .toList();
+        return categoriaService.verCategorias().stream() .map(this::toCategoriaResponse).toList();
     }
 
     @GetMapping("/categorias/slug/{slug}")
     public AdminCategoriaResponse verCategoriaPorSlug(@PathVariable String slug) {
         Categoria categoria = categoriaService.buscarCategoriaPorSlug(slug)
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoria no encontrada")
-                );
-
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoria no encontrada"));
         return toCategoriaResponse(categoria);
     }
 
@@ -267,7 +245,6 @@ public class CatalogoController {
     @ResponseStatus(HttpStatus.CREATED)
     public AdminCategoriaResponse crearCategoria(@Valid @RequestBody AdminCategoriaRequest request) {
         validarAdministrador();
-
         Categoria categoria = categoriaService.crearCategoria(
                 request.nombreCategoria(),
                 request.slug(),
@@ -276,7 +253,6 @@ public class CatalogoController {
                 request.ordenVisualizacion(),
                 request.productoIds()
         );
-
         return toCategoriaResponse(categoria);
     }
 
@@ -284,9 +260,7 @@ public class CatalogoController {
     public AdminCategoriaResponse actualizarCategoria(
             @PathVariable Integer id,
             @Valid @RequestBody AdminCategoriaRequest request) {
-
         validarAdministrador();
-
         Categoria categoria = categoriaService.actualizarCategoria(
                 id,
                 request.nombreCategoria(),
@@ -296,7 +270,6 @@ public class CatalogoController {
                 request.ordenVisualizacion(),
                 request.productoIds()
         );
-
         return toCategoriaResponse(categoria);
     }
 
@@ -459,7 +432,6 @@ public class CatalogoController {
                 ))
                 .toList()
             : List.of();
-
         return new AdminKitResponse(
                 kit.getIdKit(),
                 kit.getNombre(),
@@ -497,7 +469,6 @@ public class CatalogoController {
                 })
                 .toList()
             : List.of();
-
         return new KitResponse(
                 kit.getIdKit(),
                 kit.getNombre(),
@@ -518,45 +489,39 @@ public class CatalogoController {
     private void validarAdministrador() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof Usuario usuarioAutenticado) {
-            if (esAdmin(usuarioAutenticado)) {
+        if(auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof Usuario usuarioAutenticado) {
+            if(esAdmin(usuarioAutenticado)) {
                 return;
             }
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Se requieren permisos de administrador");
         }
-
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attributes == null) {
+        if(attributes == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
         }
-
         HttpServletRequest request = attributes.getRequest();
         Usuario usuario = resolverUsuarioDesdeRequest(request);
-
-        if (usuario == null) {
+        if(usuario == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No se pudo obtener informacion del usuario");
         }
-
-        if (!esAdmin(usuario)) {
+        if(!esAdmin(usuario)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Se requieren permisos de administrador");
         }
     }
 
     private Usuario resolverUsuarioDesdeRequest(HttpServletRequest request) {
         String email = null;
-
         String authorization = request.getHeader("Authorization");
-        if (authorization != null && authorization.startsWith("Bearer ")) {
+        if(authorization != null && authorization.startsWith("Bearer ")) {
             String token = authorization.substring(7);
-            if (jwtTokenProvider.validateToken(token)) {
+            if(jwtTokenProvider.validateToken(token)) {
                 email = jwtTokenProvider.getUsernameFromToken(token);
             }
         }
-
-        if (email == null || email.isBlank()) {
+        if(email == null || email.isBlank()) {
             Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
+            if(cookies != null) {
+                for(Cookie cookie : cookies) {
                     if ("campusfp_auth".equals(cookie.getName())) {
                         String token = cookie.getValue();
                         if (token != null && jwtTokenProvider.validateToken(token)) {
@@ -567,22 +532,18 @@ public class CatalogoController {
                 }
             }
         }
-
-        if (email == null || email.isBlank()) {
+        if(email == null || email.isBlank()) {
             email = request.getHeader("X-User-Email");
         }
-
-        if (email == null || email.isBlank()) {
+        if(email == null || email.isBlank()) {
             return null;
         }
-
         return usuarioService.buscarUsuarioPorEmail(email)
                 .flatMap(usuario -> usuarioService.buscarUsuarioPorIdConRelaciones(usuario.getIdUsuario()))
                 .orElse(null);
     }
 
     private boolean esAdmin(Usuario usuario) {
-        return usuario.getRoles() != null && usuario.getRoles().stream()
-                .anyMatch(rol -> "ADMIN".equalsIgnoreCase(rol.getNombreRol()));
+        return usuario.getRoles() != null && usuario.getRoles().stream().anyMatch(rol -> "ADMIN".equalsIgnoreCase(rol.getNombreRol()));
     }
 }
