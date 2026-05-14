@@ -1,22 +1,22 @@
 package com.tfg.sportshop.services;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import com.tfg.sportshop.dto.admin.AdminProductoRequest;
-import com.tfg.sportshop.model.Categoria;
-import com.tfg.sportshop.model.Producto;
-import com.tfg.sportshop.model.ProductoTalla;
-import com.tfg.sportshop.model.ProductoTallaId;
+import java.math.BigDecimal;
 import com.tfg.sportshop.model.Talla;
-import com.tfg.sportshop.repository.ProductoRepository;
-import com.tfg.sportshop.repository.ProductoTallaRepository;
-import com.tfg.sportshop.repository.TallaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.tfg.sportshop.model.Producto;
+import com.tfg.sportshop.model.Categoria;
 import org.springframework.http.HttpStatus;
+import com.tfg.sportshop.model.ProductoTalla;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.tfg.sportshop.model.ProductoTallaId;
+import com.tfg.sportshop.repository.TallaRepository;
+import com.tfg.sportshop.repository.ProductoRepository;
+import com.tfg.sportshop.dto.admin.AdminProductoRequest;
+import com.tfg.sportshop.repository.ProductoTallaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductoService {
@@ -57,8 +57,7 @@ public class ProductoService {
     @Transactional
     public Producto crearProductoConTallas(AdminProductoRequest request) {
         Categoria categoria = categoriaService.buscarCategoriaPorId(request.categoriaId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoria no encontrada"));
-        
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoria no encontrada"))
         Producto producto = new Producto();
         producto.setNombre(request.nombre());
         producto.setTipoPrenda(request.tipoPrenda());
@@ -70,9 +69,8 @@ public class ProductoService {
         producto.setNormativa(request.normativa());
         producto.setInstruccionesLavado(request.instruccionesLavado());
         producto.setConsejos(request.consejos());
-
         int totalStock = 0;
-        if (request.tallas() != null && !request.tallas().isEmpty()) {
+        if(request.tallas() != null && !request.tallas().isEmpty()) {
             totalStock = request.tallas().stream().mapToInt(AdminProductoRequest.TallaStockRequest::stock).sum();
         } else {
             totalStock = request.stock();
@@ -81,18 +79,15 @@ public class ProductoService {
         producto.setStockMinimo(request.stockMinimo() != null ? request.stockMinimo() : 0);
         producto.setLoteCompra(1);
         producto.setPlazoReposicionDias(7);
-
         Producto guardado = productoRepository.save(producto);
-        
-        if (request.tallas() != null && !request.tallas().isEmpty()) {
-            for (AdminProductoRequest.TallaStockRequest ts : request.tallas()) {
+        if(request.tallas() != null && !request.tallas().isEmpty()) {
+            for(AdminProductoRequest.TallaStockRequest ts : request.tallas()) {
                 Talla talla = tallaRepository.findByNombre(ts.talla())
                     .orElseGet(() -> {
                         Talla nueva = new Talla();
                         nueva.setNombre(ts.talla());
                         return tallaRepository.save(nueva);
                     });
-                
                 ProductoTalla pt = new ProductoTalla();
                 pt.setId(new ProductoTallaId(guardado.getIdProducto(), talla.getIdTalla()));
                 pt.setProducto(guardado);
@@ -101,7 +96,6 @@ public class ProductoService {
                 productoTallaRepository.save(pt);
             }
         }
-        
         return guardado;
     }
 
@@ -110,7 +104,6 @@ public class ProductoService {
         Producto producto = buscarProductoPorId(id);
         Categoria categoria = categoriaService.buscarCategoriaPorId(request.categoriaId())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoria no encontrada"));
-        
         producto.setNombre(request.nombre());
         producto.setTipoPrenda(request.tipoPrenda());
         producto.setColor(request.color());
@@ -122,17 +115,15 @@ public class ProductoService {
         producto.setInstruccionesLavado(request.instruccionesLavado());
         producto.setConsejos(request.consejos());
         producto.setStockMinimo(request.stockMinimo() != null ? request.stockMinimo() : 0);
-        if (producto.getLoteCompra() == null) {
+        if(producto.getLoteCompra() == null) {
             producto.setLoteCompra(1);
         }
-        if (producto.getPlazoReposicionDias() == null) {
+        if(producto.getPlazoReposicionDias() == null) {
             producto.setPlazoReposicionDias(7);
         }
-
-        if (request.tallas() != null && !request.tallas().isEmpty()) {
+        if request.tallas() != null && !request.tallas().isEmpty()) {
             // Eliminar tallas antiguas
             productoTallaRepository.deleteByProductoIdProducto(producto.getIdProducto());
-            
             int totalStock = 0;
             for (AdminProductoRequest.TallaStockRequest ts : request.tallas()) {
                 Talla talla = tallaRepository.findByNombre(ts.talla())
@@ -141,7 +132,6 @@ public class ProductoService {
                         nueva.setNombre(ts.talla());
                         return tallaRepository.save(nueva);
                     });
-                
                 ProductoTalla pt = new ProductoTalla();
                 pt.setId(new ProductoTallaId(producto.getIdProducto(), talla.getIdTalla()));
                 pt.setProducto(producto);
@@ -154,7 +144,6 @@ public class ProductoService {
         } else {
             producto.setStock(request.stock());
         }
-        
         return productoRepository.save(producto);
     }
 

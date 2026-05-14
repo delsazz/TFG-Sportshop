@@ -1,22 +1,22 @@
 package com.tfg.sportshop.services;
 
+import java.util.UUID;
+import java.util.Locale;
+import java.nio.file.Path;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.Locale;
-import java.util.UUID;
-import com.tfg.sportshop.dto.configuracion.ActualizarConfiguracionSitioRequest;
-import com.tfg.sportshop.dto.configuracion.ConfiguracionSitioResponse;
-import com.tfg.sportshop.model.ConfiguracionSitio;
-import com.tfg.sportshop.repository.ConfiguracionSitioRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.tfg.sportshop.model.ConfiguracionSitio;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
+import com.tfg.sportshop.repository.ConfiguracionSitioRepository;
+import com.tfg.sportshop.dto.configuracion.ConfiguracionSitioResponse;
+import com.tfg.sportshop.dto.configuracion.ActualizarConfiguracionSitioRequest;
 
 @Service
 public class ConfiguracionSitioService {
@@ -83,26 +83,22 @@ public class ConfiguracionSitioService {
         MultipartFile logoAdmin
     ) {
         ConfiguracionSitio configuracion = obtenerOCrearConfiguracion();
-
         actualizarTexto(request.bizumTelefono(), configuracion::setBizumTelefono, configuracion.getBizumTelefono(), defaultBizumTelefono);
         actualizarTexto(request.bizumBancoUrl(), configuracion::setBizumBancoUrl, configuracion.getBizumBancoUrl(), defaultBizumBancoUrl);
         actualizarTexto(request.transferenciaTitular(), configuracion::setTransferenciaTitular, configuracion.getTransferenciaTitular(), defaultTransferenciaTitular);
         actualizarTexto(request.transferenciaIban(), configuracion::setTransferenciaIban, configuracion.getTransferenciaIban(), defaultTransferenciaIban);
         actualizarTexto(request.transferenciaConcepto(), configuracion::setTransferenciaConcepto, configuracion.getTransferenciaConcepto(), defaultTransferenciaConcepto);
         actualizarTexto(request.transferenciaNotas(), configuracion::setTransferenciaNotas, configuracion.getTransferenciaNotas(), defaultTransferenciaNotas);
-
         configuracion.setTarjetaHabilitada(request.tarjetaHabilitada() != null ? request.tarjetaHabilitada() : configuracion.isTarjetaHabilitada());
         configuracion.setBizumHabilitado(request.bizumHabilitado() != null ? request.bizumHabilitado() : configuracion.isBizumHabilitado());
         configuracion.setTransferenciaHabilitada(request.transferenciaHabilitada() != null ? request.transferenciaHabilitada() : configuracion.isTransferenciaHabilitada());
         configuracion.setMostradorHabilitado(request.mostradorHabilitado() != null ? request.mostradorHabilitado() : configuracion.isMostradorHabilitado());
-
         configuracion.setLogoHeaderUrl(guardarLogoSiCorresponde(logoHeader, configuracion.getLogoHeaderUrl(), "header"));
         configuracion.setLogoFooterUrl(guardarLogoSiCorresponde(logoFooter, configuracion.getLogoFooterUrl(), "footer"));
         configuracion.setLogoLoginUrl(guardarLogoSiCorresponde(logoLogin, configuracion.getLogoLoginUrl(), "login"));
         configuracion.setLogoHomeUrl(guardarLogoSiCorresponde(logoHome, configuracion.getLogoHomeUrl(), "home"));
         configuracion.setLogoAdminUrl(guardarLogoSiCorresponde(logoAdmin, configuracion.getLogoAdminUrl(), "admin"));
         configuracion.setUpdatedAt(LocalDateTime.now());
-
         return toResponse(configuracionSitioRepository.save(configuracion));
     }
 
@@ -110,7 +106,6 @@ public class ConfiguracionSitioService {
     public boolean metodoPagoHabilitado(String metodoPago) {
         String normalizado = normalizarMetodoPago(metodoPago);
         ConfiguracionSitio configuracion = obtenerOCrearConfiguracion();
-
         return switch (normalizado) {
             case "tarjeta", "stripe", "credit_card" -> configuracion.isTarjetaHabilitada();
             case "bizum" -> configuracion.isBizumHabilitado();
@@ -122,7 +117,7 @@ public class ConfiguracionSitioService {
 
     @Transactional
     public void validarMetodoPagoHabilitado(String metodoPago) {
-        if (!metodoPagoHabilitado(metodoPago)) {
+        if(!metodoPagoHabilitado(metodoPago)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El metodo de pago seleccionado no esta disponible");
         }
     }
@@ -178,11 +173,10 @@ public class ConfiguracionSitioService {
     }
 
     private void actualizarTexto(String valor, Setter setter, String actual, String fallback) {
-        if (valor == null || valor.isBlank()) {
+        if(valor == null || valor.isBlank()) {
             setter.set(normalizarTexto(actual, fallback));
             return;
         }
-
         setter.set(valor.trim());
     }
 
@@ -191,43 +185,40 @@ public class ConfiguracionSitioService {
     }
 
     private String guardarLogoSiCorresponde(MultipartFile file, String actual, String prefijo) {
-        if (file == null || file.isEmpty()) {
+        if(file == null || file.isEmpty()) {
             return normalizarLogo(actual, defaultLogoHeader);
         }
 
         String contentType = file.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
+        if(contentType == null || !contentType.startsWith("image/")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solo se permiten imagenes en los logos");
         }
 
-        if (file.getSize() > maxFileSize) {
+        if(file.getSize() > maxFileSize) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El archivo supera el tamano maximo permitido");
         }
 
         try {
             Path uploadPath = Paths.get(uploadDir);
             Files.createDirectories(uploadPath);
-
             String originalFilename = file.getOriginalFilename();
             String extension = "";
             if (originalFilename != null && originalFilename.contains(".")) {
                 extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             }
-
             String filename = prefijo + "-" + UUID.randomUUID() + extension;
             Files.write(uploadPath.resolve(filename), file.getBytes());
             eliminarLogoAnterior(actual);
             return "/uploads/configuracion/" + filename;
-        } catch (IOException e) {
+        } catch(IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No se pudo guardar el logo");
         }
     }
 
     private void eliminarLogoAnterior(String actual) throws IOException {
-        if (actual == null || !actual.startsWith("/uploads/configuracion/")) {
+        if(actual == null || !actual.startsWith("/uploads/configuracion/")) {
             return;
         }
-
         String filename = actual.substring(actual.lastIndexOf('/') + 1);
         Path filePath = Paths.get(uploadDir).resolve(filename);
         Files.deleteIfExists(filePath);
@@ -268,4 +259,3 @@ public class ConfiguracionSitioService {
         void set(String value);
     }
 }
-

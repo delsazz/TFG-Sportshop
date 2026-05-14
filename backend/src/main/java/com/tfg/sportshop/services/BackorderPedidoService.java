@@ -1,14 +1,14 @@
 package com.tfg.sportshop.services;
 
-import com.tfg.sportshop.dto.admin.BackorderResponse;
-import com.tfg.sportshop.model.BackorderPedido;
-import com.tfg.sportshop.repository.BackorderPedidoRepository;
-import com.tfg.sportshop.repository.ProductoTallaRepository;
-import com.tfg.sportshop.repository.ProductoRepository;
-import com.tfg.sportshop.repository.TallaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import java.util.List;
+import org.springframework.stereotype.Service;
+import com.tfg.sportshop.model.BackorderPedido;
+import com.tfg.sportshop.repository.TallaRepository;
+import com.tfg.sportshop.dto.admin.BackorderResponse;
+import com.tfg.sportshop.repository.ProductoRepository;
+import com.tfg.sportshop.repository.ProductoTallaRepository;
+import com.tfg.sportshop.repository.BackorderPedidoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
 public class BackorderPedidoService {
@@ -37,8 +37,7 @@ public class BackorderPedidoService {
         return backorderRepository.findAll();
     }
 
-    public BackorderPedido crear(Integer idDetalle, Integer idPedido, Integer idProducto,
-                                 Integer idTalla, Integer cantidadFaltante) {
+    public BackorderPedido crear(Integer idDetalle, Integer idPedido, Integer idProducto, Integer idTalla, Integer cantidadFaltante) {                
         BackorderPedido backorder = new BackorderPedido(idDetalle, idPedido, idProducto, idTalla, cantidadFaltante);
         return backorderRepository.save(backorder);
     }
@@ -48,7 +47,7 @@ public class BackorderPedidoService {
                 .orElseThrow(() -> new RuntimeException("Backorder no encontrado"));
         backorder.setEstado(estado);
         backorder.setObservaciones(observaciones);
-        if ("RESUELTO".equalsIgnoreCase(estado)) {
+        if("RESUELTO".equalsIgnoreCase(estado)) {
             backorder.setFechaResuelto(java.time.LocalDateTime.now());
         }
         return backorderRepository.save(backorder);
@@ -63,18 +62,12 @@ public class BackorderPedidoService {
     }
 
     public BackorderResponse toResponse(BackorderPedido backorder) {
-        String nombreProducto = productoRepository.findById(backorder.getIdProducto())
-                .map(p -> p.getNombre())
+        String nombreProducto = productoRepository.findById(backorder.getIdProducto()).map(p -> p.getNombre())
                 .orElse("Producto desconocido");
-
-        String talla = backorder.getIdTalla() != null
-                ? tallaRepository.findById(backorder.getIdTalla())
-                    .map(t -> t.getNombre())
-                    .orElse("N/A")
-                : "N/A";
-
+        String talla = backorder.getIdTalla() != null ? tallaRepository.findById(backorder.getIdTalla())
+                    .map(t -> t.getNombre()).orElse("N/A"): "N/A";
         Integer stockActual = 0;
-        if (backorder.getIdTalla() != null) {
+        if(backorder.getIdTalla() != null) {
             var productoTalla = productoTallaRepository.findByProductoIdProductoAndTallaIdTalla(
                     backorder.getIdProducto(),
                     backorder.getIdTalla()
@@ -98,4 +91,3 @@ public class BackorderPedidoService {
         );
     }
 }
-
