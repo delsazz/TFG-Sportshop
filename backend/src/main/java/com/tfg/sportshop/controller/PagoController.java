@@ -3,28 +3,28 @@ package com.tfg.sportshop.controller;
 import java.util.Map;
 import jakarta.validation.Valid;
 import com.tfg.sportshop.model.Pago;
-import org.springframework.http.MediaType;
 import com.tfg.sportshop.model.Usuario;
+import org.springframework.http.MediaType;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import com.tfg.sportshop.services.PagoService;
-import com.tfg.sportshop.services.PagoConfiguracionService;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.security.core.Authentication;
+import org.springframework.http.ResponseEntity;
 import com.tfg.sportshop.dto.pagos.CrearPagoRequest;
 import com.tfg.sportshop.dto.pagos.CrearPagoResponse;
-import com.tfg.sportshop.dto.pagos.ConfirmarPagoTarjetaRequest;
-import com.tfg.sportshop.dto.pagos.PagoConfiguracionResponse;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import com.tfg.sportshop.services.PagoConfiguracionService;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import com.tfg.sportshop.dto.pagos.PagoConfiguracionResponse;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.tfg.sportshop.dto.pagos.ConfirmarPagoTarjetaRequest;
 import com.tfg.sportshop.dto.pagos.ActualizarPagoEstadoRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -33,7 +33,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class PagoController {
     private final PagoService pagoService;
     private final PagoConfiguracionService pagoConfiguracionService;
-
     public PagoController(PagoService pagoService, PagoConfiguracionService pagoConfiguracionService) {
         this.pagoService = pagoService;
         this.pagoConfiguracionService = pagoConfiguracionService;
@@ -122,7 +121,7 @@ public class PagoController {
 
     private Usuario requireUsuario() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof Usuario usuario)) {
+        if(auth == null || !(auth.getPrincipal() instanceof Usuario usuario)) {
             throw new org.springframework.web.server.ResponseStatusException(
                 org.springframework.http.HttpStatus.UNAUTHORIZED,
                 "Usuario no autenticado"
@@ -135,7 +134,7 @@ public class PagoController {
         Usuario usuario = requireUsuario();
         boolean isAdmin = usuario.getRoles() != null && usuario.getRoles().stream()
             .anyMatch(rol -> "ADMIN".equalsIgnoreCase(rol.getNombreRol()));
-        if (!isAdmin) {
+        if isAdmin) {
             throw new org.springframework.web.server.ResponseStatusException(
                 org.springframework.http.HttpStatus.FORBIDDEN,
                 "Se requieren permisos de administrador"

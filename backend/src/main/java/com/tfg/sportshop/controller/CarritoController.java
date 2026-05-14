@@ -41,10 +41,9 @@ public class CarritoController {
 
     private Usuario getUsuarioAutenticado() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof Usuario usuario)) {
+        if(auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof Usuario usuario)) {
             throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
         }
-
         return usuario;
     }
 }
