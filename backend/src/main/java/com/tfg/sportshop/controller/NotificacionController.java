@@ -49,18 +49,9 @@ public class NotificacionController {
     }
 
     private NotificacionResponse toResponse(Notificacion notificacion) {
-        return new NotificacionResponse(
-            notificacion.getIdNotificacion(),
-            notificacion.getPedido().getIdPedido(),
-            notificacion.getCanal(),
-            notificacion.getTitulo(),
-            notificacion.getMensaje(),
-            notificacion.getEstadoPedido(),
-            notificacion.getFechaEnvio(),
-            notificacion.getEmailDestinatario(),
-            notificacion.getEmailEnviado(),
-            notificacion.getFechaEmail(),
-            notificacion.getLeida()
-        );
+        return new NotificacionResponse(notificacion.getIdNotificacion(), notificacion.getPedido().getIdPedido(),
+            notificacion.getCanal(), notificacion.getTitulo(), notificacion.getMensaje(), notificacion.getEstadoPedido(),
+            notificacion.getFechaEnvio(), notificacion.getEmailDestinatario(), notificacion.getEmailEnviado(),
+            notificacion.getFechaEmail(), notificacion.getLeida());
     }
 }

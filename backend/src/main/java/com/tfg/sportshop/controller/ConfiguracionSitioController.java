@@ -44,32 +44,21 @@ public class ConfiguracionSitioController {
         @RequestPart(value = "logoAdmin", required = false) MultipartFile logoAdmin
     ) {
         requireAdmin();
-        return ResponseEntity.ok(configuracionSitioService.actualizarConfiguracion(
-            request,
-            logoHeader,
-            logoFooter,
-            logoLogin,
-            logoHome,
-            logoAdmin
-        ));
+        return ResponseEntity.ok(configuracionSitioService.actualizarConfiguracion(request, logoHeader, logoFooter, logoLogin,  logoHome,  
+            logoAdmin));   
     }
 
     private void requireAdmin() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if(auth == null || !(auth.getPrincipal() instanceof Usuario usuario)) {
             throw new org.springframework.web.server.ResponseStatusException(
-                org.springframework.http.HttpStatus.UNAUTHORIZED,
-                "Usuario no autenticado"
-            );
+                org.springframework.http.HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
         }
-
         boolean isAdmin = usuario.getRoles() != null && usuario.getRoles().stream()
             .anyMatch(rol -> "ADMIN".equalsIgnoreCase(rol.getNombreRol()));
         if(!isAdmin) {
             throw new org.springframework.web.server.ResponseStatusException(
-                org.springframework.http.HttpStatus.FORBIDDEN,
-                "Se requieren permisos de administrador"
-            );
+                org.springframework.http.HttpStatus.FORBIDDEN, "Se requieren permisos de administrador");
         }
     }
 }

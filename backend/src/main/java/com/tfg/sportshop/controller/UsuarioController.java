@@ -31,13 +31,8 @@ public class UsuarioController {
     private final CorreoTemplateService correoTemplateService;
     private final PasswordEncoder passwordEncoder;
     private final JWTTokenProvider jwtTokenProvider;
-    public UsuarioController(
-            UsuarioService usuarioService,
-            RolesService rolesService,
-            RegistroEmailService registroEmailService,
-            CorreoTemplateService correoTemplateService,
-            PasswordEncoder passwordEncoder,
-            JWTTokenProvider jwtTokenProvider) {
+    public UsuarioController(UsuarioService usuarioService, RolesService rolesService, RegistroEmailService registroEmailService,
+            CorreoTemplateService correoTemplateService, PasswordEncoder passwordEncoder, JWTTokenProvider jwtTokenProvider) {
         this.usuarioService = usuarioService;
         this.rolesService = rolesService;
         this.registroEmailService = registroEmailService;
@@ -54,49 +49,38 @@ public class UsuarioController {
     }
 
     @PutMapping("/api/usuarios/me")
-    public ResponseEntity<?> actualizarPerfil(
-            @RequestBody ActualizarPerfilRequest datos,
-            HttpServletRequest request) {
+    public ResponseEntity<?> actualizarPerfil(@RequestBody ActualizarPerfilRequest datos, HttpServletRequest request) {
         Usuario usuario = usuarioAutenticadoDesdeBd(request);
-        if(datos.nombre() != null) usuario.setNombre(datos.nombre().trim());
-        if(datos.apellidos() != null) usuario.setApellidos(datos.apellidos().trim());
-        if(datos.telefono() != null) usuario.setTelefono(datos.telefono().trim());
-        aplicarDireccion(
-                usuario,
-                datos.direccion(),
-                datos.direccionCalle(),
-                datos.direccionNumero(),
-                datos.direccionPiso(),
-                datos.direccionCiudad(),
-                datos.direccionProvincia(),
-                datos.codigoPostal()
-        );
-
+        if(datos.nombre() != null) {
+            usuario.setNombre(datos.nombre().trim());
+        } 
+        if(datos.apellidos() != null) {
+            usuario.setApellidos(datos.apellidos().trim());
+        } 
+        if(datos.telefono() != null) {
+            usuario.setTelefono(datos.telefono().trim());
+        } 
+        aplicarDireccion(usuario, datos.direccion(), datos.direccionCalle(),  datos.direccionNumero(), 
+                datos.direccionPiso(), datos.direccionCiudad(), datos.direccionProvincia(), datos.codigoPostal());
         if(datos.email() != null) {
             String nuevoEmail = datos.email().trim();
             usuarioService.buscarUsuarioPorEmail(nuevoEmail)
                     .filter(existente -> !existente.getIdUsuario().equals(usuario.getIdUsuario()))
                     .ifPresent(existente -> {
                         throw new org.springframework.web.server.ResponseStatusException(
-                                org.springframework.http.HttpStatus.BAD_REQUEST,
-                                "El email ya esta registrado"
-                        );
+                                org.springframework.http.HttpStatus.BAD_REQUEST, "El email ya esta registrado");
                     });
             usuario.setEmail(nuevoEmail);
         }
         Usuario actualizado = usuarioService.registrarUsuario(usuario);
         String nuevoToken = jwtTokenProvider.generateToken(actualizado.getEmail());
-        return ResponseEntity.ok(new ActualizarPerfilResponse(
-                "Perfil actualizado correctamente",
-                nuevoToken,
-                toPerfilResponse(actualizado)
-        ));
+        return ResponseEntity.ok(new ActualizarPerfilResponse("Perfil actualizado correctamente", nuevoToken, 
+                toPerfilResponse(actualizado)));
+        
     }
 
     @PutMapping("/api/usuarios/me/password")
-    public ResponseEntity<?> cambiarPassword(
-            @RequestBody Map<String, String> request,
-            HttpServletRequest httpRequest) {
+    public ResponseEntity<?> cambiarPassword(@RequestBody Map<String, String> request, HttpServletRequest httpRequest) {
         Usuario usuario = usuarioAutenticadoDesdeBd(httpRequest);
         String currentPassword = request.get("currentPassword");
         String newPassword = request.get("newPassword");
@@ -129,17 +113,13 @@ public class UsuarioController {
         requireAdmin();
         if(usuarioService.buscarUsuarioPorEmail(request.email()).isPresent()) {
             throw new org.springframework.web.server.ResponseStatusException(
-                    org.springframework.http.HttpStatus.BAD_REQUEST,
-                    "El email ya esta registrado"
-            );
+                    org.springframework.http.HttpStatus.BAD_REQUEST, "El email ya esta registrado");
         }
         Roles rol = rolesService.bucarPorNombre(request.rol())
                 .or(() -> rolesService.bucarPorNombre(request.rol().toLowerCase()))
                 .or(() -> rolesService.bucarPorNombre(request.rol().toUpperCase()))
                 .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
-                        org.springframework.http.HttpStatus.BAD_REQUEST,
-                        "Rol no valido"
-                ));
+                        org.springframework.http.HttpStatus.BAD_REQUEST, "Rol no valido"));
         Usuario usuario = new Usuario();
         usuario.setNombre(request.nombre());
         usuario.setApellidos(request.apellidos());
@@ -154,20 +134,27 @@ public class UsuarioController {
     }
 
     @PutMapping("/api/admin/usuarios/{id}")
-    public ResponseEntity<AdminUsuarioResponse> actualizarUsuarioAdmin(
-            @PathVariable Integer id,
+    public ResponseEntity<AdminUsuarioResponse> actualizarUsuarioAdmin(@PathVariable Integer id,
             @RequestBody AdminActualizarUsuarioRequest request) {
         requireAdmin();
         Usuario usuario = usuarioService.buscarUsuarioPorId(id)
                 .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
-                        org.springframework.http.HttpStatus.NOT_FOUND,
-                        "Usuario no encontrado"
-                ));
-        if(request.nombre() != null) usuario.setNombre(request.nombre());
-        if(request.apellidos() != null) usuario.setApellidos(request.apellidos());
-        if(request.email() != null) usuario.setEmail(request.email());
-        if(request.telefono() != null) usuario.setTelefono(request.telefono());
-        if(request.direccion() != null) usuario.setDireccion(request.direccion());
+                        org.springframework.http.HttpStatus.NOT_FOUND, "Usuario no encontrado"));   
+        if(request.nombre() != null) {
+            usuario.setNombre(request.nombre());
+        } 
+        if(request.apellidos() != null) {
+            usuario.setApellidos(request.apellidos());
+        } 
+        if(request.email() != null) {
+            usuario.setEmail(request.email());
+        } 
+        if(request.telefono() != null) {
+            usuario.setTelefono(request.telefono());
+        } 
+        if(request.direccion() != null) {
+            usuario.setDireccion(request.direccion());
+        } 
         Usuario actualizado = usuarioService.registrarUsuario(usuario);
         return ResponseEntity.ok(toUsuarioResponse(actualizado));
     }
@@ -178,22 +165,15 @@ public class UsuarioController {
         boolean eliminado = usuarioService.eliminarUsuario(id);
         if(!eliminado) {
             throw new org.springframework.web.server.ResponseStatusException(
-                    org.springframework.http.HttpStatus.NOT_FOUND,
-                    "Usuario no encontrado"
+                    org.springframework.http.HttpStatus.NOT_FOUND, "Usuario no encontrado"  
             );
         }
         return ResponseEntity.noContent().build();
     }
 
     private AdminUsuarioResponse toUsuarioResponse(Usuario usuario) {
-        return new AdminUsuarioResponse(
-                usuario.getIdUsuario(),
-                usuario.getNombre(),
-                usuario.getApellidos(),
-                usuario.getEmail(),
-                usuario.getTelefono(),
-                usuario.getDireccion(),
-                usuario.getPedidos() == null ? 0 : usuario.getPedidos().size(),
+        return new AdminUsuarioResponse(usuario.getIdUsuario(), usuario.getNombre(), usuario.getApellidos(), usuario.getEmail(),
+                usuario.getTelefono(), usuario.getDireccion(), usuario.getPedidos() == null ? 0 : usuario.getPedidos().size(),
                 usuario.getRoles() == null ? List.of() : usuario.getRoles().stream().map(this::toRolResponse).toList()           
         );
     }
@@ -203,12 +183,8 @@ public class UsuarioController {
     }
 
     private PerfilUsuarioResponse toPerfilResponse(Usuario usuario) {
-        return new PerfilUsuarioResponse(
-                usuario.getIdUsuario(),
-                usuario.getNombre(),
-                usuario.getApellidos(),
-                usuario.getEmail(),
-                usuario.getTelefono() != null ? usuario.getTelefono() : "",
+        return new PerfilUsuarioResponse(usuario.getIdUsuario(), usuario.getNombre(), usuario.getApellidos(),
+                usuario.getEmail(), usuario.getTelefono() != null ? usuario.getTelefono() : "",
                 usuario.getDireccion() != null ? usuario.getDireccion() : "",
                 usuario.getDireccionCalle() != null ? usuario.getDireccionCalle() : "",
                 usuario.getDireccionNumero() != null ? usuario.getDireccionNumero() : "",
@@ -221,15 +197,8 @@ public class UsuarioController {
         );
     }
 
-    private void aplicarDireccion(
-            Usuario usuario,
-            String direccion,
-            String calle,
-            String numero,
-            String piso,
-            String ciudad,
-            String provincia,
-            String codigoPostal) {
+    private void aplicarDireccion(Usuario usuario, String direccion, String calle, String numero, String piso, String ciudad,
+            String provincia, String codigoPostal) {
         if(List.of(direccion, calle, numero, piso, ciudad, provincia, codigoPostal).stream().allMatch(valor -> valor == null)) {
             return;
         }
@@ -252,26 +221,13 @@ public class UsuarioController {
     }
 
     private String construirDireccion(Usuario usuario) {
-        String via = List.of(
-                        usuario.getDireccionCalle(),
-                        usuario.getDireccionNumero(),
-                        usuario.getDireccionPiso()
-                ).stream()
-                .filter(valor -> valor != null && !valor.isBlank())
-                .reduce((actual, siguiente) -> actual + ", " + siguiente)
-                .orElse("");
-        String localidad = List.of(
-                        usuario.getCodigoPostal(),
-                        usuario.getDireccionCiudad(),
-                        usuario.getDireccionProvincia()
-                ).stream()
-                .filter(valor -> valor != null && !valor.isBlank())
-                .reduce((actual, siguiente) -> actual + " " + siguiente)
-                .orElse("");
-        return List.of(via, localidad).stream()
-                .filter(valor -> valor != null && !valor.isBlank())
-                .reduce((actual, siguiente) -> actual + " - " + siguiente)
-                .orElse("");
+        String via = List.of(usuario.getDireccionCalle(), usuario.getDireccionNumero(), usuario.getDireccionPiso()).stream()
+                .filter(valor -> valor != null && !valor.isBlank()).reduce((actual, siguiente) -> actual + ", " + siguiente).orElse("");
+        String localidad = List.of(usuario.getCodigoPostal(), usuario.getDireccionCiudad(), usuario.getDireccionProvincia()).stream()
+                .filter(valor -> valor != null && !valor.isBlank()).reduce((actual, siguiente) -> actual + " " + siguiente).orElse("");
+        return List.of(via, localidad).stream().filter(valor -> valor != null && !valor.isBlank())
+                .reduce((actual, siguiente) -> actual + " - " + siguiente).orElse("");
+                
     }
 
     private Usuario usuarioAutenticadoDesdeBd(HttpServletRequest request) {
@@ -282,38 +238,27 @@ public class UsuarioController {
                 return cargarUsuarioConRelaciones(usuario.getIdUsuario());
             }
             if(!(principal instanceof String principalTexto && "anonymousUser".equalsIgnoreCase(principalTexto))) {
-                return usuarioService.buscarUsuarioPorEmail(auth.getName())
-                        .map(Usuario::getIdUsuario)
+                return usuarioService.buscarUsuarioPorEmail(auth.getName()).map(Usuario::getIdUsuario)
                         .map(this::cargarUsuarioConRelaciones)
                         .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
-                                org.springframework.http.HttpStatus.UNAUTHORIZED,
-                                "Usuario no autenticado"
-                        ));
+                                org.springframework.http.HttpStatus.UNAUTHORIZED, "Usuario no autenticado"));                  
             }
         }
         String token = extractJwtFromRequest(request);
         if(token == null || !jwtTokenProvider.validateToken(token)) {
             throw new org.springframework.web.server.ResponseStatusException(
-                    org.springframework.http.HttpStatus.UNAUTHORIZED,
-                    "Usuario no autenticado"
-            );
+                    org.springframework.http.HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
         }
         String email = jwtTokenProvider.getUsernameFromToken(token);
-        return usuarioService.buscarUsuarioPorEmail(email)
-                .map(Usuario::getIdUsuario)
-                .map(this::cargarUsuarioConRelaciones)
+        return usuarioService.buscarUsuarioPorEmail(email).map(Usuario::getIdUsuario).map(this::cargarUsuarioConRelaciones)     
                 .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
-                        org.springframework.http.HttpStatus.UNAUTHORIZED,
-                        "Usuario no autenticado"
-                ));
+                        org.springframework.http.HttpStatus.UNAUTHORIZED, "Usuario no autenticado"));
     }
 
     private Usuario cargarUsuarioConRelaciones(Integer idUsuario) {
         return usuarioService.buscarUsuarioPorIdConRelaciones(idUsuario)
                 .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
-                        org.springframework.http.HttpStatus.NOT_FOUND,
-                        "Usuario no encontrado"
-                ));
+                        org.springframework.http.HttpStatus.NOT_FOUND, "Usuario no encontrado"));
     }
 
     private String extractJwtFromRequest(HttpServletRequest request) {
@@ -328,16 +273,12 @@ public class UsuarioController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if(auth == null || !auth.isAuthenticated()) {
             throw new org.springframework.web.server.ResponseStatusException(
-                    org.springframework.http.HttpStatus.UNAUTHORIZED,
-                    "Usuario no autenticado"
-            );
+                    org.springframework.http.HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
         }
         boolean isAdmin = auth.getAuthorities().stream().anyMatch(authority -> "ROLE_ADMIN".equalsIgnoreCase(authority.getAuthority()));
         if(!isAdmin) {
             throw new org.springframework.web.server.ResponseStatusException(
-                    org.springframework.http.HttpStatus.FORBIDDEN,
-                    "Se requieren permisos de administrador"
-            );
+                    org.springframework.http.HttpStatus.FORBIDDEN, "Se requieren permisos de administrador");
         }
     }
 }
