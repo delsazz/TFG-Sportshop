@@ -1,14 +1,12 @@
 package com.tfg.sportshop.services;
+import java.util.List;
+import org.springframework.stereotype.Service;
 import com.tfg.sportshop.dto.ubicacion.ComunidadDTO;
 import com.tfg.sportshop.repository.ComunidadAutonomaRepository;
-import org.springframework.stereotype.Service;
-import java.util.List;
 
 @Service
 public class ComunidadAutonomaService {
-
     private final ComunidadAutonomaRepository conunidadAutonomaRepository;
-
     public ComunidadAutonomaService(ComunidadAutonomaRepository conunidadAutonomaRepository) {
         this.conunidadAutonomaRepository = conunidadAutonomaRepository;
     }

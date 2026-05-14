@@ -41,10 +41,9 @@ public class CorreoTemplateService {
     }
 
     public void enviarBienvenida(Usuario usuario) {
-        if (usuario == null || usuario.getEmail() == null || usuario.getEmail().isBlank()) {
+        if(usuario == null || usuario.getEmail() == null || usuario.getEmail().isBlank()) {
             return;
         }
-
         ConfiguracionSitioResponse config = configuracionSitioService.obtenerConfiguracion();
         enviarCorreo(
             usuario.getEmail(),
@@ -54,10 +53,9 @@ public class CorreoTemplateService {
     }
 
     public void enviarPedidoCreado(Pedido pedido) {
-        if (pedido == null || pedido.getUsuario() == null || pedido.getUsuario().getEmail() == null || pedido.getUsuario().getEmail().isBlank()) {
+        if(pedido == null || pedido.getUsuario() == null || pedido.getUsuario().getEmail() == null || pedido.getUsuario().getEmail().isBlank()) {
             return;
         }
-
         ConfiguracionSitioResponse config = configuracionSitioService.obtenerConfiguracion();
         Map<String, String> valores = valoresPedido(pedido, null, pedido.getEstado());
         enviarCorreo(
@@ -68,54 +66,48 @@ public class CorreoTemplateService {
     }
 
     public void enviarCambioEstadoPedido(Pedido pedido, String estadoAnterior, String estadoNuevo) {
-        if (pedido == null || pedido.getUsuario() == null || pedido.getUsuario().getEmail() == null || pedido.getUsuario().getEmail().isBlank()) {
+        if(pedido == null || pedido.getUsuario() == null || pedido.getUsuario().getEmail() == null || pedido.getUsuario().getEmail().isBlank()) {
             return;
         }
-
         ConfiguracionSitioResponse config = configuracionSitioService.obtenerConfiguracion();
         Map<String, String> valores = valoresPedido(pedido, estadoAnterior, estadoNuevo);
-        enviarCorreo(
-            pedido.getUsuario().getEmail(),
-            renderizar(config.emailCambioEstadoAsunto(), valores),
+        enviarCorreo(pedido.getUsuario().getEmail(), renderizar(config.emailCambioEstadoAsunto(), valores),
             renderizar(config.emailCambioEstadoCuerpo(), valores)
         );
     }
 
     public void enviarCambioPassword(Usuario usuario) {
-        if (usuario == null || usuario.getEmail() == null || usuario.getEmail().isBlank()) {
+        if(usuario == null || usuario.getEmail() == null || usuario.getEmail().isBlank()) {
             return;
         }
-
         ConfiguracionSitioResponse config = configuracionSitioService.obtenerConfiguracion();
-        enviarCorreo(
-            usuario.getEmail(),
-            renderizar(config.emailCambioPasswordAsunto(), valoresUsuario(usuario)),
+        enviarCorreo(usuario.getEmail(), renderizar(config.emailCambioPasswordAsunto(), valoresUsuario(usuario)),
             renderizar(config.emailCambioPasswordCuerpo(), valoresUsuario(usuario))
         );
     }
 
     private void enviarCorreo(String destinatario, String asunto, String cuerpo) {
-        if (!emailEnabled || mailHost == null || mailHost.isBlank()) {
+        if(!emailEnabled || mailHost == null || mailHost.isBlank()) {
             logger.info("Correo no enviado a {}: SMTP no configurado", destinatario);
             return;
         }
 
         JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
-        if (mailSender == null) {
+        if(mailSender == null) {
             logger.warn("Correo no enviado a {}: JavaMailSender no disponible", destinatario);
             return;
         }
 
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            if (emailFrom != null && !emailFrom.isBlank()) {
+            if(emailFrom != null && !emailFrom.isBlank()) {
                 message.setFrom(emailFrom);
             }
             message.setTo(destinatario);
             message.setSubject(normalizarTexto(asunto, "CampusFP Uniformes"));
             message.setText(normalizarTexto(cuerpo, ""));
             mailSender.send(message);
-        } catch (MailException e) {
+        } catch(MailException e) {
             logger.warn("No se pudo enviar el correo a {}: {}", destinatario, limitarLongitud(e.getMessage(), ERROR_EMAIL_MAX_LENGTH));
         }
     }
@@ -124,10 +116,7 @@ public class CorreoTemplateService {
         String nombre = normalizarTexto(usuario.getNombre(), "usuario");
         String apellidos = normalizarTexto(usuario.getApellidos(), "");
         String nombreCompleto = (nombre + " " + apellidos).trim();
-        return Map.of(
-            "usuario", nombreCompleto.isBlank() ? nombre : nombreCompleto,
-            "nombre", nombre,
-            "apellidos", apellidos,
+        return Map.of("usuario", nombreCompleto.isBlank() ? nombre : nombreCompleto, "nombre", nombre, "apellidos", apellidos, 
             "email", normalizarTexto(usuario.getEmail(), "")
         );
     }
@@ -150,7 +139,7 @@ public class CorreoTemplateService {
 
     private String renderizar(String plantilla, Map<String, String> valores) {
         String resultado = normalizarTexto(plantilla, "");
-        for (Map.Entry<String, String> entry : valores.entrySet()) {
+        for(Map.Entry<String, String> entry : valores.entrySet()) {
             resultado = resultado.replace("[" + entry.getKey() + "]", normalizarTexto(entry.getValue(), ""));
         }
         return resultado;
@@ -169,7 +158,7 @@ public class CorreoTemplateService {
     }
 
     private String limitarLongitud(String valor, int maxLength) {
-        if (valor == null || valor.length() <= maxLength) {
+        if(valor == null || valor.length() <= maxLength) {
             return valor;
         }
         return valor.substring(0, maxLength - 3) + "...";

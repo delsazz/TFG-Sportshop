@@ -1,18 +1,18 @@
 package com.tfg.sportshop.services;
 
-import com.tfg.sportshop.model.Categoria;
-import com.tfg.sportshop.model.Producto;
-import com.tfg.sportshop.repository.CategoriaRepository;
-import com.tfg.sportshop.repository.ProductoRepository;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+import java.util.HashSet;
+import java.util.Optional;
+import com.tfg.sportshop.model.Producto;
+import com.tfg.sportshop.model.Categoria;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.tfg.sportshop.repository.ProductoRepository;
+import com.tfg.sportshop.repository.CategoriaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CategoriaService {
@@ -45,11 +45,9 @@ public class CategoriaService {
     public Categoria crearCategoria(String nombreCategoria, String slug, String descripcion, String imagenUrl, Integer ordenVisualizacion, List<Integer> productoIds) {
         validarNombreUnico(nombreCategoria, null);
         validarSlugUnico(slug, null);
-
         Categoria categoria = new Categoria();
         aplicarDatos(categoria, nombreCategoria, slug, descripcion, imagenUrl, ordenVisualizacion);
         Categoria categoriaGuardada = categoriaRepository.save(categoria);
-
         asignarProductos(categoriaGuardada, productoIds);
         return categoriaRepository.save(categoriaGuardada);
     }
@@ -58,13 +56,10 @@ public class CategoriaService {
     public Categoria actualizarCategoria(Integer idCategoria, String nombreCategoria, String slug, String descripcion, String imagenUrl, Integer ordenVisualizacion, List<Integer> productoIds) {
         Categoria categoria = categoriaRepository.findById(idCategoria)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoria no encontrada"));
-
         validarNombreUnico(nombreCategoria, idCategoria);
         validarSlugUnico(slug, idCategoria);
-
         aplicarDatos(categoria, nombreCategoria, slug, descripcion, imagenUrl, ordenVisualizacion);
         Categoria categoriaActualizada = categoriaRepository.save(categoria);
-
         asignarProductos(categoriaActualizada, productoIds);
         return categoriaRepository.save(categoriaActualizada);
     }
@@ -73,34 +68,28 @@ public class CategoriaService {
     public void eliminarCategoria(Integer idCategoria) {
         Categoria categoria = categoriaRepository.findById(idCategoria)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoria no encontrada"));
-
         List<Producto> productosAsignados = productoRepository.findByCategoriaIdCategoria(idCategoria);
-        if (!productosAsignados.isEmpty()) {
-            for (Producto producto : productosAsignados) {
+        if(!productosAsignados.isEmpty()) {
+            for(Producto producto : productosAsignados) {
                 producto.setCategoria(null);
             }
             productoRepository.saveAll(productosAsignados);
         }
-
         categoriaRepository.delete(categoria);
     }
 
     private void asignarProductos(Categoria categoria, List<Integer> productoIds) {
-        if (productoIds == null || productoIds.isEmpty()) {
+        if(productoIds == null || productoIds.isEmpty()) {
             return;
         }
-
         Set<Integer> idsUnicos = new HashSet<>(productoIds);
         List<Producto> productos = productoRepository.findByIdProductoIn(productoIds);
-
         if (productos.size() != idsUnicos.size()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Uno o varios productos no existen");
         }
-
-        for (Producto producto : productos) {
+        for(Producto producto : productos) {
             producto.setCategoria(categoria);
         }
-
         productoRepository.saveAll(productos);
     }
 
@@ -123,19 +112,17 @@ public class CategoriaService {
 
     private void validarSlugUnico(String slug, Integer idCategoria) {
         String normalizado = normalizarSlug(slug);
-        boolean exists = idCategoria == null
-            ? categoriaRepository.existsBySlug(normalizado)
+        boolean exists = idCategoria == null ? categoriaRepository.existsBySlug(normalizado)
             : categoriaRepository.existsBySlugAndIdCategoriaNot(normalizado, idCategoria);
-        if (exists) {
+        if(exists) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ya existe una categoria con ese slug");
         }
     }
 
     private String normalizarSlug(String slug) {
-        String normalizado = slug == null ? "" : slug.trim().toLowerCase()
-            .replaceAll("[^a-z0-9]+", "-")
+        String normalizado = slug == null ? "" : slug.trim().toLowerCase().replaceAll("[^a-z0-9]+", "-")
             .replaceAll("(^-|-$)", "");
-        if (normalizado.isBlank()) {
+        if(normalizado.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El slug no es valido");
         }
         return normalizado;

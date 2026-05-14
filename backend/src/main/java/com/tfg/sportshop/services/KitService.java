@@ -1,21 +1,21 @@
 package com.tfg.sportshop.services;
 
-import com.tfg.sportshop.dto.admin.AdminKitRequest;
-import com.tfg.sportshop.model.Categoria;
-import com.tfg.sportshop.model.Kit;
-import com.tfg.sportshop.model.KitProducto;
-import com.tfg.sportshop.model.Producto;
-import com.tfg.sportshop.repository.KitRepository;
-import com.tfg.sportshop.repository.KitProductoRepository;
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.ArrayList;
+import java.math.BigDecimal;
+import com.tfg.sportshop.model.Kit;
+import com.tfg.sportshop.model.Producto;
+import com.tfg.sportshop.model.Categoria;
+import com.tfg.sportshop.model.KitProducto;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.tfg.sportshop.repository.KitRepository;
+import com.tfg.sportshop.dto.admin.AdminKitRequest;
+import com.tfg.sportshop.repository.KitProductoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class KitService {
@@ -32,36 +32,27 @@ public class KitService {
     private ProductoService productoService;
 
     public List<Kit> obtenerTodosLosKits() {
-        return kitRepository.findAllActivos().stream()
-            .map(this::aplicarStockCalculado)
-            .toList();
+        return kitRepository.findAllActivos().stream().map(this::aplicarStockCalculado).toList();   
     }
 
     public List<Kit> obtenerKitsPorCategoria(Integer categoriaId) {
-        return kitRepository.findActivosByCategoria(categoriaId).stream()
-            .map(this::aplicarStockCalculado)
-            .toList();
+        return kitRepository.findActivosByCategoria(categoriaId).stream().map(this::aplicarStockCalculado).toList();
     }
 
     public List<Kit> buscarKitsPorNombre(String nombre) {
-        return kitRepository.searchByNombre(nombre).stream()
-            .map(this::aplicarStockCalculado)
-            .toList();
+        return kitRepository.searchByNombre(nombre).stream().map(this::aplicarStockCalculado).toList();
     }
 
     public Kit obtenerKitPorId(Integer id) {
-        Kit kit = kitRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Kit no encontrado"));
+        Kit kit = kitRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Kit no encontrado"));      
         return aplicarStockCalculado(kit);
     }
 
     @Transactional
     public Kit crearKit(AdminKitRequest request) {
         validarRequest(request);
-
         Categoria categoria = categoriaService.buscarCategoriaPorId(request.categoriaId())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoria no encontrada"));
-
         Kit kit = new Kit();
         kit.setNombre(request.nombre());
         kit.setDescripcion(request.descripcion());
@@ -69,13 +60,10 @@ public class KitService {
         kit.setCategoria(categoria);
         kit.setImagen(request.imagen());
         kit.setActivo(true); kit.setStock(request.stock());
-
         Kit kitGuardado = kitRepository.save(kit);
-
         List<KitProducto> productosKit = guardarProductosDelKit(kitGuardado, request.productos());
         kitGuardado.setProductos(productosKit);
         kitGuardado.setStock(calcularStockProductosKit(productosKit));
-
         return kitRepository.save(kitGuardado);
     }
 
@@ -83,10 +71,8 @@ public class KitService {
     public Kit actualizarKit(Integer id, AdminKitRequest request) {
         Kit kit = obtenerKitPorId(id);
         validarRequest(request);
-
         Categoria categoria = categoriaService.buscarCategoriaPorId(request.categoriaId())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoria no encontrada"));
-
         kit.setNombre(request.nombre());
         kit.setDescripcion(request.descripcion());
         kit.setCategoria(categoria);
@@ -95,11 +81,9 @@ public class KitService {
         // Eliminar productos existentes
         List<KitProducto> productosExistentes = kitProductoRepository.findByKitId(id);
         kitProductoRepository.deleteAll(productosExistentes);
-
         List<KitProducto> productosKit = guardarProductosDelKit(kit, request.productos());
         kit.setPrecio(calcularPrecioProductosKit(productosKit));
         kit.setStock(calcularStockProductosKit(productosKit));
-
         return kitRepository.save(kit);
     }
 
@@ -119,24 +103,21 @@ public class KitService {
     }
 
     private void validarRequest(AdminKitRequest request) {
-        if (request.productos() == null || request.productos().isEmpty()) {
+        if(request.productos() == null || request.productos().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El kit debe contener al menos un producto");
         }
     }
 
     private List<KitProducto> guardarProductosDelKit(Kit kit, List<AdminKitRequest.KitProductoRequest> productos) {
         List<KitProducto> productosKit = new ArrayList<>();
-
-        for (AdminKitRequest.KitProductoRequest kp : productos) {
+        for(AdminKitRequest.KitProductoRequest kp : productos) {
             Producto producto = productoService.buscarProductoPorId(kp.productoId().longValue());
-
             KitProducto kitProducto = new KitProducto();
             kitProducto.setKit(kit);
             kitProducto.setProducto(producto);
             kitProducto.setCantidad(kp.cantidad());
             productosKit.add(kitProductoRepository.save(kitProducto));
         }
-
         return productosKit;
     }
 
@@ -150,13 +131,12 @@ public class KitService {
     }
 
     private BigDecimal calcularPrecioProductosKit(List<KitProducto> productosKit) {
-        return productosKit.stream()
-            .map(kp -> kp.getProducto().getPrecio().multiply(BigDecimal.valueOf(kp.getCantidad())))
+        return productosKit.stream().map(kp -> kp.getProducto().getPrecio().multiply(BigDecimal.valueOf(kp.getCantidad())))
             .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private int calcularStockProductosKit(List<KitProducto> productosKit) {
-        if (productosKit == null || productosKit.isEmpty()) {
+        if(productosKit == null || productosKit.isEmpty()) {
             return 0;
         }
 
@@ -164,7 +144,7 @@ public class KitService {
             .mapToInt(kp -> {
                 int stockProducto = Optional.ofNullable(kp.getProducto().getStock()).orElse(0);
                 int cantidadEnKit = Optional.ofNullable(kp.getCantidad()).orElse(0);
-                if (cantidadEnKit <= 0) {
+                if(cantidadEnKit <= 0) {
                     return 0;
                 }
                 return stockProducto / cantidadEnKit;
@@ -179,5 +159,3 @@ public class KitService {
         return kit;
     }
 }
-
-
