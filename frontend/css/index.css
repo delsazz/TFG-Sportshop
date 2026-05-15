@@ -5,11 +5,25 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('/img/hero.png');
-    background-size: cover;
+    background:
+        linear-gradient(120deg, rgba(7, 17, 13, 0.78), rgba(7, 17, 13, 0.92)),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+        url('/img/futbol.jpg');
+    background-size: cover, 64px 64px, cover;
     background-position: center;
     text-align: center;
     padding: 4rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::after {
+    content: "";
+    position: absolute;
+    inset: auto -10% -4rem -10%;
+    height: 8rem;
+    background: repeating-linear-gradient(115deg, rgba(184, 255, 0, 0.18) 0 16px, transparent 16px 32px);
+    transform: skewY(-2deg);
 }
 
 .hero h1 {
@@ -37,13 +51,15 @@
     position: relative;
     cursor: pointer;
     overflow: hidden;
+    border: 1px solid rgba(184, 255, 0, 0.18);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.24);
 }
 
 .category-card::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(transparent, rgba(0,0,0,0.9));
+    background: linear-gradient(transparent 20%, rgba(7, 17, 13, 0.92));
 }
 
 .category-card h3 {

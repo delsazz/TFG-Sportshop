@@ -1482,3 +1482,157 @@ main img {
   filter: saturate(1.04) contrast(1.02);
 }
 
+/* SportShop athletic skin */
+:root {
+  --sportshop-ink: #07110d;
+  --sportshop-surface: #ffffff;
+  --sportshop-orange: #ff4d00;
+  --sportshop-orange-dark: #c93600;
+  --sportshop-cyan: #00b8d9;
+  --sportshop-lime: #b8ff00;
+  --sportshop-line: rgba(7, 17, 13, 0.08);
+}
+
+body {
+  background:
+    linear-gradient(90deg, rgba(7, 17, 13, 0.035) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(7, 17, 13, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 14% 10%, rgba(255, 77, 0, 0.18), transparent 26rem),
+    radial-gradient(circle at 88% 18%, rgba(0, 184, 217, 0.16), transparent 24rem),
+    linear-gradient(135deg, #f7faf7 0%, #eef7f1 48%, #fff7ed 100%);
+  background-size: 72px 72px, 72px 72px, auto, auto, auto;
+  color: var(--sportshop-ink);
+}
+
+::selection {
+  background: var(--sportshop-lime);
+  color: var(--sportshop-ink);
+}
+
+::-webkit-scrollbar-track {
+  background: #e7efe9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--sportshop-orange), var(--sportshop-cyan));
+  border-color: #e7efe9;
+}
+
+.admin-sidebar {
+  background:
+    linear-gradient(180deg, rgba(255, 77, 0, 0.18), transparent 34%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 12px),
+    #07110d;
+  border-right-color: rgba(184, 255, 0, 0.22);
+}
+
+.admin-sidebar-header,
+.admin-sidebar-footer {
+  border-color: rgba(184, 255, 0, 0.18);
+}
+
+.nav-item.active {
+  background-color: rgba(255, 77, 0, 0.16);
+  color: #ffffff;
+  border-left-color: var(--sportshop-orange);
+}
+
+.nav-item:hover {
+  background-color: rgba(184, 255, 0, 0.10);
+  color: #ffffff;
+}
+
+.admin-header {
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom-color: var(--sportshop-line);
+}
+
+.admin-section-title,
+.admin-subsection-title,
+main h1,
+main h2,
+main h3 {
+  color: var(--sportshop-ink);
+  letter-spacing: 0;
+}
+
+main h1,
+main h2,
+.admin-section-title {
+  font-weight: 900;
+}
+
+main .bg-white,
+.modal,
+.orders-table-wrapper,
+.users-table-wrapper,
+.admin-section,
+.analytics-card,
+.report-card,
+.stat-card,
+.product-card {
+  border: 1px solid var(--sportshop-line) !important;
+  box-shadow: 0 18px 48px rgba(7, 17, 13, 0.10) !important;
+}
+
+.stat-card,
+.product-card,
+.order-status-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before,
+.product-card::before,
+.order-status-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: linear-gradient(180deg, var(--sportshop-orange), var(--sportshop-lime));
+}
+
+.btn-primary,
+.action-btn-primary,
+main button[class*="bg-blue"],
+main a[class*="bg-blue"] {
+  background-image: linear-gradient(135deg, var(--sportshop-orange), #ff8a00) !important;
+  background-color: var(--sportshop-orange) !important;
+  box-shadow: 0 12px 24px rgba(255, 77, 0, 0.22) !important;
+}
+
+.btn-primary:hover,
+.action-btn-primary:hover {
+  background-color: var(--sportshop-orange-dark) !important;
+}
+
+main button[class*="bg-slate-900"],
+main a[class*="bg-slate-900"] {
+  background-image: linear-gradient(135deg, var(--sportshop-ink), #124236) !important;
+}
+
+main thead {
+  background: linear-gradient(135deg, rgba(184, 255, 0, 0.16), rgba(255, 77, 0, 0.12)) !important;
+}
+
+.badge-primary,
+.badge-info {
+  background-color: rgba(0, 184, 217, 0.16);
+  color: #075064;
+}
+
+.badge-warning {
+  background-color: rgba(255, 77, 0, 0.14);
+  color: #8b2b00;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus,
+main input:focus,
+main select:focus,
+main textarea:focus {
+  border-color: var(--sportshop-orange) !important;
+  box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.16) !important;
+}
+

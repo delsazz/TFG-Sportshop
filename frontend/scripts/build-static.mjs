@@ -15,8 +15,8 @@ for (const dir of ['css', 'js', 'public']) {
   }
 }
 
-const sharedLogo = join(root, '..', 'admin', 'public', 'img', 'campusfp.png')
-const frontendLogo = join(dist, 'img', 'campusfp.png')
+const sharedLogo = join(root, '..', 'admin', 'public', 'img', 'sportshop.jpg')
+const frontendLogo = join(dist, 'img', 'sportshop.jpg')
 if (!existsSync(frontendLogo) && existsSync(sharedLogo)) {
   mkdirSync(join(dist, 'img'), { recursive: true })
   cpSync(sharedLogo, frontendLogo)
