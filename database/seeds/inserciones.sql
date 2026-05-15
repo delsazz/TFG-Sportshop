@@ -1,7 +1,9 @@
-INSERT INTO Categoria(nombre_categoria) VALUES
-                                            ('Proteccion Civil'),
-                                            ('Tecnicos Emergencias'),
-                                            ('Sanidad');
+INSERT INTO Categoria(categoria) VALUES
+                                    ('Ropa deportiva'),
+                                    ('Calzado'),
+                                    ('Accesorios'),
+                                    ('Equipamiento'),
+                                    ('Suplementos');
 
      INSERT INTO Producto_Talla VALUES
                                (1,1,20),(1,2,20),(1,3,20),(1,4,20),

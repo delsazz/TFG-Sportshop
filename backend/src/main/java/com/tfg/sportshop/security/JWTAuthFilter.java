@@ -115,7 +115,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             return null;
         }
         return Arrays.stream(cookies)
-                .filter(cookie -> "campusfp_auth".equals(cookie.getName()))
+                .filter(cookie -> "sportshop_auth".equals(cookie.getName()))
                 .map(Cookie::getValue)
                 .findFirst()
                 .orElse(null);

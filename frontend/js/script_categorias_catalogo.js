@@ -7,17 +7,24 @@ const categoryDescription = document.getElementById('category-description');
 const categoryImage = document.getElementById('category-image');
 const isLoggedIn = !!sessionStorage.getItem('token');
 const slug = getSlugFromUrl();
+const categoryImages = {
+  'ropa-deportiva': '/img/categorias/ropa_deportiva.jpg',
+  'calzado': '/img/categorias/calzado_deportivo.jpg',
+  'accesorios': '/img/categorias/accesorios_deportivos.jpg',
+  'equipamiento': '/img/categorias/equipamiento_deportivo.jpg',
+  'suplementos': '/img/categorias/suplementos_deportivos.jpg',
+};
 let categoria = null;
 let productos = [];
 
 async function loadData() {
   try {
-    const categoriaResp = await fetch(`/api/categorias/${slug}`);
+    const categoriaResp = await fetch(`/api/categorias/slug/${slug}`);
     categoria = await categoriaResp.json();
     categoryTitle.textContent = categoria.nombreCategoria;
     categoryDescription.textContent =
       categoria.descripcion;
-    categoryImage.src = categoria.imagenUrl;
+    categoryImage.src = categoria.imagenUrl || categoryImages[slug] || '/img/categorias/ropa_deportiva.jpg';
     const productosResp =
       await fetch('/api/productos');
     const productosData =
