@@ -122,7 +122,8 @@ public class PedidoController {
     private PedidoLineaResponse toPedidoLineaResponse(DetallePedido detalle) {
         return new PedidoLineaResponse(detalle.getIdDetalle(), 
                 detalle.getProducto() == null ? null : detalle.getProducto().getIdProducto(),
-                detalle.getProducto() == null ? null : (detalle.getProducto().getNombre() != null ? detalle.getProducto().getNombre() : "Producto " + detalle.getProducto().getIdProducto()),
+                detalle.getProducto() == null ? null : (detalle.getProducto().getNombre() != null ? 
+                detalle.getProducto().getNombre() : "Producto " + detalle.getProducto().getIdProducto()),
                 detalle.getTalla() == null ? null : detalle.getTalla().getNombre(), detalle.getCantidad(), detalle.getPrecioUnitario(),
                 detalle.getProducto() == null ? null : detalle.getProducto().getImagen() );
     }
@@ -169,7 +170,8 @@ public class PedidoController {
         return new AdminPedidoUsuarioResponse(usuario.getIdUsuario(), usuario.getNombre(), usuario.getApellidos(), usuario.getEmail());
     }
 
-    private AdminPedidoLineaResponse toPedidoLineaResponse(DetallePedido detalle, java.util.Map<Integer, Integer> cantidadesEntregadas, java.util.Map<Integer, String> estadosEntrega) {
+    private AdminPedidoLineaResponse toPedidoLineaResponse(DetallePedido detalle, java.util.Map<Integer, Integer> cantidadesEntregadas, 
+            java.util.Map<Integer, String> estadosEntrega) {
         int cantidadEntregada = cantidadesEntregadas.getOrDefault(detalle.getIdDetalle(), 0);
         return new AdminPedidoLineaResponse(detalle.getIdDetalle(), detalle.getCantidad(), cantidadEntregada,
                 Math.max(detalle.getCantidad() - cantidadEntregada, 0),  detalle.getPrecioUnitario(),
