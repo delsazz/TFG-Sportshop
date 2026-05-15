@@ -1,17 +1,20 @@
 :root {
-    /* Sporty Frontend Colors */
-    --primary: #FF4D00; /* Dynamic Orange */
-    --secondary: #00E5FF; /* Electric Cyan */
-    --accent: #D4FF00; /* Acid Lime */
-    --bg-dark: #050505;
-    --bg-surface: #121212;
-    --bg-card: #1E1E1E;
-    --text-white: #FFFFFF;
-    --text-gray: #A0A0A0;
+    /* SportShop athletic theme */
+    --primary: #ff4d00;
+    --primary-dark: #c93600;
+    --secondary: #00b8d9;
+    --accent: #b8ff00;
+    --bg-dark: #07110d;
+    --bg-surface: #101916;
+    --bg-card: #17231f;
+    --field-line: rgba(184, 255, 0, 0.34);
+    --text-white: #ffffff;
+    --text-gray: #b7c5bd;
     
     /* Gradients */
-    --grad-primary: linear-gradient(135deg, #FF4D00 0%, #FF8000 100%);
-    --grad-dark: linear-gradient(180deg, #121212 0%, #050505 100%);
+    --grad-primary: linear-gradient(135deg, #ff4d00 0%, #ff8a00 54%, #b8ff00 100%);
+    --grad-dark: linear-gradient(180deg, #13211b 0%, #07110d 100%);
+    --grad-field: linear-gradient(135deg, rgba(0, 184, 217, 0.16), rgba(184, 255, 0, 0.12));
     
     /* Borders */
     --border-radius: 4px; /* Sporty sharp look */
