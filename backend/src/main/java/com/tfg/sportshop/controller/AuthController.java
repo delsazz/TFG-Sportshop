@@ -162,9 +162,15 @@ public class AuthController {
     @ResponseBody
     public ResponseEntity<?> actualizarPerfil(@RequestBody ActualizarPerfilRequest request, HttpServletRequest httpRequest) {
         Usuario usuario = getUsuarioDesdeToken(httpRequest);
-        if(request.nombre() != null) usuario.setNombre(request.nombre().trim());
-        if(request.apellidos() != null) usuario.setApellidos(request.apellidos().trim());
-        if(request.telefono() != null) usuario.setTelefono(request.telefono().trim());
+        if(request.nombre() != null) {
+            usuario.setNombre(request.nombre().trim());
+        } 
+        if(request.apellidos() != null) {
+            usuario.setApellidos(request.apellidos().trim());
+        } 
+        if(request.telefono() != null) {
+            usuario.setTelefono(request.telefono().trim());
+        } 
         aplicarDireccion(usuario, request.direccion(), request.direccionCalle(), request.direccionNumero(),   
                 request.direccionPiso(), request.direccionCiudad(), request.direccionProvincia(), request.codigoPostal());
         if(request.email() != null) {
