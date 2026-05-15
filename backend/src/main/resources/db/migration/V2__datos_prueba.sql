@@ -17,10 +17,12 @@ INSERT INTO roles_usuario (id_usuario, id_rol) VALUES
     (4, 2)
 ON CONFLICT DO NOTHING;
 
-INSERT INTO categoria (nombre_categoria) VALUES
-    ('Proteccion Civil'),
-    ('Tecnicos Emergencias'),
-    ('Sanidad')
+INSERT INTO categoria (categoria) VALUES
+    ('Ropa deportiva'),
+    ('Calzado'),
+    ('Accesorios'),
+    ('Equipamiento'),
+    ('Suplementos')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO talla (nombre) VALUES

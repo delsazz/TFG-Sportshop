@@ -412,7 +412,7 @@ public class CatalogoController {
             Cookie[] cookies = request.getCookies();
             if(cookies != null) {
                 for(Cookie cookie : cookies) {
-                    if("campusfp_auth".equals(cookie.getName())) {
+                    if("sportshop_auth".equals(cookie.getName())) {
                         String token = cookie.getValue();
                         if(token != null && jwtTokenProvider.validateToken(token)) {
                             email = jwtTokenProvider.getUsernameFromToken(token);

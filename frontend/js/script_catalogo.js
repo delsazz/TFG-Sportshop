@@ -1,10 +1,14 @@
 const legacyCategoryImages = {
-  '1': '/img/proteccion-civil.jpg',
-  '2': '/img/sanidad.jpg',
-  '3': '/img/laboratorio.jpg',
-  'proteccion-civil': '/img/proteccion-civil.jpg',
-  'emergencias': '/img/sanidad.jpg',
-  'laboratorio': '/img/laboratorio.jpg',
+  '1': '/img/categorias/ropa_deportiva.jpg',
+  '2': '/img/categorias/calzado_deportivo.jpg',
+  '3': '/img/categorias/accesorios_deportivos.jpg',
+  '4': '/img/categorias/equipamiento_deportivo.jpg',
+  '5': '/img/categorias/suplementos_deportivos.jpg',
+  'ropa-deportiva': '/img/categorias/ropa_deportiva.jpg',
+  'calzado': '/img/categorias/calzado_deportivo.jpg',
+  'accesorios': '/img/categorias/accesorios_deportivos.jpg',
+  'equipamiento': '/img/categorias/equipamiento_deportivo.jpg',
+  'suplementos': '/img/categorias/suplementos_deportivos.jpg',
 };
 
 function addItemToCheckoutDraft(item) {
@@ -47,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function loadData() {
     try {
       // Fetch category
-      const catRes = await fetch(`${apiBaseUrl}/categorias/${slug}`);
+      const catRes = await fetch(`${apiBaseUrl}/categorias/slug/${slug}`);
       if (!catRes.ok) throw new Error('Categoria no encontrada');
       const categoria = await catRes.json();
 

@@ -316,17 +316,17 @@ public class AuthController {
         if(cookies == null) {
             return null;
         }
-        return Arrays.stream(cookies).filter(cookie -> "campusfp_auth".equals(cookie.getName()))
+        return Arrays.stream(cookies).filter(cookie -> "sportshop_auth".equals(cookie.getName()))
                 .map(Cookie::getValue).findFirst().orElse(null);
     }
 
     private ResponseCookie buildAuthCookie(String token, HttpServletRequest request) {
-        return ResponseCookie.from("campusfp_auth", token).httpOnly(true).secure(request.isSecure())   
+        return ResponseCookie.from("sportshop_auth", token).httpOnly(true).secure(request.isSecure())   
                 .sameSite("Lax").path("/").maxAge(java.time.Duration.ofDays(1)).build();         
     }
 
     private ResponseCookie clearAuthCookie(HttpServletRequest request) {
-        return ResponseCookie.from("campusfp_auth", "").httpOnly(true).secure(request.isSecure())
+        return ResponseCookie.from("sportshop_auth", "").httpOnly(true).secure(request.isSecure())
                 .sameSite("Lax").path("/").maxAge(java.time.Duration.ZERO).build();    
     }
 

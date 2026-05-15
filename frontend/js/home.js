@@ -1,37 +1,57 @@
 const fallbackCategorias = [
   {
     idCategoria: 1,
-    nombreCategoria: 'Protección Civil',
-    slug: 'proteccion-civil',
-    descripcion: 'Equipamiento para intervenciones',
-    imagenUrl: '/img/proteccion-civil.jpg',
+    nombreCategoria: 'Ropa deportiva',
+    slug: 'ropa-deportiva',
+    descripcion: 'Camisetas, pantalones y prendas para entrenar.',
+    imagenUrl: '/img/categorias/ropa_deportiva.jpg',
     ordenVisualizacion: 1,
   },
   {
     idCategoria: 2,
-    nombreCategoria: 'Técnico en Emergencias Sanitarias',
-    slug: 'emergencias',
-    descripcion: 'Uniformes y EPIs para ambulancias',
-    imagenUrl: '/img/sanidad.jpg',
+    nombreCategoria: 'Calzado',
+    slug: 'calzado',
+    descripcion: 'Zapatillas y calzado deportivo cómodo.',
+    imagenUrl: '/img/categorias/calzado_deportivo.jpg',
     ordenVisualizacion: 2,
   },
   {
     idCategoria: 3,
-    nombreCategoria: 'Laboratorio',
-    slug: 'laboratorio',
-    descripcion: 'Protección para entornos de laboratorio',
-    imagenUrl: '/img/laboratorio.jpg',
+    nombreCategoria: 'Accesorios',
+    slug: 'accesorios',
+    descripcion: 'Mochilas y complementos para tu actividad.',
+    imagenUrl: '/img/categorias/accesorios_deportivos.jpg',
     ordenVisualizacion: 3,
+  },
+  {
+    idCategoria: 4,
+    nombreCategoria: 'Equipamiento',
+    slug: 'equipamiento',
+    descripcion: 'Material para entrenamiento y fuerza.',
+    imagenUrl: '/img/categorias/equipamiento_deportivo.jpg',
+    ordenVisualizacion: 4,
+  },
+  {
+    idCategoria: 5,
+    nombreCategoria: 'Suplementos',
+    slug: 'suplementos',
+    descripcion: 'Nutrición deportiva y recuperación muscular.',
+    imagenUrl: '/img/categorias/suplementos_deportivos.jpg',
+    ordenVisualizacion: 5,
   },
 ];
 
 const legacyCategoryImages = {
-  '1': '/img/proteccion-civil.jpg',
-  '2': '/img/sanidad.jpg',
-  '3': '/img/laboratorio.jpg',
-  'proteccion-civil': '/img/proteccion-civil.jpg',
-  'emergencias': '/img/sanidad.jpg',
-  'laboratorio': '/img/laboratorio.jpg',
+  '1': '/img/categorias/ropa_deportiva.jpg',
+  '2': '/img/categorias/calzado_deportivo.jpg',
+  '3': '/img/categorias/accesorios_deportivos.jpg',
+  '4': '/img/categorias/equipamiento_deportivo.jpg',
+  '5': '/img/categorias/suplementos_deportivos.jpg',
+  'ropa-deportiva': '/img/categorias/ropa_deportiva.jpg',
+  'calzado': '/img/categorias/calzado_deportivo.jpg',
+  'accesorios': '/img/categorias/accesorios_deportivos.jpg',
+  'equipamiento': '/img/categorias/equipamiento_deportivo.jpg',
+  'suplementos': '/img/categorias/suplementos_deportivos.jpg',
 };
 
 async function getCategorias() {
@@ -64,7 +84,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const categoriasMostrar = categorias.length > 0 ? categorias : fallbackCategorias;
 
   categoriasMostrar.forEach(categoria => {
-    const imagenSrc = categoria.imagenUrl || legacyCategoryImages[categoria.slug] || legacyCategoryImages[String(categoria.idCategoria)] || '/img/campusfp.png';
+    const imagenSrc = categoria.imagenUrl || legacyCategoryImages[categoria.slug] || legacyCategoryImages[String(categoria.idCategoria)] || '/img/categorias/ropa_deportiva.jpg';
     
     const catHtml = `
       <a href="/catalogo.html?slug=${categoria.slug}" class="group overflow-hidden rounded-4xl border border-slate-100 bg-white shadow-lg shadow-slate-200/60 transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-100">

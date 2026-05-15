@@ -18,10 +18,12 @@ INSERT INTO roles_usuario(id_usuario,id_rol) VALUES
                                                  (3,2),
                                                  (4,2);
 
-INSERT INTO categoria(nombre_categoria) VALUES
-                                            ('Protección Civil'),
-                                            ('Técnicos Emergencias'),
-                                            ('Laboratorio');
+INSERT INTO categoria(categoria) VALUES
+                                    ('Ropa deportiva'),
+                                    ('Calzado'),
+                                    ('Accesorios'),
+                                    ('Equipamiento'),
+                                    ('Suplementos');
 
 INSERT INTO talla(nombre) VALUES
                               ('S'),('M'),('L'),('XL'),
