@@ -27,12 +27,12 @@ INSERT INTO talla (nombre) VALUES
     ('S'), ('M'), ('L'), ('XL'),
     ('36'), ('37'), ('38'), ('39'), ('40'), ('41'), ('42'), ('43'), ('44'), ('45');
 
-INSERT INTO producto (nombre, tipo_prenda, color, precio, stock, id_categoria) VALUES
-    ('Camiseta Nike', 'Camiseta', 'Negro', 25.00, 50, 1),
-    ('Zapatillas Adidas', 'Calzado', 'Blanco', 80.00, 30, 2),
-    ('Mochila Puma', 'Mochila', 'Negro', 40.00, 20, 3),
-    ('Pesas 10kg', 'Pesas', 'Gris', 60.00, 15, 4),
-    ('Proteina Whey', 'Suplemento', 'Vainilla', 45.00, 25, 5);
+INSERT INTO producto (nombre, tipo_prenda, color, precio, stock, descripcion, id_categoria) VALUES
+    ('Camiseta Nike', 'Camiseta', 'Negro', 25.00, 50, 'Camiseta deportiva Nike de manga corta, fabricada con tejido transpirable Dri-FIT que ayuda a mantener la piel seca y cómoda durante el entrenamiento. Ideal para running, gimnasio o uso diario.', 1),
+    ('Zapatillas Adidas', 'Calzado', 'Blanco', 80.00, 30, 'Zapatillas deportivas Adidas con suela de goma antideslizante y amortiguación avanzada. Diseñadas para ofrecer comodidad y estabilidad en entrenamientos y actividades deportivas intensas.', 2),
+    ('Mochila Puma', 'Mochila', 'Negro', 40.00, 20, 'Mochila Puma resistente y ligera con múltiples compartimentos. Perfecta para llevar ropa deportiva, accesorios o material escolar. Incluye tirantes ajustables y acolchados.', 3),
+    ('Pesas 10kg', 'Pesas', 'Gris', 60.00, 15, 'Juego de pesas de 10 kg ideales para entrenamiento de fuerza en casa o gimnasio. Fabricadas con materiales duraderos y agarre ergonómico para mayor seguridad durante el ejercicio.', 4),
+    ('Proteina Whey', 'Suplemento', 'Vainilla', 45.00, 25, 'Suplemento de proteína Whey de alta calidad, ideal para recuperación muscular después del entrenamiento. Contiene aminoácidos esenciales y es de rápida absorción.', 5);
 
 INSERT INTO producto_talla (id_producto, id_talla, stock) VALUES
     (1, 1, 12), (1, 2, 14), (1, 3, 14), (1, 4, 10),

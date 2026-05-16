@@ -41,7 +41,7 @@ public class Producto {
     private List<DetallePedido> detalles;
     @Column(name = "imagen", length = 255)
     private String imagen;
-    @Column(columnDefinition = "TEXT")
+    @Column(length = 500)
     private String descripcion;
     @Column(columnDefinition = "TEXT")
     private String consejos;

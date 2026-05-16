@@ -90,4 +90,4 @@ INSERT INTO ciudad (nombre, id_provincia) VALUES
 ('Bilbao',49),('Barakaldo',49),('Getxo',49),('Portugalete',49),('Santurtzi',49),('Basauri',49),('Durango',49),
 
 -- LA RIOJA (50)
-('Logroño',50),('Calahorra',50),('Arnedo',50),('Alfaro',50),('Har o',50),('Nájera',50),('Lardero',50);
+('Logroño',50),('Calahorra',50),('Arnedo',50),('Alfaro',50),('Haro',50),('Nájera',50),('Lardero',50);

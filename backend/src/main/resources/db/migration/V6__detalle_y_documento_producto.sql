@@ -1,4 +1,3 @@
-ALTER TABLE producto ADD COLUMN descripcion TEXT;
 ALTER TABLE producto ADD COLUMN composicion VARCHAR(255);
 ALTER TABLE producto ADD COLUMN normativa VARCHAR(255);
 ALTER TABLE producto ADD COLUMN instrucciones_lavado VARCHAR(255);
