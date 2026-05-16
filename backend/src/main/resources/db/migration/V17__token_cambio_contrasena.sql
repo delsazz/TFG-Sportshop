@@ -1,13 +1,10 @@
--- Crear la tabla token_cambio_contrasena
-
-
 CREATE TABLE token_cambio_contrasena (
-    id_token SERIAL PRIMARY KEY,
-    id_usuario INTEGER NOT NULL,
+    id_token INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
     codigo_hash VARCHAR(255) NOT NULL,
-    fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL,
-    fecha_expiracion TIMESTAMP WITH TIME ZONE NOT NULL,
-    fecha_uso TIMESTAMP WITH TIME ZONE,
+    fecha_creacion TIMESTAMP NOT NULL,
+    fecha_expiracion TIMESTAMP NOT NULL,
+    fecha_uso TIMESTAMP NULL,
     CONSTRAINT fk_token_cambio_contrasena_usuario
         FOREIGN KEY (id_usuario)
         REFERENCES usuario (id_usuario)

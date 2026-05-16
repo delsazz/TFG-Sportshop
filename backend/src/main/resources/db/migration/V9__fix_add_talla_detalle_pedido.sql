@@ -1,0 +1,1 @@
+-- La migracion V7 ya crea id_talla y su clave foranea en MySQL.

@@ -1,3 +1,6 @@
+CREATE DATABASE sportshop;
+USE sportshop;
+
 CREATE TABLE categoria (
     id_categoria INT AUTO_INCREMENT PRIMARY KEY,
     categoria VARCHAR(100) NOT NULL

@@ -235,7 +235,6 @@ public class CatalogoController {
         validarAdministrador();
         Categoria categoria = categoriaService.actualizarCategoria(id, request.nombreCategoria(), request.slug(),   
                 request.descripcion(), request.imagenUrl(), request.ordenVisualizacion(), request.productoIds());
-
         return toCategoriaResponse(categoria);
     }
 
