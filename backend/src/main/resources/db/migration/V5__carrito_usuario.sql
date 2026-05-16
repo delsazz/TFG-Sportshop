@@ -7,6 +7,7 @@ CREATE TABLE carrito_item (
     precio_unitario DECIMAL(10, 2) NOT NULL,
     creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     actualizado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    id_kit INT,
     CONSTRAINT fk_carrito_item_usuario
         FOREIGN KEY (id_usuario)
         REFERENCES usuario (id_usuario)
@@ -19,3 +20,4 @@ CREATE TABLE carrito_item (
 );
 
 CREATE INDEX idx_carrito_item_usuario ON carrito_item (id_usuario);
+CREATE INDEX idx_carrito_item_kit ON carrito_item (id_kit);

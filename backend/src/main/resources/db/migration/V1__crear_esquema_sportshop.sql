@@ -10,44 +10,29 @@ CREATE TABLE usuario (
     email VARCHAR(150) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     telefono VARCHAR(20),
-    direccion VARCHAR(255)
+    nif VARCHAR(20),
+    ciudad VARCHAR(100),
+    pais VARCHAR(100),
+    direccion VARCHAR(255),
+    rol VARCHAR(50) DEFAULT 'cliente'
 );
 
 CREATE TABLE producto (
     id_producto INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(150) NOT NULL,
-    tipo_prenda VARCHAR(50),
-    color VARCHAR(50),
-    precio DECIMAL(10, 2) NOT NULL,
+    nombre VARCHAR(100),
+    id_categoria INT,
+    precio INT,
     stock INT,
     descripcion VARCHAR(500),
-    id_categoria INT,
-    CONSTRAINT fk_producto_categoria
-        FOREIGN KEY (id_categoria)
-        REFERENCES categoria (id_categoria)
+    FOREIGN KEY (id_categoria) REFERENCES categoria(id_categoria)
 );
 
 CREATE TABLE pedido (
     id_pedido INT AUTO_INCREMENT PRIMARY KEY,
-    fecha DATE NOT NULL,
-    total DECIMAL(10, 2) NOT NULL,
-    estado VARCHAR(50) NOT NULL,
-    id_usuario INT,
-    CONSTRAINT fk_pedido_usuario
-        FOREIGN KEY (id_usuario)
-        REFERENCES usuario (id_usuario)
-);
-
-CREATE TABLE detalle (
-    id_detalle INT AUTO_INCREMENT PRIMARY KEY,
-    id_pedido INT,
-    id_producto INT,
-    precio INT,
-    unidades INT,
-    CONSTRAINT fk_detalle_pedido
-        FOREIGN KEY (id_pedido)
-        REFERENCES pedido (id_pedido),
-    CONSTRAINT fk_detalle_producto
-        FOREIGN KEY (id_producto)
-        REFERENCES producto (id_producto)
+    id_usuario INT NOT NULL,
+    fecha_pedido DATE,
+    fecha_entrega DATE,
+    estado VARCHAR(50) DEFAULT 'PENDIENTE',
+    total INT DEFAULT 0,
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
 );

@@ -1,0 +1,1 @@
+ALTER TABLE kit MODIFY COLUMN imagen TEXT;

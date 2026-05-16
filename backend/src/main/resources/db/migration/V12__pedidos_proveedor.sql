@@ -3,7 +3,12 @@ CREATE TABLE proveedor_pedido (
     proveedor VARCHAR(150) NOT NULL,
     fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     estado VARCHAR(50) NOT NULL DEFAULT 'BORRADOR',
-    observaciones VARCHAR(500)
+    observaciones VARCHAR(500),
+    direccion_entrega VARCHAR(255),
+    contacto_entrega VARCHAR(150),
+    telefono_entrega VARCHAR(30),
+    fecha_prevista_entrega DATE,
+    fecha_recepcion TIMESTAMP NULL
 );
 
 CREATE TABLE proveedor_pedido_linea (

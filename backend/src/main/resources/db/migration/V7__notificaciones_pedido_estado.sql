@@ -12,14 +12,8 @@ CREATE TABLE notificacion (
     fecha_email TIMESTAMP NULL,
     error_email VARCHAR(500),
     leida BOOLEAN NOT NULL DEFAULT FALSE,
-    CONSTRAINT fk_notificacion_usuario
-        FOREIGN KEY (id_usuario)
-        REFERENCES usuario (id_usuario)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_notificacion_pedido
-        FOREIGN KEY (id_pedido)
-        REFERENCES pedido (id_pedido)
-        ON DELETE CASCADE
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),
+    FOREIGN KEY (id_pedido) REFERENCES pedido(id_pedido)
 );
 
 CREATE INDEX idx_notificacion_usuario_fecha ON notificacion (id_usuario, fecha_envio);

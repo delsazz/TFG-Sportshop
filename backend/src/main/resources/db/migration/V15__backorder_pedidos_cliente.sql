@@ -33,11 +33,13 @@ CREATE TABLE backorder_pedido (
         CHECK (cantidad_faltante > 0)
 );
 
+SET SQL_SAFE_UPDATES = 0;
 UPDATE detalle_pedido
 SET cantidad_satisfecha = cantidad,
     cantidad_pendiente = 0,
     es_backorder = FALSE
 WHERE es_backorder = FALSE;
+SET SQL_SAFE_UPDATES = 1;
 
 CREATE INDEX idx_backorder_pedido ON backorder_pedido (id_pedido);
 CREATE INDEX idx_backorder_producto ON backorder_pedido (id_producto);

@@ -1,2 +1,0 @@
-ALTER TABLE kit MODIFY COLUMN imagen TEXT;
-ALTER TABLE categoria MODIFY COLUMN imagen_url TEXT;
