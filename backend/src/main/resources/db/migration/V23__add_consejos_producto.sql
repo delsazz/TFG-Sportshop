@@ -1,2 +1,0 @@
-ALTER TABLE producto ADD COLUMN IF NOT EXISTS consejos TEXT;
-

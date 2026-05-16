@@ -1,0 +1,1 @@
+RENAME TABLE token_cambio_contrasena TO password_reset_token;
