@@ -13,11 +13,6 @@ CREATE TABLE usuario (
     direccion VARCHAR(255)
 );
 
-CREATE TABLE foto (
-    id_foto INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_foto VARCHAR(100)
-);
-
 CREATE TABLE producto (
     id_producto INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(150) NOT NULL,
@@ -25,6 +20,7 @@ CREATE TABLE producto (
     color VARCHAR(50),
     precio DECIMAL(10, 2) NOT NULL,
     stock INT,
+    descripcion VARCHAR(500),
     id_categoria INT,
     CONSTRAINT fk_producto_categoria
         FOREIGN KEY (id_categoria)

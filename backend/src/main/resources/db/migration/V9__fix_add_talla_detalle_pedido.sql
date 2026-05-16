@@ -1,1 +1,2 @@
--- La migracion V7 ya crea id_talla y su clave foranea en MySQL.
+-- La migracion V8 ya crea id_talla y su clave foranea en detalle_pedido.
+-- Se conserva esta version como migracion sin cambios para mantener el historial.

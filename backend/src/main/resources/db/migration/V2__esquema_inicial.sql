@@ -14,8 +14,6 @@ CREATE TABLE detalle_pedido (
     id_producto INT NOT NULL,
     cantidad INT NOT NULL,
     precio_unitario DECIMAL(10, 2) NOT NULL,
-    precio INT NULL,
-    unidades INT NULL,
     CONSTRAINT fk_detalle_pedido_pedido
         FOREIGN KEY (id_pedido)
         REFERENCES pedido (id_pedido),
