@@ -22,15 +22,11 @@ CREATE TABLE kit_producto (
     UNIQUE(id_kit, id_producto)
 );
 
-ALTER TABLE carrito_item
-ADD COLUMN id_kit INT;
-
-ALTER TABLE carrito_item
-ADD CONSTRAINT fk_carrito_item_kit
-FOREIGN KEY (id_kit) REFERENCES kit(id_kit) ON DELETE SET NULL;
-
 CREATE INDEX idx_kit_categoria ON kit(id_categoria);
 CREATE INDEX idx_kit_activo ON kit(activo);
 CREATE INDEX idx_kit_producto_kit ON kit_producto(id_kit);
 CREATE INDEX idx_kit_producto_producto ON kit_producto(id_producto);
-CREATE INDEX idx_carrito_item_kit ON carrito_item(id_kit);
+
+ALTER TABLE carrito_item
+    ADD CONSTRAINT fk_carrito_item_kit
+    FOREIGN KEY (id_kit) REFERENCES kit(id_kit) ON DELETE SET NULL;

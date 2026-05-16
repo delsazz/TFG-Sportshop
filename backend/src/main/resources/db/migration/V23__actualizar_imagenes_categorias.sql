@@ -1,3 +1,4 @@
+SET SQL_SAFE_UPDATES = 0;
 UPDATE categoria
 SET imagen_url = CASE
     WHEN slug = 'ropa-deportiva' THEN '/img/categorias/ropa_deportiva.jpg'
@@ -8,3 +9,4 @@ SET imagen_url = CASE
     ELSE imagen_url
 END
 WHERE slug IN ('ropa-deportiva', 'calzado', 'accesorios', 'equipamiento', 'suplementos');
+SET SQL_SAFE_UPDATES = 1;

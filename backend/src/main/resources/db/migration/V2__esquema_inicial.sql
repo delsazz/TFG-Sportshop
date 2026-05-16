@@ -1,11 +1,24 @@
+CREATE TABLE pago (
+    id_pago INT AUTO_INCREMENT PRIMARY KEY,
+    id_pedido INT,
+    stripe_session_id VARCHAR(255),
+    estado VARCHAR(50) DEFAULT 'PENDIENTE',
+    monto INT NOT NULL,
+    fecha_pago DATETIME,
+    FOREIGN KEY (id_pedido) REFERENCES pedido(id_pedido)
+);
+
+CREATE TABLE password_reset_token (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    token VARCHAR(255) NOT NULL,
+    correo_electronico VARCHAR(100) NOT NULL,
+    expiry_date DATETIME NOT NULL,
+    FOREIGN KEY (correo_electronico) REFERENCES usuario(email)
+);
+
 CREATE TABLE roles (
     id_rol INT AUTO_INCREMENT PRIMARY KEY,
     nombre_rol VARCHAR(50) NOT NULL UNIQUE
-);
-
-CREATE TABLE talla (
-    id_talla INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE detalle_pedido (
@@ -14,6 +27,8 @@ CREATE TABLE detalle_pedido (
     id_producto INT NOT NULL,
     cantidad INT NOT NULL,
     precio_unitario DECIMAL(10, 2) NOT NULL,
+    precio INT NULL,
+    unidades INT NULL,
     CONSTRAINT fk_detalle_pedido_pedido
         FOREIGN KEY (id_pedido)
         REFERENCES pedido (id_pedido),
@@ -22,17 +37,9 @@ CREATE TABLE detalle_pedido (
         REFERENCES producto (id_producto)
 );
 
-
-CREATE TABLE pago (
-    id_pago INT AUTO_INCREMENT PRIMARY KEY,
-    metodo_pago VARCHAR(50) NOT NULL,
-    fecha_pago DATE NOT NULL,
-    monto DECIMAL(38, 2) NOT NULL,
-    estado VARCHAR(50) NOT NULL,
-    id_pedido INT,
-    CONSTRAINT fk_pago_pedido
-        FOREIGN KEY (id_pedido)
-        REFERENCES pedido (id_pedido)
+CREATE TABLE talla (
+    id_talla INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE producto_talla (
