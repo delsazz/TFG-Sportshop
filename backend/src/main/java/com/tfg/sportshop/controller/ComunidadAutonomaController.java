@@ -14,6 +14,6 @@ public class ComunidadAutonomaController {
     }
     @GetMapping("/")
     public List<ComunidadAutonomaDTO> getAll() {
-        return service.getAll();
+        return comunidadAutonomaService.getAll();
     }
 }
