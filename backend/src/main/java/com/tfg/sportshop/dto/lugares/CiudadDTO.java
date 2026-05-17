@@ -1,18 +1,18 @@
-package com.tfg.sportshop.dto.ubicacion;
-public class MunicipioDTO {
+package com.tfg.sportshop.dto.lugares;
+public class CiudadDTO {
     private Integer id;
     private String nombre;
-    private Integer provinciaId;
-    public MunicipioDTO() {}
-    public MunicipioDTO(Integer id, String nombre, Integer provinciaId) {
+    private Integer idProvincia;
+    public CiudadDTO() {}
+    public CiudadDTO(Integer id, String nombre, Integer idProvincia) {
         this.id = id;
         this.nombre = nombre;
-        this.provinciaId = provinciaId;
+        this.idProvincia = idProvincia;
     }
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
-    public Integer getProvinciaId() { return provinciaId; }
-    public void setProvinciaId(Integer provinciaId) { this.provinciaId = provinciaId; }
+    public Integer getIdProvincia() { return idProvincia; }
+    public void setProvinciaId(Integer idProvincia) { this.idProvincia = idProvincia; }
 }
