@@ -1,5 +1,4 @@
 package com.tfg.sportshop.services;
-
 import java.util.UUID;
 import java.util.Locale;
 import java.nio.file.Path;
@@ -20,24 +19,25 @@ import com.tfg.sportshop.dto.configuracion.ActualizarConfiguracionSitioRequest;
 
 @Service
 public class ConfiguracionSitioService {
+
     private final ConfiguracionSitioRepository configuracionSitioRepository;
 
     @Value("${app.upload.config-dir:uploads/configuracion}")
     private String uploadDir;
 
-    @Value("${app.branding.logo.header:/img/campusfp.png}")
+    @Value("${app.branding.logo.header:/img/sportshop.jpg}")
     private String defaultLogoHeader;
 
-    @Value("${app.branding.logo.footer:/img/campusfp.png}")
+    @Value("${app.branding.logo.footer:/img/sportshop.jpg}")
     private String defaultLogoFooter;
 
-    @Value("${app.branding.logo.login:/img/campusfp.png}")
+    @Value("${app.branding.logo.login:/img/sportshop.jpg}")
     private String defaultLogoLogin;
 
-    @Value("${app.branding.logo.home:/img/campusfp.png}")
+    @Value("${app.branding.logo.home:/img/sportshop.jpg}")
     private String defaultLogoHome;
 
-    @Value("${app.branding.logo.admin:/img/campusfp.png}")
+    @Value("${app.branding.logo.admin:/img/sportshop.jpg}")
     private String defaultLogoAdmin;
 
     @Value("${app.upload.max-size:5242880}")
@@ -49,13 +49,13 @@ public class ConfiguracionSitioService {
     @Value("${app.payments.bizum.bank-url:https://www.bizum.es/bancos-bizum/}")
     private String defaultBizumBancoUrl;
 
-    @Value("${app.payments.transfer.account-holder:Campus FP Uniformes}")
+    @Value("${app.payments.transfer.account-holder:Sportshop}")
     private String defaultTransferenciaTitular;
 
     @Value("${app.payments.transfer.iban:ES00 0000 0000 0000 0000 0000}")
     private String defaultTransferenciaIban;
 
-    @Value("${app.payments.transfer.concept:Pedido {pedidoId} - Campus FP Uniformes}")
+    @Value("${app.payments.transfer.concept:Pedido {pedidoId} - Sportshop}")
     private String defaultTransferenciaConcepto;
 
     @Value("${app.payments.transfer.notes:Envia el justificante desde la pantalla de confirmacion del pedido.}")
@@ -75,12 +75,12 @@ public class ConfiguracionSitioService {
 
     @Transactional
     public ConfiguracionSitioResponse actualizarConfiguracion(
-        ActualizarConfiguracionSitioRequest request,
-        MultipartFile logoHeader,
-        MultipartFile logoFooter,
-        MultipartFile logoLogin,
-        MultipartFile logoHome,
-        MultipartFile logoAdmin
+            ActualizarConfiguracionSitioRequest request,
+            MultipartFile logoHeader,
+            MultipartFile logoFooter,
+            MultipartFile logoLogin,
+            MultipartFile logoHome,
+            MultipartFile logoAdmin
     ) {
         ConfiguracionSitio configuracion = obtenerOCrearConfiguracion();
         actualizarTexto(request.bizumTelefono(), configuracion::setBizumTelefono, configuracion.getBizumTelefono(), defaultBizumTelefono);
@@ -106,7 +106,7 @@ public class ConfiguracionSitioService {
     public boolean metodoPagoHabilitado(String metodoPago) {
         String normalizado = normalizarMetodoPago(metodoPago);
         ConfiguracionSitio configuracion = obtenerOCrearConfiguracion();
-        return switch (normalizado) {
+        return switch(normalizado) {
             case "tarjeta", "stripe", "credit_card" -> configuracion.isTarjetaHabilitada();
             case "bizum" -> configuracion.isBizumHabilitado();
             case "transferencia", "transferencia bancaria", "bank_transfer" -> configuracion.isTransferenciaHabilitada();
@@ -118,7 +118,8 @@ public class ConfiguracionSitioService {
     @Transactional
     public void validarMetodoPagoHabilitado(String metodoPago) {
         if(!metodoPagoHabilitado(metodoPago)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El metodo de pago seleccionado no esta disponible");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "El metodo de pago seleccionado no esta disponible");
         }
     }
 
@@ -126,29 +127,26 @@ public class ConfiguracionSitioService {
     public ConfiguracionSitioResponse obtenerConfiguracionPago() {
         ConfiguracionSitioResponse configuracion = obtenerConfiguracion();
         return new ConfiguracionSitioResponse(
-            configuracion.idConfiguracion(),
-            null,
-            null,
-            null,
-            null,
-            null,
-            configuracion.bizumTelefono(),
-            configuracion.bizumBancoUrl(),
-            configuracion.transferenciaTitular(),
-            configuracion.transferenciaIban(),
-            configuracion.transferenciaConcepto(),
-            configuracion.transferenciaNotas(),
-            configuracion.tarjetaHabilitada(),
-            configuracion.bizumHabilitado(),
-            configuracion.transferenciaHabilitada(),
-            configuracion.mostradorHabilitado(),
-            configuracion.updatedAt()
+                configuracion.idConfiguracion(),
+                null, null, null, null, null,
+                configuracion.bizumTelefono(),
+                configuracion.bizumBancoUrl(),
+                configuracion.transferenciaTitular(),
+                configuracion.transferenciaIban(),
+                configuracion.transferenciaConcepto(),
+                configuracion.transferenciaNotas(),
+                null, null, null, null, null, null, null, null,
+                configuracion.tarjetaHabilitada(),
+                configuracion.bizumHabilitado(),
+                configuracion.transferenciaHabilitada(),
+                configuracion.mostradorHabilitado(),
+                configuracion.updatedAt()
         );
     }
 
     private ConfiguracionSitio obtenerOCrearConfiguracion() {
         return configuracionSitioRepository.findFirstByOrderByIdConfiguracionAsc()
-            .orElseGet(() -> configuracionSitioRepository.save(crearConfiguracionPorDefecto()));
+                .orElseGet(() -> configuracionSitioRepository.save(crearConfiguracionPorDefecto()));
     }
 
     private ConfiguracionSitio crearConfiguracionPorDefecto() {
@@ -188,22 +186,22 @@ public class ConfiguracionSitioService {
         if(file == null || file.isEmpty()) {
             return normalizarLogo(actual, defaultLogoHeader);
         }
-
         String contentType = file.getContentType();
         if(contentType == null || !contentType.startsWith("image/")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solo se permiten imagenes en los logos");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Solo se permiten imagenes en los logos");
         }
 
         if(file.getSize() > maxFileSize) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El archivo supera el tamano maximo permitido");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "El archivo supera el tamano maximo permitido");
         }
-
         try {
             Path uploadPath = Paths.get(uploadDir);
             Files.createDirectories(uploadPath);
             String originalFilename = file.getOriginalFilename();
             String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
+            if(originalFilename != null && originalFilename.contains(".")) {
                 extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             }
             String filename = prefijo + "-" + UUID.randomUUID() + extension;
@@ -226,23 +224,31 @@ public class ConfiguracionSitioService {
 
     private ConfiguracionSitioResponse toResponse(ConfiguracionSitio configuracion) {
         return new ConfiguracionSitioResponse(
-            configuracion.getIdConfiguracion(),
-            normalizarLogo(configuracion.getLogoHeaderUrl(), defaultLogoHeader),
-            normalizarLogo(configuracion.getLogoFooterUrl(), defaultLogoFooter),
-            normalizarLogo(configuracion.getLogoLoginUrl(), defaultLogoLogin),
-            normalizarLogo(configuracion.getLogoHomeUrl(), defaultLogoHome),
-            normalizarLogo(configuracion.getLogoAdminUrl(), defaultLogoAdmin),
-            normalizarTexto(configuracion.getBizumTelefono(), defaultBizumTelefono),
-            normalizarTexto(configuracion.getBizumBancoUrl(), defaultBizumBancoUrl),
-            normalizarTexto(configuracion.getTransferenciaTitular(), defaultTransferenciaTitular),
-            normalizarTexto(configuracion.getTransferenciaIban(), defaultTransferenciaIban),
-            normalizarTexto(configuracion.getTransferenciaConcepto(), defaultTransferenciaConcepto),
-            normalizarTexto(configuracion.getTransferenciaNotas(), defaultTransferenciaNotas),
-            configuracion.isTarjetaHabilitada(),
-            configuracion.isBizumHabilitado(),
-            configuracion.isTransferenciaHabilitada(),
-            configuracion.isMostradorHabilitado(),
-            configuracion.getUpdatedAt()
+                configuracion.getIdConfiguracion(),
+                normalizarLogo(configuracion.getLogoHeaderUrl(), defaultLogoHeader),
+                normalizarLogo(configuracion.getLogoFooterUrl(), defaultLogoFooter),
+                normalizarLogo(configuracion.getLogoLoginUrl(), defaultLogoLogin),
+                normalizarLogo(configuracion.getLogoHomeUrl(), defaultLogoHome),
+                normalizarLogo(configuracion.getLogoAdminUrl(), defaultLogoAdmin),
+                normalizarTexto(configuracion.getBizumTelefono(), defaultBizumTelefono),
+                normalizarTexto(configuracion.getBizumBancoUrl(), defaultBizumBancoUrl),
+                normalizarTexto(configuracion.getTransferenciaTitular(), defaultTransferenciaTitular),
+                normalizarTexto(configuracion.getTransferenciaIban(), defaultTransferenciaIban),
+                normalizarTexto(configuracion.getTransferenciaConcepto(), defaultTransferenciaConcepto),
+                normalizarTexto(configuracion.getTransferenciaNotas(), defaultTransferenciaNotas),
+                configuracion.getEmailBienvenidaAsunto(),
+                configuracion.getEmailBienvenidaCuerpo(),
+                configuracion.getEmailPedidoCreadoAsunto(),
+                configuracion.getEmailPedidoCreadoCuerpo(),
+                configuracion.getEmailCambioEstadoAsunto(),
+                configuracion.getEmailCambioEstadoCuerpo(),
+                configuracion.getEmailCambioPasswordAsunto(),
+                configuracion.getEmailCambioPasswordCuerpo(),
+                configuracion.isTarjetaHabilitada(),
+                configuracion.isBizumHabilitado(),
+                configuracion.isTransferenciaHabilitada(),
+                configuracion.isMostradorHabilitado(),
+                configuracion.getUpdatedAt()
         );
     }
 
