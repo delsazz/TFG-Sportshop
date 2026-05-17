@@ -332,7 +332,7 @@ public class AuthController {
 
     private PerfilUsuarioResponse toPerfilResponse(Usuario usuario) {
         return new PerfilUsuarioResponse(usuario.getIdUsuario(), usuario.getNombre(), usuario.getApellidos(),
-                usuario.getEmail(), usuario.getTlefono() != null ? usuario.getTelefono() : "", 
+                usuario.getEmail(), usuario.getTelefono() != null ? usuario.getTelefono() : "",
                 usuario.getDireccion() != null ? usuario.getDireccion() : "",
                 usuario.getDireccionCalle() != null ? usuario.getDireccionCalle() : "",
                 usuario.getDireccionNumero() != null ? usuario.getDireccionNumero() : "",
