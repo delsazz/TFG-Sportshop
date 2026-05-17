@@ -16,11 +16,11 @@ public class Provincia {
     private String nombre;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_comunidad")
+    @JoinColumn(name = "id_comunidad", nullable = false)
     private ComunidadAutonoma comunidad;
 
     @OneToMany(mappedBy = "provincia", fetch = FetchType.LAZY)
-    private List<Municipio> municipios;
+    private List<Ciudad> ciudades;
 
     public Provincia() {}
 
@@ -48,11 +48,11 @@ public class Provincia {
         this.comunidad = comunidad;
     }
 
-    public List<Municipio> getMunicipios() {
-        return municipios;
+    public List<Ciudad> getCiudades() {
+        return ciudades;
     }
 
-    public void setMunicipios(List<Municipio> municipios) {
-        this.municipios = municipios;
+    public void setCiudades(List<Ciudad> ciudades) {
+        this.ciudades = ciudades;
     }
 }
