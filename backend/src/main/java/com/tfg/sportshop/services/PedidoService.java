@@ -244,7 +244,7 @@ public class PedidoService {
             firmaGuardada == null ? request.firmaRecepcion() : firmaGuardada,
             request.nombreRecibe(), request.documentoRecibe(), request.observaciones());
         List<PedidoEntregaLinea> lineasEntrega = new ArrayList<>();
-        for (AtualizarEntregasPedidoRequest.ActualizarEntregaLineaRequest lineaRequest : request.lineas()) {
+        for(ActualizarEntregasPedidoRequest.ActualizarEntregaLineaRequest lineaRequest : request.lineas()) {
             DetallePedido detalle = detallesPorId.get(lineaRequest.idDetalle());
             if(detalle == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La linea seleccionada no pertenece al pedido");
