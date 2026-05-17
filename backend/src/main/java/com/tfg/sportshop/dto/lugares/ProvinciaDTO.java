@@ -1,4 +1,4 @@
-package com.tfg.sportshop.dto.ubicacion;
+package com.tfg.sportshop.dto.lugares;
 public class ProvinciaDTO {
     private Integer id;
     private String nombre;

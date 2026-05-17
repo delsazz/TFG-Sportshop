@@ -1,5 +1,5 @@
 package com.tfg.sportshop.services;
-import com.tfg.sportshop.dto.ubicacion.ProvinciaDTO;
+import com.tfg.sportshop.dto.lugares.ProvinciaDTO;
 import com.tfg.sportshop.repository.ProvinciaRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
