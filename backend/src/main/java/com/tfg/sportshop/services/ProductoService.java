@@ -57,7 +57,7 @@ public class ProductoService {
     @Transactional
     public Producto crearProductoConTallas(AdminProductoRequest request) {
         Categoria categoria = categoriaService.buscarCategoriaPorId(request.categoriaId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoria no encontrada"))
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoria no encontrada"));
         Producto producto = new Producto();
         producto.setNombre(request.nombre());
         producto.setTipoPrenda(request.tipoPrenda());
@@ -121,7 +121,7 @@ public class ProductoService {
         if(producto.getPlazoReposicionDias() == null) {
             producto.setPlazoReposicionDias(7);
         }
-        if request.tallas() != null && !request.tallas().isEmpty()) {
+        if(request.tallas() != null && !request.tallas().isEmpty()) {
             // Eliminar tallas antiguas
             productoTallaRepository.deleteByProductoIdProducto(producto.getIdProducto());
             int totalStock = 0;
