@@ -4,12 +4,12 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "ciudad")
-public class Municipio {
+public class Ciudad {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_municipio")
-    private Integer idMunicipio;
+    @Column(name = "id_ciudad")
+    private Integer idCiudad;
 
     @Column(name = "nombre", nullable = false)
     private String nombre;
@@ -18,14 +18,14 @@ public class Municipio {
     @JoinColumn(name = "id_provincia")
     private Provincia provincia;
 
-    public Municipio() {}
+    public Ciudad() {}
 
     public Integer getIdMunicipio() {
-        return idMunicipio;
+        return idCiudad;
     }
 
-    public void setIdMunicipio(Integer idMunicipio) {
-        this.idMunicipio = idMunicipio;
+    public void setIdCiudad(Integer idCiudad) {
+        this.idCiudad = idCiudad;
     }
 
     public String getNombre() {
