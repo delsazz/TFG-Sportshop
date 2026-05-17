@@ -211,7 +211,7 @@ public class PedidoController {
         return new EntregaLineaResponse(
                 detalle == null ? null : detalle.getIdDetalle(),
                 detalle == null || detalle.getProducto() == null ? null : detalle.getProducto().getNombre(),
-                cantidadPedida, 0, cantidadEntregada, cantidadEntregada, Math.max(cantidadPedida - cantidadEntregada, 0);
+                cantidadPedida, 0, cantidadEntregada, cantidadEntregada, Math.max(cantidadPedida - cantidadEntregada, 0));
     }
 
     private void validarAdministrador() {

@@ -273,7 +273,7 @@ public class InformeService {
             if(fechaDesde != null && fechaPedido.isBefore(fechaDesde)) {
                 return false;
             }
-            if fechaHasta != null && fechaPedido.isAfter(fechaHasta)) {
+            if(fechaHasta != null && fechaPedido.isAfter(fechaHasta)) {
                 return false;
             }
             return true;
