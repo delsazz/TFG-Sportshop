@@ -1,5 +1,5 @@
 package com.tfg.sportshop.services;
-import com.tfg.sportshop.dto.ubicacion.CiudadDTO;
+import com.tfg.sportshop.dto.lugares.CiudadDTO;
 import com.tfg.sportshop.repository.CiudadRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -11,10 +11,10 @@ public class CiudadService {
         this.ciudadRepository = ciudadRepository;
     }
 
-    public List<MunicipioDTO> getByProvincia(Integer idProvincia) {
+    public List<CiudadDTO> getByProvincia(Integer idProvincia) {
         return ciudadRepository.findByProvinciaIdProvincia(idProvincia)
                 .stream()
-                .map(m -> new MunicipioDTO(
+                .map(m -> new CiudadDTO(
                         m.getIdMunicipio(),
                         m.getNombre(),
                         m.getProvincia().getIdProvincia()
