@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   nginx:
     build:
@@ -34,23 +32,37 @@ services:
     restart: always
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: DockerFile
     expose:
       - "8080"
-    env_file:
-      - .env.production
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:mysql://database:3306/sportshop?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Madrid
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-curso}
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     restart: always
 
   database:
-    image: postgres:15
-    env_file:
-      - .env.production
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-curso}
+      MYSQL_DATABASE: sportshop
+      TZ: Europe/Madrid
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: always
 
 volumes:
-  postgres_data:
+  mysql_data:
   certbot_certs:

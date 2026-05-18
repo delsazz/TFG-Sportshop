@@ -1,116 +1,50 @@
-
-
-version: '3.8'
-
 services:
-  # ========================================
-  # PostgreSQL 16 - Base de datos principal
-  # ========================================
-  postgres:
-    image: postgres:16-alpine
-    container_name: postgres_ra4
-    hostname: postgres
+  mysql:
+    image: mysql:8.4
+    container_name: mysql_sportshop
+    hostname: mysql
     restart: unless-stopped
-
-    # Variables de entorno
     environment:
-      # Credenciales
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: postgres
-
-      # Configuracion
-      PGDATA: /var/lib/postgresql/data/pgdata
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-curso}
+      MYSQL_DATABASE: sportshop
       TZ: Europe/Madrid
-
-      # Configuracion de rendimiento (para desarrollo)
-      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=es_ES.UTF-8"
-
-    # Puertos
     ports:
-      - "5432:5432"
-
-    # Volumenes para persistencia
+      - "${MYSQL_PORT:-3306}:3306"
     volumes:
-      # Datos persistentes (sobreviven a docker-compose down)
-      - postgres_data:/var/lib/postgresql/data
-
-      # Scripts de inicializacion (se ejecutan solo la primera vez)
-      # Orden alfabetico: 01_init.sql, 02_schema.sql, etc.
-      - ./init:/docker-entrypoint-initdb.d:ro
-
-    # Comprobacion de salud
+      - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 30s
-
-    # Configuracion de red
     networks:
       - bbdd_network
 
-    # Limites de recursos (ajustar segun necesidades)
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-        reservations:
-          memory: 256M
-
-  # ========================================
-  # pgAdmin 4 - Interfaz web de administracion
-  # ========================================
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: pgadmin_ra4
-    hostname: pgadmin
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin_sportshop
+    hostname: phpmyadmin
     restart: unless-stopped
-
-    # Variables de entorno
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin123
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-curso}
       TZ: Europe/Madrid
-
-    # Puertos
     ports:
-      - "5050:80"
-
-    # Volumenes
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-      # Archivo de configuracion de servidores (opcional)
-      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
-
-    # Dependencias
+      - "${PHPMYADMIN_PORT:-8081}:80"
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
-
-    # Red
     networks:
       - bbdd_network
 
-# ========================================
-# Volumenes nombrados
-# ========================================
 volumes:
-  postgres_data:
-    name: postgres_ra4_data
+  mysql_data:
+    name: mysql_sportshop_data
     driver: local
 
-  pgadmin_data:
-    name: pgadmin_ra4_data
-    driver: local
-
-# ========================================
-# Redes
-# ========================================
 networks:
   bbdd_network:
-    name: bbdd_ra4_network
+    name: bbdd_sportshop_network
     driver: bridge
