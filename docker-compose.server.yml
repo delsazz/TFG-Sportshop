@@ -1,7 +1,7 @@
-# CampusFP Uniformes — Docker Compose para el servidor
+# Sportshop - Docker Compose para el servidor
 # Uso: docker compose -f docker-compose.server.yml --env-file .env.production up -d --build
 #
-# Levanta: Frontend (React) + Admin (React) + Backend (Spring Boot) + Nginx (proxy) + PostgreSQL
+# Levanta: Frontend (React) + Admin (React) + Backend (Spring Boot) + Nginx (proxy) + MySQL
 
 services:
   nginx:
@@ -17,7 +17,7 @@ services:
       - backend
       - database
     networks:
-      - dotes-net
+      - sportshop-net
     restart: always
 
   frontend:
@@ -28,7 +28,7 @@ services:
     expose:
       - "3000"
     networks:
-      - dotes-net
+      - sportshop-net
     restart: always
 
   admin:
@@ -39,19 +39,20 @@ services:
     expose:
       - "3001"
     networks:
-      - dotes-net
+      - sportshop-net
     restart: always
 
   backend:
     build:
       context: ./backend
+      dockerfile: DockerFile
     expose:
       - "8080"
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${DB_NAME:-uniformes}
-      SPRING_DATASOURCE_USERNAME: ${DB_USER:-uniformes}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASS:-uniformes_pass}
+      DB_URL: jdbc:mysql://database:3306/sportshop?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Madrid
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-curso}
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       MAIL_HOST: ${MAIL_HOST:-}
       MAIL_PORT: ${MAIL_PORT:-587}
@@ -66,32 +67,30 @@ services:
       database:
         condition: service_healthy
     networks:
-      - dotes-net
+      - sportshop-net
     restart: always
 
   database:
-    image: postgres:16-alpine
+    image: mysql:8.4
     environment:
-      POSTGRES_USER: ${DB_USER:-uniformes}
-      POSTGRES_PASSWORD: ${DB_PASS:-uniformes_pass}
-      POSTGRES_DB: ${DB_NAME:-uniformes}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-curso}
+      MYSQL_DATABASE: sportshop
       TZ: Europe/Madrid
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./database/migrations:/docker-entrypoint-initdb.d/migrations:ro
-      - ./database/seeds:/docker-entrypoint-initdb.d/seeds:ro
+      - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-uniformes} -d ${DB_NAME:-uniformes}"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
     networks:
-      - dotes-net
+      - sportshop-net
     restart: always
 
 volumes:
-  postgres_data:
+  mysql_data:
 
 networks:
-  dotes-net:
+  sportshop-net:
     driver: bridge
