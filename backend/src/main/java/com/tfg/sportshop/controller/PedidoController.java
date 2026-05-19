@@ -56,10 +56,10 @@ public class PedidoController {
         return toPedidoAdminResponse(pedido);
     }
 
-    @PutMapping("/api/admin/pedidos/{id}")
-    public AdminPedidoResponse actualizarPedidoAdmin(@PathVariable Long id, @Valid @RequestBody AdminActualizarPedidoRequest request) {
+    @PutMapping("/api/admin/pedidos/{idPedido}")
+    public AdminPedidoResponse actualizarPedidoAdmin(@PathVariable Long idPedido, @Valid @RequestBody AdminActualizarPedidoRequest request) {
         validarAdministrador();
-        Pedido pedido = pedidoService.actualizarPedidoAdmin(id, request.idUsuario(), request.estado(), 
+        Pedido pedido = pedidoService.actualizarPedidoAdmin(idPedido, request.idUsuario(), request.estado(), 
                 new CrearPedidoRequest(request.items(), "ADMIN"));
         return toPedidoAdminResponse(pedido);
     }
@@ -70,9 +70,9 @@ public class PedidoController {
         return pedidoService.verPedidos().stream().map(this::toPedidoAdminResponse).toList();
     }
 
-    @GetMapping("/api/pedidos/{id}")
-    public Object verPedido(@PathVariable Long id) {
-        Pedido pedido = pedidoService.buscarPedidoPorId(id);
+    @GetMapping("/api/pedidos/{idPedido}")
+    public Object verPedido(@PathVariable Long idPedido) {
+        Pedido pedido = pedidoService.buscarPedidoPorId(idPedido);
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean esAdmin = false;
         if(auth != null && auth.isAuthenticated()) {
@@ -85,28 +85,28 @@ public class PedidoController {
         return esAdmin ? toPedidoDetalleResponse(pedido) : toPedidoResponse(pedido);
     }
 
-    @PutMapping("/api/pedidos/{id}/estado")
-    public AdminPedidoResponse actualizarEstado(@PathVariable Long id, @Valid @RequestBody ActualizarEstadoPedidoRequest request) {
+    @PutMapping("/api/pedidos/{idPedido}/estado")
+    public AdminPedidoResponse actualizarEstado(@PathVariable Long idPedido, @Valid @RequestBody ActualizarEstadoPedidoRequest request) {
         validarAdministrador();
-        return toPedidoAdminResponse(pedidoService.actualizarEstado(id, request.estado()));
+        return toPedidoAdminResponse(pedidoService.actualizarEstado(idPedido, request.estado()));
     }
 
-    @PostMapping("/api/pedidos/{id}/entregas")
-    public AdminPedidoDetalleResponse registrarEntrega(@PathVariable Long id, @Valid @RequestBody RegistrarEntregaPedidoRequest request) {
+    @PostMapping("/api/pedidos/{idPedido}/entregas")
+    public AdminPedidoDetalleResponse registrarEntrega(@PathVariable Long idPedido, @Valid @RequestBody RegistrarEntregaPedidoRequest request) {
         validarAdministrador();
-        return toPedidoDetalleResponse(pedidoService.registrarEntrega(id, request));
+        return toPedidoDetalleResponse(pedidoService.registrarEntrega(idPedido, request));
     }
 
-    @PutMapping("/api/pedidos/{id}/entregas")
-    public AdminPedidoDetalleResponse actualizarEntregas(@PathVariable Long id, @Valid @RequestBody ActualizarEntregasPedidoRequest request) {
+    @PutMapping("/api/pedidos/{idPedido}/entregas")
+    public AdminPedidoDetalleResponse actualizarEntregas(@PathVariable Long idPedido, @Valid @RequestBody ActualizarEntregasPedidoRequest request) {
         validarAdministrador();
-        return toPedidoDetalleResponse(pedidoService.actualizarEntregas(id, request));
+        return toPedidoDetalleResponse(pedidoService.actualizarEntregas(idPedido, request));
     }
 
-    @DeleteMapping("/api/pedidos/{id}/entregas/{idEntrega}")
-    public AdminPedidoDetalleResponse eliminarEntrega(@PathVariable Long id, @PathVariable Integer idEntrega) {
+    @DeleteMapping("/api/pedidos/{idPedido}/entregas/{idEntrega}")
+    public AdminPedidoDetalleResponse eliminarEntrega(@PathVariable Long idPedido, @PathVariable Integer idEntrega) {
         validarAdministrador();
-        return toPedidoDetalleResponse(pedidoService.deshacerEntrega(id, idEntrega));
+        return toPedidoDetalleResponse(pedidoService.deshacerEntrega(idPedido, idEntrega));
     }
 
     private PedidoResponse toPedidoResponse(Pedido pedido) {

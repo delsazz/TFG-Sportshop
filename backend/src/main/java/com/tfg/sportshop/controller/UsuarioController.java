@@ -133,11 +133,11 @@ public class UsuarioController {
         return ResponseEntity.ok(toUsuarioResponse(creado));
     }
 
-    @PutMapping("/api/admin/usuarios/{id}")
-    public ResponseEntity<AdminUsuarioResponse> actualizarUsuarioAdmin(@PathVariable Integer id,
+    @PutMapping("/api/admin/usuarios/{idUsuario}")
+    public ResponseEntity<AdminUsuarioResponse> actualizarUsuarioAdmin(@PathVariable Integer idUsuario,
             @RequestBody AdminActualizarUsuarioRequest request) {
         requireAdmin();
-        Usuario usuario = usuarioService.buscarUsuarioPorId(id)
+        Usuario usuario = usuarioService.buscarUsuarioPorId(idUsuario)
                 .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
                         org.springframework.http.HttpStatus.NOT_FOUND, "Usuario no encontrado"));   
         if(request.nombre() != null) {
@@ -159,10 +159,10 @@ public class UsuarioController {
         return ResponseEntity.ok(toUsuarioResponse(actualizado));
     }
 
-    @DeleteMapping("/api/admin/usuarios/{id}")
-    public ResponseEntity<Void> eliminarUsuarioAdmin(@PathVariable Integer id) {
+    @DeleteMapping("/api/admin/usuarios/{idUsuario}")
+    public ResponseEntity<Void> eliminarUsuarioAdmin(@PathVariable Integer idUsuario) {
         requireAdmin();
-        boolean eliminado = usuarioService.eliminarUsuario(id);
+        boolean eliminado = usuarioService.eliminarUsuario(idUsuario);
         if(!eliminado) {
             throw new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.NOT_FOUND, "Usuario no encontrado"  
