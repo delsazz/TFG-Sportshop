@@ -12,6 +12,10 @@ public record RegistrarEntregaPedidoRequest(
     String firmaRecepcion,
     String nombreRecibe,
     String documentoRecibe,
+    String tipoReceptor,
+    String autorizanteNombre,
+    String autorizanteDocumento,
+    String textoAutorizacion,
     String observaciones
 ) {
 }

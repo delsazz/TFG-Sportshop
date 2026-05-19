@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const contentContainer = document.getElementById('content-container');
   const emptyState = document.getElementById('empty-state');
   const ordersList = document.getElementById('orders-list');
+  const deliveredOrdersList = document.getElementById('delivered-orders-list');
 
   function getEstadoClass(estado) {
     const estadoLower = (estado || '').toLowerCase();
@@ -49,6 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     ordersList.innerHTML = '';
+    deliveredOrdersList.innerHTML = '';
     pedidos.forEach(pedido => {
       const a = document.createElement('a');
       a.href = `/detalle_pedido.html?id=${pedido.idPedido}`;
@@ -72,7 +74,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>
       `;
       ordersList.appendChild(a);
+      if(String(pedido.estado || '').toLowerCase().includes('entregado')) {
+        const delivered = a.cloneNode(true);
+        deliveredOrdersList.appendChild(delivered);
+      }
     });
+    if(!deliveredOrdersList.children.length) {
+      deliveredOrdersList.innerHTML = '<p class="rounded-3xl bg-white p-5 text-slate-500 ring-1 ring-slate-200">Todavía no tienes pedidos entregados.</p>';
+    }
   }
 
   function showError(msg) {

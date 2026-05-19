@@ -60,6 +60,9 @@ public class UsuarioController {
         if(datos.telefono() != null) {
             usuario.setTelefono(datos.telefono().trim());
         } 
+        if(datos.avatarUrl() != null) {
+            usuario.setAvatarUrl(datos.avatarUrl().trim());
+        }
         aplicarDireccion(usuario, datos.direccion(), datos.direccionCalle(),  datos.direccionNumero(), 
                 datos.direccionPiso(), datos.direccionCiudad(), datos.direccionProvincia(), datos.codigoPostal());
         if(datos.email() != null) {
@@ -84,11 +87,15 @@ public class UsuarioController {
         Usuario usuario = usuarioAutenticadoDesdeBd(httpRequest);
         String currentPassword = request.get("currentPassword");
         String newPassword = request.get("newPassword");
-        if(currentPassword == null || newPassword == null || newPassword.length() < 8) {
+        String confirmPassword = request.get("confirmPassword");
+        if(currentPassword == null || newPassword == null || confirmPassword == null || newPassword.length() < 8) {
             return ResponseEntity.badRequest().body(Map.of("error", "Datos inválidos"));
         }
         if(!passwordEncoder.matches(currentPassword, usuario.getPassword())) {
-            return ResponseEntity.badRequest().body(Map.of("error", "La contraseña actual es incorrecta"));
+            return ResponseEntity.badRequest().body(Map.of("error", "La contraseña actual no coincide"));
+        }
+        if(!newPassword.equals(confirmPassword)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Las contraseñas nuevas no coinciden"));
         }
         usuario.setPassword(passwordEncoder.encode(newPassword));
         usuarioService.registrarUsuario(usuario);
@@ -192,6 +199,7 @@ public class UsuarioController {
                 usuario.getDireccionCiudad() != null ? usuario.getDireccionCiudad() : "",
                 usuario.getDireccionProvincia() != null ? usuario.getDireccionProvincia() : "",
                 usuario.getCodigoPostal() != null ? usuario.getCodigoPostal() : "",
+                usuario.getAvatarUrl() != null ? usuario.getAvatarUrl() : "",
                 Math.toIntExact(usuarioService.contarPedidosUsuario(usuario.getIdUsuario())),
                 usuario.getRoles() == null ? List.of() : usuario.getRoles().stream().map(Roles::getNombreRol).toList()              
         );

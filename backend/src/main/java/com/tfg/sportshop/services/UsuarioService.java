@@ -1,6 +1,7 @@
 package com.tfg.sportshop.services;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import com.tfg.sportshop.model.Usuario;
 import org.springframework.stereotype.Service;
 import com.tfg.sportshop.repository.PedidoRepository;
@@ -23,6 +24,8 @@ public class UsuarioService {
     private NotificacionRepository notificacionRepository;
     @Autowired
     private PasswordResetTokenRepository passwordResetTokenRepository;
+    @Autowired
+    private CorreoTemplateService correoTemplateService;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     public Usuario registrarUsuario(Usuario usuario) {
         return usuarioRepository.save(usuario);
@@ -64,10 +67,45 @@ public class UsuarioService {
         Optional<Usuario> usuariobuscado = usuarioRepository.findUsuarioByEmail(email);
         if(usuariobuscado.isPresent()) {
             Usuario usuario = usuariobuscado.get();
+            if(Boolean.TRUE.equals(usuario.getLoginBloqueado())) {
+                throw new IllegalStateException("LOGIN_BLOQUEADO");
+            }
             if(passwordEncoder.matches(password, usuario.getPassword())) {
+                usuario.setLoginIntentosFallidos(0);
+                usuario.setLoginBloqueado(false);
+                usuario.setLoginDesbloqueoToken(null);
+                usuarioRepository.save(usuario);
                 return Optional.of(usuario);
             }
+            int intentos = usuario.getLoginIntentosFallidos() == null ? 0 : usuario.getLoginIntentosFallidos();
+            intentos++;
+            usuario.setLoginIntentosFallidos(intentos);
+            if(intentos >= 5) {
+                usuario.setLoginBloqueado(true);
+                usuario.setLoginDesbloqueoToken(UUID.randomUUID().toString());
+                usuarioRepository.save(usuario);
+                correoTemplateService.enviarLoginBloqueado(usuario);
+                throw new IllegalStateException("LOGIN_BLOQUEADO");
+            }
+            usuarioRepository.save(usuario);
         }
         return Optional.empty();
+    }
+
+    @Transactional
+    public boolean desbloquearLogin(String token) {
+        if(token == null || token.isBlank()) {
+            return false;
+        }
+        Optional<Usuario> usuario = usuarioRepository.findByLoginDesbloqueoToken(token.trim());
+        if(usuario.isEmpty()) {
+            return false;
+        }
+        Usuario u = usuario.get();
+        u.setLoginBloqueado(false);
+        u.setLoginIntentosFallidos(0);
+        u.setLoginDesbloqueoToken(null);
+        usuarioRepository.save(u);
+        return true;
     }
 }

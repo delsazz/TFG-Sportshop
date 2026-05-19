@@ -40,6 +40,18 @@ public class PedidoEntrega {
     @Column(name = "documento_recibe")
     private String documentoRecibe;
 
+    @Column(name = "tipo_receptor", length = 30)
+    private String tipoReceptor;
+
+    @Column(name = "autorizante_nombre", length = 180)
+    private String autorizanteNombre;
+
+    @Column(name = "autorizante_documento", length = 30)
+    private String autorizanteDocumento;
+
+    @Column(name = "texto_autorizacion", length = 500)
+    private String textoAutorizacion;
+
     @Column(name = "observaciones", length = 500)
     private String observaciones;
 

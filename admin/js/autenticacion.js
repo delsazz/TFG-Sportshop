@@ -1,7 +1,7 @@
 import { request, setStoredToken, clearStoredToken } from './api.js';
 
 export async function login(email, password) {
-    const data = await request('/auth/login', {
+    const data = await request('/auth/admin/login', {
         method: 'POST',
         body: JSON.stringify({ email, password })
     });
@@ -9,7 +9,7 @@ export async function login(email, password) {
     // El backend devuelve LoginResponse con token, email, rol, etc.
     if (data.token) {
         setStoredToken(data.token);
-        localStorage.setItem('admin_user', JSON.stringify(data));
+        localStorage.setItem('admin_user', JSON.stringify(data.usuario || data));
     }
     return data;
 }
@@ -23,7 +23,7 @@ export function logout() {
 export function isAuthenticated() {
     const token = localStorage.getItem('campusfp_admin_token');
     const user = JSON.parse(localStorage.getItem('admin_user') || '{}');
-    return !!token && user.rol === 'ADMIN'; // Suponiendo que el rol es ADMIN para el panel
+    return !!token && String(user.role || user.rol || '').toLowerCase() === 'admin';
 }
 
 export function checkAuth() {

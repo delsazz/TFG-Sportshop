@@ -11,6 +11,7 @@ public record ActualizarPerfilRequest(
         String direccionPiso,
         String direccionCiudad,
         String direccionProvincia,
-        String codigoPostal
+        String codigoPostal,
+        String avatarUrl
 ) {
 }

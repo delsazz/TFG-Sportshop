@@ -10,6 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCloseModal = document.getElementById('btn-close-modal');
   const btnCancel = document.getElementById('btn-cancel');
   const btnSave = document.getElementById('btn-save');
+  const avatarInput = document.getElementById('avatar-input');
+  const avatarDropZone = document.getElementById('avatar-drop-zone');
+  const passwordModal = document.getElementById('password-modal');
+  const passwordForm = document.getElementById('password-form');
+  const passwordMessage = document.getElementById('password-message');
+  const btnChangePassword = document.getElementById('btn-change-password');
+  const btnClosePasswordModal = document.getElementById('btn-close-password-modal');
+  const btnSavePassword = document.getElementById('btn-save-password');
   
   let currentUser = null;
   const apiBaseUrl = '/api';
@@ -73,7 +81,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderProfile(user) {
-    document.getElementById('profile-initial').textContent = (user.nombre?.[0] || 'U').toUpperCase();
+    const profileInitial = document.getElementById('profile-initial');
+    if(user.avatarUrl) {
+      profileInitial.innerHTML = `<img src="${user.avatarUrl}" alt="Foto de perfil" class="h-full w-full rounded-[inherit] object-cover" />`;
+    } else {
+      profileInitial.textContent = (user.nombre?.[0] || 'U').toUpperCase();
+    }
     document.getElementById('profile-name-title').textContent = `${user.nombre || ''} ${user.apellidos || ''}`.trim();
     document.getElementById('profile-email-subtitle').textContent = user.email || '-';
     document.getElementById('profile-role-badge').textContent = user.roles?.length ? user.roles.join(', ') : 'Sin rol asignado';
@@ -88,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { label: 'Dirección', value: getAddressDisplay(user), icon: 'map-pin' },
       { label: 'Rol', value: user.roles?.length ? user.roles.join(', ') : 'Sin rol asignado', icon: 'shield' },
       { label: 'Pedidos realizados', value: String(user.totalPedidos ?? 0), icon: 'save' },
-      { label: 'Contraseña', value: 'Oculta por seguridad', icon: 'lock' },
+      { label: 'Contraseña', value: '<span id="password-display">Oculta por seguridad</span><button type="button" id="btn-show-password" class="mt-3 inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-white"><i data-lucide="eye" class="h-4 w-4"></i> Ver contraseña</button>', icon: 'lock', html: true },
     ];
 
     const container = document.getElementById('profile-rows-container');
@@ -102,12 +115,30 @@ document.addEventListener('DOMContentLoaded', () => {
           <i data-lucide="${row.icon}" class="h-5 w-5"></i>
           <span class="text-sm font-semibold uppercase tracking-[0.18em]">${row.label}</span>
         </div>
-        <p class="mt-4 break-words text-lg font-semibold text-slate-900">${row.value}</p>
+        <p class="mt-4 break-words text-lg font-semibold text-slate-900">${row.html ? row.value : escapeHtml(row.value)}</p>
       `;
       container.appendChild(div);
     });
 
     lucide.createIcons();
+    const showPasswordButton = document.getElementById('btn-show-password');
+    if(showPasswordButton) {
+      showPasswordButton.addEventListener('click', () => {
+        const passwordDisplay = document.getElementById('password-display');
+        passwordDisplay.textContent = 'No se puede mostrar: se guarda cifrada';
+        showPasswordButton.disabled = true;
+        setTimeout(() => {
+          passwordDisplay.textContent = 'Oculta por seguridad';
+          showPasswordButton.disabled = false;
+        }, 20000);
+      });
+    }
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[char]));
   }
 
   function populateForm(user) {
@@ -149,6 +180,110 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnCloseModal.addEventListener('click', closeModal);
   btnCancel.addEventListener('click', closeModal);
+
+  btnChangePassword.addEventListener('click', () => {
+    passwordForm.reset();
+    passwordMessage.className = 'hidden rounded-2xl px-4 py-3 text-sm font-semibold';
+    passwordModal.classList.remove('hidden');
+  });
+
+  btnClosePasswordModal.addEventListener('click', () => passwordModal.classList.add('hidden'));
+
+  passwordForm.querySelectorAll('.no-paste-password').forEach(input => {
+    input.addEventListener('paste', event => event.preventDefault());
+    input.addEventListener('copy', event => event.preventDefault());
+    input.addEventListener('cut', event => event.preventDefault());
+  });
+
+  passwordForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    const formData = new FormData(passwordForm);
+    const payload = Object.fromEntries(formData);
+    if(payload.newPassword !== payload.confirmPassword) {
+      showPasswordMessage('Las contraseñas nuevas no coinciden', 'error');
+      return;
+    }
+    btnSavePassword.disabled = true;
+    btnSavePassword.textContent = 'Guardando...';
+    try {
+      const token = getToken();
+      const response = await fetch(`${apiBaseUrl}/auth/me/password`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json().catch(() => ({}));
+      if(!response.ok) {
+        throw new Error(data.error || data.message || 'No se pudo cambiar la contraseña');
+      }
+      showPasswordMessage(data.mensaje || 'Contraseña cambiada correctamente', 'success');
+      passwordForm.reset();
+    } catch(error) {
+      showPasswordMessage(error.message, 'error');
+    } finally {
+      btnSavePassword.disabled = false;
+      btnSavePassword.textContent = 'Guardar contraseña';
+    }
+  });
+
+  function showPasswordMessage(message, type) {
+    passwordMessage.textContent = message;
+    passwordMessage.className = `rounded-2xl px-4 py-3 text-sm font-semibold ${
+      type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+    }`;
+  }
+
+  avatarInput.addEventListener('change', () => {
+    const file = avatarInput.files?.[0];
+    if(file) uploadAvatar(file);
+  });
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    avatarDropZone.addEventListener(eventName, event => {
+      event.preventDefault();
+      avatarDropZone.classList.add('border-blue-500');
+    });
+  });
+  ['dragleave', 'drop'].forEach(eventName => {
+    avatarDropZone.addEventListener(eventName, event => {
+      event.preventDefault();
+      avatarDropZone.classList.remove('border-blue-500');
+    });
+  });
+  avatarDropZone.addEventListener('drop', event => {
+    const file = event.dataTransfer.files?.[0];
+    if(file) uploadAvatar(file);
+  });
+
+  async function uploadAvatar(file) {
+    if(!['image/jpeg', 'image/png'].includes(file.type)) {
+      showMessage('Solo se permiten archivos jpg o png.', 'error');
+      return;
+    }
+    const data = new FormData();
+    data.append('file', file);
+    try {
+      const response = await fetch(`${apiBaseUrl}/auth/me/avatar`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { Authorization: `Bearer ${getToken()}` },
+        body: data
+      });
+      const result = await response.json().catch(() => ({}));
+      if(!response.ok) {
+        throw new Error(result.message || 'No se pudo subir la foto');
+      }
+      currentUser = result.usuario || { ...currentUser, avatarUrl: result.avatarUrl };
+      renderProfile(currentUser);
+      showMessage('Foto de perfil actualizada.', 'success');
+    } catch(error) {
+      showMessage(error.message, 'error');
+    }
+  }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
