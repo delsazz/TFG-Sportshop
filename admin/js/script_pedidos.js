@@ -1,4 +1,4 @@
-import { getPedidos, getPedido, actualizarEstadoPedido } from './servicios.js';
+import { getPedidos, getPedido, actualizarEstadoPedido } from './services.js';
 import { request } from './api.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -110,6 +110,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `).join('')}
             </div>
 
+            <div class="mt-8 space-y-4">
+                <h4 class="font-bold text-gray-900 border-b pb-2 uppercase text-xs tracking-widest">Datos de entrega</h4>
+                ${(p.entregas || []).length ? p.entregas.map(e => `
+                    <div class="rounded-xl border bg-gray-50 p-4">
+                        <div class="grid gap-3 md:grid-cols-2">
+                            <label class="text-xs font-bold text-gray-500">Persona que firma
+                                <input value="${e.nombreRecibe || ''}" readonly class="mt-1 w-full rounded border-gray-200 bg-white p-2 text-sm text-gray-700">
+                            </label>
+                            <label class="text-xs font-bold text-gray-500">DNI/NIE o referencia
+                                <input value="${e.documentoRecibe || ''}" readonly class="mt-1 w-full rounded border-gray-200 bg-white p-2 text-sm text-gray-700">
+                            </label>
+                            <p class="text-sm text-gray-700"><strong>Tipo:</strong> ${e.tipoReceptor === 'otra_persona' ? 'Otra persona autorizada' : 'Titular del pedido'}</p>
+                            <p class="text-sm text-gray-700"><strong>Fecha:</strong> ${new Date(e.fechaEntrega).toLocaleString('es-ES')}</p>
+                            ${e.textoAutorizacion ? `<p class="md:col-span-2 text-sm text-gray-700"><strong>Autorización:</strong> ${e.textoAutorizacion}</p>` : ''}
+                        </div>
+                        ${e.firmaRecepcion ? `<img src="${e.firmaRecepcion}" class="mt-4 max-h-40 rounded border bg-white p-2" alt="Firma de entrega">` : ''}
+                    </div>
+                `).join('') : '<p class="text-sm text-gray-500">No hay entregas firmadas por el cliente.</p>'}
+            </div>
+
             <div class="mt-8 pt-6 border-t flex flex-col sm:flex-row gap-4 justify-between items-center">
                 <select id="statusSelect" class="rounded border-gray-300 p-2 text-sm">
                     <option value="PENDIENTE" ${p.estado === 'PENDIENTE' ? 'selected' : ''}>Pendiente</option>
@@ -160,4 +180,3 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     loadData();
 });
-

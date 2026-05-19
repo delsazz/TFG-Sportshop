@@ -3,6 +3,11 @@ import java.util.Map;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.UUID;
+import java.nio.file.Path;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import jakarta.servlet.http.Cookie;
 import org.springframework.ui.Model;
 import com.tfg.sportshop.model.Roles;
@@ -18,6 +23,8 @@ import org.springframework.http.ResponseCookie;
 import com.tfg.sportshop.services.UsuarioService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Value;
 import com.tfg.sportshop.dto.ResetPasswordRequest;
 import com.tfg.sportshop.dto.ForgotPasswordRequest;
 import com.tfg.sportshop.security.JWTTokenProvider;
@@ -52,6 +59,8 @@ public class AuthController {
     private PasswordResetService passwordResetService;
     @Autowired
     private CorreoTemplateService correoTemplateService;
+    @Value("${app.upload.perfiles-dir:uploads/perfiles}")
+    private String perfilesUploadDir;
     @GetMapping("/auth/login")
     public Object loginPage(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -64,7 +73,16 @@ public class AuthController {
     @PostMapping("/auth/login")
     public String login(@RequestParam String email, @RequestParam String password, HttpSession session,
                         RedirectAttributes redirectAttributes, Model model) {
-        Optional<Usuario> usuario = usuarioService.autenticar(email, password);
+        Optional<Usuario> usuario;
+        try {
+            usuario = usuarioService.autenticar(email, password);
+        } catch(IllegalStateException e) {
+            if("LOGIN_BLOQUEADO".equals(e.getMessage())) {
+                model.addAttribute("error", "Login bloqueado");
+                return "login";
+            }
+            throw e;
+        }
         if(usuario.isPresent()) {
             session.setAttribute("usuario", usuario.get());
             session.setAttribute("usuarioId", usuario.get().getIdUsuario());
@@ -79,7 +97,15 @@ public class AuthController {
     @PostMapping("/api/auth/login")
     @ResponseBody
     public ResponseEntity<?> loginApi(@RequestBody LoginRequest request, HttpServletRequest httpRequest) {
-        Optional<Usuario> usuario = usuarioService.autenticar(request.getEmail(), request.getPassword());
+        Optional<Usuario> usuario;
+        try {
+            usuario = usuarioService.autenticar(request.getEmail(), request.getPassword());
+        } catch(IllegalStateException e) {
+            if("LOGIN_BLOQUEADO".equals(e.getMessage())) {
+                return ResponseEntity.status(423).body(Map.of("message", "Login bloqueado"));
+            }
+            throw e;
+        }
         if(!usuario.isPresent()) {
             return ResponseEntity.status(401).body(Map.of("message", "Credenciales incorrectas"));            
         }
@@ -94,7 +120,15 @@ public class AuthController {
     @PostMapping("/api/auth/admin/login")
     @ResponseBody
     public ResponseEntity<?> loginAdminApi(@RequestBody LoginRequest request, HttpServletRequest httpRequest) {
-        Optional<Usuario> usuario = usuarioService.autenticar(request.getEmail(), request.getPassword());
+        Optional<Usuario> usuario;
+        try {
+            usuario = usuarioService.autenticar(request.getEmail(), request.getPassword());
+        } catch(IllegalStateException e) {
+            if("LOGIN_BLOQUEADO".equals(e.getMessage())) {
+                return ResponseEntity.status(423).body(Map.of("error", "Login bloqueado"));
+            }
+            throw e;
+        }
         if(usuario.isEmpty()) {
             return ResponseEntity.status(401).body(Map.of("error", "Credenciales incorrectas"));
         }
@@ -115,6 +149,15 @@ public class AuthController {
         SecurityContextHolder.clearContext();
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, clearAuthCookie(request).toString())
                 .body(Map.of("mensaje", "Sesion cerrada correctamente"));
+    }
+
+    @GetMapping("/api/auth/unlock-login")
+    @ResponseBody
+    public ResponseEntity<?> desbloquearLogin(@RequestParam String token) {
+        if(usuarioService.desbloquearLogin(token)) {
+            return ResponseEntity.ok(Map.of("message", "Login desbloqueado"));
+        }
+        return ResponseEntity.badRequest().body(Map.of("message", "El enlace de desbloqueo no es valido"));
     }
 
     @PostMapping("/api/auth/forgot-password")
@@ -171,6 +214,9 @@ public class AuthController {
         if(request.telefono() != null) {
             usuario.setTelefono(request.telefono().trim());
         } 
+        if(request.avatarUrl() != null) {
+            usuario.setAvatarUrl(request.avatarUrl().trim());
+        }
         aplicarDireccion(usuario, request.direccion(), request.direccionCalle(), request.direccionNumero(),   
                 request.direccionPiso(), request.direccionCiudad(), request.direccionProvincia(), request.codigoPostal());
         if(request.email() != null) {
@@ -193,16 +239,46 @@ public class AuthController {
         Usuario usuario = getUsuarioDesdeToken(httpRequest);
         String currentPassword = request.get("currentPassword");
         String newPassword = request.get("newPassword");
-        if(currentPassword == null || newPassword == null || newPassword.length() < 8) {
+        String confirmPassword = request.get("confirmPassword");
+        if(currentPassword == null || newPassword == null || confirmPassword == null || newPassword.length() < 8) {
             return ResponseEntity.badRequest().body(Map.of("error", "Datos invalidos"));
         }
         if(!passwordEncoder.matches(currentPassword, usuario.getPassword())) {
-            return ResponseEntity.badRequest().body(Map.of("error", "La contrasena actual es incorrecta"));
+            return ResponseEntity.badRequest().body(Map.of("error", "La contraseña actual no coincide"));
+        }
+        if(!newPassword.equals(confirmPassword)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Las contraseñas nuevas no coinciden"));
         }
         usuario.setPassword(passwordEncoder.encode(newPassword));
         usuarioService.registrarUsuario(usuario);
         correoTemplateService.enviarCambioPassword(usuario);
         return ResponseEntity.ok(Map.of("mensaje", "Contrasena cambiada correctamente"));
+    }
+
+    @PostMapping("/api/auth/me/avatar")
+    @ResponseBody
+    public ResponseEntity<?> subirAvatar(@RequestParam("file") MultipartFile file, HttpServletRequest httpRequest) {
+        Usuario usuario = getUsuarioDesdeToken(httpRequest);
+        if(file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Selecciona una imagen"));
+        }
+        String contentType = file.getContentType() == null ? "" : file.getContentType().toLowerCase();
+        if(!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Solo se permiten archivos jpg o png"));
+        }
+        try {
+            Path uploadPath = Paths.get(perfilesUploadDir);
+            Files.createDirectories(uploadPath);
+            String extension = contentType.equals("image/png") ? ".png" : ".jpg";
+            String filename = "perfil-" + usuario.getIdUsuario() + "-" + UUID.randomUUID() + extension;
+            Path destino = uploadPath.resolve(filename);
+            Files.copy(file.getInputStream(), destino, StandardCopyOption.REPLACE_EXISTING);
+            usuario.setAvatarUrl("/uploads/perfiles/" + filename);
+            usuarioService.registrarUsuario(usuario);
+            return ResponseEntity.ok(Map.of("avatarUrl", usuario.getAvatarUrl(), "usuario", toPerfilResponse(usuario)));
+        } catch(Exception e) {
+            return ResponseEntity.status(500).body(Map.of("message", "No se pudo subir la foto de perfil"));
+        }
     }
 
     @GetMapping("/auth/register")
@@ -248,6 +324,9 @@ public class AuthController {
         try {
             if(usuario.getEmail() == null || usuario.getPassword() == null) {
                 return ResponseEntity.status(400).body(Map.of("message", "Email y contraseña son obligatorios."));
+            }
+            if(!Boolean.TRUE.equals(usuario.getCaptchaVerified())) {
+                return ResponseEntity.status(400).body(Map.of("message", "Debes completar el captcha."));
             }
             Optional<Usuario> usuarioExistente = usuarioService.buscarUsuarioPorEmail(usuario.getEmail());
             if(usuarioExistente.isPresent()) {
@@ -340,6 +419,7 @@ public class AuthController {
                 usuario.getDireccionCiudad() != null ? usuario.getDireccionCiudad() : "",
                 usuario.getDireccionProvincia() != null ? usuario.getDireccionProvincia() : "",
                 usuario.getCodigoPostal() != null ? usuario.getCodigoPostal() : "",
+                usuario.getAvatarUrl() != null ? usuario.getAvatarUrl() : "",
                 Math.toIntExact(usuarioService.contarPedidosUsuario(usuario.getIdUsuario())),
                 usuario.getRoles() == null ? List.of() : usuario.getRoles().stream().map(Roles::getNombreRol).toList());                     
     }

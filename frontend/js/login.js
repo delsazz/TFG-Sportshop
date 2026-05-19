@@ -13,7 +13,21 @@ document.addEventListener('DOMContentLoaded', () => {
     msgRegistered.classList.remove('hidden');
   }
 
-  const apiBaseUrl = '/api'; // Adjust if needed
+  const apiBaseUrl = '/api';
+
+  if (urlParams.get('unlock')) {
+    fetch(`${apiBaseUrl}/auth/unlock-login?token=${encodeURIComponent(urlParams.get('unlock'))}`)
+      .then(res => res.json().then(data => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        errorGeneral.textContent = data.message || (ok ? 'Login desbloqueado' : 'No se pudo desbloquear el login');
+        errorGeneral.classList.remove('hidden');
+        errorGeneral.classList.toggle('text-green-600', ok);
+      })
+      .catch(() => {
+        errorGeneral.textContent = 'No se pudo desbloquear el login';
+        errorGeneral.classList.remove('hidden');
+      });
+  }
 
   function hideErrors() {
     errorEmail.classList.add('hidden');
@@ -83,13 +97,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window.dispatchEvent(new Event('auth-changed'));
         
-        const returnUrl = urlParams.get('from') || '/index.html';
+        const returnUrl = urlParams.get('from') || '/inicio.html';
         window.location.href = returnUrl;
         return;
       }
 
-      if (response.status === 404) {
-        errorGeneral.textContent = 'El usuario no existe';
+      if (response.status === 423) {
+        errorGeneral.textContent = 'Login bloqueado';
         errorGeneral.classList.remove('hidden');
         return;
       }
@@ -104,3 +118,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+

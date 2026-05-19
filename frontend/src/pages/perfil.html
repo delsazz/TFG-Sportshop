@@ -52,6 +52,14 @@
               <i data-lucide="edit-3" class="h-4 w-4"></i>
               Editar perfil
             </button>
+            <button
+              type="button"
+              id="btn-change-password"
+              class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/25 transition hover:bg-white/20 cursor-pointer"
+            >
+              <i data-lucide="key-round" class="h-4 w-4"></i>
+              Cambiar contraseña
+            </button>
           </div>
         </div>
       </div>
@@ -64,6 +72,15 @@
             <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Todos tus datos</h2>
             <p class="mt-2 text-slate-600">Se muestran los datos actuales guardados en base de datos.</p>
           </div>
+        </div>
+
+        <div class="mb-6 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+          <label for="avatar-input" id="avatar-drop-zone" class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-300 bg-white p-6 text-center transition hover:border-blue-500">
+            <i data-lucide="image-plus" class="h-7 w-7 text-blue-700"></i>
+            <span class="font-semibold text-slate-900">Subir foto de perfil</span>
+            <span class="text-sm text-slate-500">Arrastra una imagen JPG o PNG o abre la carpeta de archivos</span>
+            <input id="avatar-input" type="file" accept="image/png,image/jpeg" class="hidden" />
+          </label>
         </div>
 
         <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3" id="profile-rows-container">
@@ -168,6 +185,38 @@
             Cancelar
           </button>
         </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="password-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 hidden">
+    <div class="w-full max-w-lg rounded-[1.5rem] bg-white p-5 shadow-2xl ring-1 ring-slate-200 sm:p-8">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">Contraseña</p>
+          <h2 class="mt-2 text-2xl font-bold text-slate-900">Cambiar contraseña</h2>
+        </div>
+        <button type="button" id="btn-close-password-modal" class="rounded-2xl border border-slate-200 p-3 text-slate-500 transition hover:bg-slate-50 cursor-pointer" aria-label="Cerrar cambio de contraseña">
+          <i data-lucide="x" class="h-4 w-4"></i>
+        </button>
+      </div>
+      <form id="password-form" class="mt-6 space-y-4">
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-700">Contraseña actual</label>
+          <input type="password" name="currentPassword" autocomplete="current-password" class="w-full rounded-2xl border border-slate-300 px-4 py-3" required />
+        </div>
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-700">Nueva contraseña</label>
+          <input type="password" name="newPassword" autocomplete="new-password" class="no-paste-password w-full rounded-2xl border border-slate-300 px-4 py-3" required />
+        </div>
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-700">Repetir nueva contraseña</label>
+          <input type="password" name="confirmPassword" autocomplete="new-password" class="no-paste-password w-full rounded-2xl border border-slate-300 px-4 py-3" required />
+        </div>
+        <p id="password-message" class="hidden rounded-2xl px-4 py-3 text-sm font-semibold"></p>
+        <button type="submit" id="btn-save-password" class="w-full rounded-2xl bg-blue-700 px-5 py-4 font-semibold text-white transition hover:bg-blue-800 cursor-pointer">
+          Guardar contraseña
+        </button>
       </form>
     </div>
   </div>

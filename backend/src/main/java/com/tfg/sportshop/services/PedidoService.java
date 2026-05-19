@@ -159,10 +159,6 @@ public class PedidoService {
         }
         try {
             EstadoPedido nuevoEstado = EstadoPedido.fromValor(estado);
-            if(nuevoEstado == EstadoPedido.ENTREGADO_COMPLETO && !tieneFirmaRecepcion(pedido.getIdPedido())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Debes registrar la firma de recepcion antes de marcar el pedido como entregado completo");
-            }
             if(!pedido.esTransicionValida(nuevoEstado)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Transicion no valida de " + pedido.getEstado() + " a " + estado);
@@ -193,7 +189,8 @@ public class PedidoService {
         entrega.setFechaEntrega(LocalDateTime.now());
         aplicarDatosRecepcion(entrega, request.comprobanteEntregaUrl(), request.comprobanteEntregaNombreArchivo(),
             firmaGuardada == null ? request.firmaRecepcion() : firmaGuardada,
-            request.nombreRecibe(), request.documentoRecibe(), request.observaciones());
+            request.nombreRecibe(), request.documentoRecibe(), request.tipoReceptor(), request.autorizanteNombre(),
+            request.autorizanteDocumento(), request.textoAutorizacion(), request.observaciones());
         List<PedidoEntregaLinea> lineasEntrega = new ArrayList<>();
         for (RegistrarEntregaLineaRequest lineaRequest : request.lineas()) {
             DetallePedido detalle = detallesPorId.get(lineaRequest.idDetalle());
@@ -213,10 +210,6 @@ public class PedidoService {
             lineasEntrega.add(linea);
             String descripcion = "Entrega registrada: " + lineaRequest.cantidad() + " ud. de " + (detalle.getProducto() != null ? detalle.getProducto().getNombre() : "producto");
             registrarHistorial(pedido, "ENTREGA_REGISTRADA", null, null, descripcion);
-        }
-        if(entregaCompletaTrasEntrega(pedido, cantidadesEntregadas, request.lineas()) && entrega.getFirmaRecepcion() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                "Debes registrar la firma de recepcion antes de marcar el pedido como entregado completo");
         }
         entrega.setLineas(lineasEntrega);
         pedidoEntregaRepository.save(entrega);
@@ -242,7 +235,7 @@ public class PedidoService {
         entrega.setFechaEntrega(LocalDateTime.now());
         aplicarDatosRecepcion(entrega, request.comprobanteEntregaUrl(), request.comprobanteEntregaNombreArchivo(),
             firmaGuardada == null ? request.firmaRecepcion() : firmaGuardada,
-            request.nombreRecibe(), request.documentoRecibe(), request.observaciones());
+            request.nombreRecibe(), request.documentoRecibe(), null, null, null, null, request.observaciones());
         List<PedidoEntregaLinea> lineasEntrega = new ArrayList<>();
         for(ActualizarEntregasPedidoRequest.ActualizarEntregaLineaRequest lineaRequest : request.lineas()) {
             DetallePedido detalle = detallesPorId.get(lineaRequest.idDetalle());
@@ -295,11 +288,6 @@ public class PedidoService {
             if(cantidadEntregada < cantidadPedida) {
                 completo = false;
             }
-        }
-
-        if(completo && algunaEntregada && entrega.getFirmaRecepcion() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                "Debes registrar la firma de recepcion antes de marcar el pedido como entregado completo");
         }
 
         if(completo && algunaEntregada) {
@@ -429,6 +417,54 @@ public class PedidoService {
     @Transactional(readOnly = true)
     public List<PedidoEntrega> verEntregas(Integer pedidoId) {
         return pedidoEntregaRepository.findByPedidoIdPedidoOrderByFechaEntregaDesc(pedidoId);
+    }
+
+    @Transactional
+    public Pedido firmarEntregaCliente(Long idPedido, Usuario usuario, com.tfg.sportshop.dto.pedidos.FirmarEntregaPedidoRequest request) {
+        Pedido pedido = buscarPedidoPorId(idPedido);
+        if(pedido.getUsuario() == null || usuario == null || !pedido.getUsuario().getIdUsuario().equals(usuario.getIdUsuario())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permisos para firmar este pedido");
+        }
+        if(request == null || request.firmaRecepcion() == null || request.firmaRecepcion().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La firma es obligatoria");
+        }
+        String tipo = blankToNull(request.tipoReceptor());
+        if(tipo == null || (!"yo".equalsIgnoreCase(tipo) && !"otra_persona".equalsIgnoreCase(tipo))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selecciona quien recibe el pedido");
+        }
+        if(blankToNull(request.nombreRecibe()) == null || blankToNull(request.documentoRecibe()) == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nombre y DNI/NIE de la persona que recibe son obligatorios");
+        }
+        if("otra_persona".equalsIgnoreCase(tipo)
+                && (blankToNull(request.autorizanteNombre()) == null || blankToNull(request.autorizanteDocumento()) == null
+                || blankToNull(request.textoAutorizacion()) == null)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La autorizacion es obligatoria");
+        }
+        Map<Integer, Integer> entregadas = obtenerCantidadesEntregadas(pedido.getIdPedido());
+        List<RegistrarEntregaLineaRequest> lineas = new ArrayList<>();
+        for(DetallePedido detalle : pedido.getDetalles()) {
+            int cantidad = detalle.getCantidad() == null ? 0 : detalle.getCantidad();
+            int pendiente = Math.max(cantidad - entregadas.getOrDefault(detalle.getIdDetalle(), 0), 0);
+            if(pendiente > 0) {
+                lineas.add(new RegistrarEntregaLineaRequest(detalle.getIdDetalle(), pendiente));
+            }
+        }
+        if(lineas.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El pedido ya esta entregado");
+        }
+        return registrarEntrega(idPedido, new RegistrarEntregaPedidoRequest(
+                lineas,
+                null,
+                null,
+                request.firmaRecepcion(),
+                request.nombreRecibe(),
+                request.documentoRecibe(),
+                tipo,
+                request.autorizanteNombre(),
+                request.autorizanteDocumento(),
+                request.textoAutorizacion(),
+                null
+        ));
     }
 
     private Usuario obtenerUsuarioExistente(Integer idUsuario) {
@@ -586,6 +622,10 @@ public class PedidoService {
         String firmaRecepcion,
         String nombreRecibe,
         String documentoRecibe,
+        String tipoReceptor,
+        String autorizanteNombre,
+        String autorizanteDocumento,
+        String textoAutorizacion,
         String observaciones
     ) {
         entrega.setComprobanteEntregaUrl(blankToNull(comprobanteEntregaUrl));
@@ -593,13 +633,11 @@ public class PedidoService {
         entrega.setFirmaRecepcion(blankToNull(firmaRecepcion));
         entrega.setNombreRecibe(blankToNull(nombreRecibe));
         entrega.setDocumentoRecibe(blankToNull(documentoRecibe));
+        entrega.setTipoReceptor(blankToNull(tipoReceptor));
+        entrega.setAutorizanteNombre(blankToNull(autorizanteNombre));
+        entrega.setAutorizanteDocumento(blankToNull(autorizanteDocumento));
+        entrega.setTextoAutorizacion(blankToNull(textoAutorizacion));
         entrega.setObservaciones(blankToNull(observaciones));
-    }
-
-    private boolean tieneFirmaRecepcion(Integer pedidoId) {
-        return obtenerFirmaRecepcionGuardada(
-            pedidoEntregaRepository.findByPedidoIdPedidoOrderByFechaEntregaDesc(pedidoId)
-        ) != null;
     }
 
     private String obtenerFirmaRecepcionGuardada(List<PedidoEntrega> entregas) {

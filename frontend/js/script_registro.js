@@ -6,6 +6,12 @@ const ciudadSelect = document.getElementById('direccionCiudad');
 const otraCiudadContainer = document.getElementById('otraCiudadContainer');
 const otraCiudadInput = document.getElementById('direccionCiudadOtra');
 const errorMsg = document.getElementById('error-message');
+const captchaCheckbox = document.getElementById('captchaCheckbox');
+const captchaChallenge = document.getElementById('captchaChallenge');
+const captchaQuestion = document.getElementById('captchaQuestion');
+const captchaAnswer = document.getElementById('captchaAnswer');
+const captchaVerify = document.getElementById('captchaVerify');
+const captchaTick = document.getElementById('captchaTick');
 const API = '/api';
 const passwordRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._])[A-Za-z\d@$!%*?&._]{8,}$/;
@@ -25,7 +31,9 @@ let formState = {
   password: '',
   ciclo: '',
   aceptoTerminos: false,
+  captchaVerified: false,
 };
+let captchaExpected = 0;
 
 function setError(message) {
   errorMsg.textContent = message;
@@ -85,6 +93,33 @@ function updateState(e) {
   }
 }
 form.addEventListener('input', updateState);
+form.addEventListener('change', updateState);
+captchaCheckbox.addEventListener('change', () => {
+  if(captchaCheckbox.checked && !formState.captchaVerified) {
+    const a = Math.floor(Math.random() * 8) + 2;
+    const b = Math.floor(Math.random() * 8) + 2;
+    captchaExpected = a + b;
+    captchaQuestion.textContent = `Resuelve el captcha: ${a} + ${b}`;
+    captchaChallenge.classList.remove('hidden');
+    captchaAnswer.focus();
+  } else if(!formState.captchaVerified) {
+    captchaChallenge.classList.add('hidden');
+  }
+});
+
+captchaVerify.addEventListener('click', () => {
+  if(Number(captchaAnswer.value) !== captchaExpected) {
+    setError('Captcha incorrecto. Inténtalo de nuevo.');
+    return;
+  }
+  clearError();
+  formState.captchaVerified = true;
+  captchaCheckbox.checked = true;
+  captchaCheckbox.disabled = true;
+  captchaChallenge.classList.add('hidden');
+  captchaTick.classList.remove('hidden');
+});
+
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   clearError();
@@ -97,6 +132,9 @@ form.addEventListener('submit', async (e) => {
   }
   if(!formState.aceptoTerminos) {
     return setError('Debes aceptar los términos y condiciones.');
+  }
+  if(!formState.captchaVerified) {
+    return setError('Debes completar el captcha.');
   }
   const payload = {
     nombre: formState.nombre,
@@ -115,6 +153,7 @@ form.addEventListener('submit', async (e) => {
     email: formState.email,
     password: formState.password,
     ciclo: formState.ciclo,
+    captchaVerified: true,
   };
 
   try {

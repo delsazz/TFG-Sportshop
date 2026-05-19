@@ -15,6 +15,7 @@ public record PerfilUsuarioResponse(
         String direccionCiudad,
         String direccionProvincia,
         String codigoPostal,
+        String avatarUrl,
         Integer totalPedidos,
         List<String> roles
 ) {
