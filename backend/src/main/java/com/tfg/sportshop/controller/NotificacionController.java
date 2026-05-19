@@ -34,10 +34,10 @@ public class NotificacionController {
         return Map.of("total", notificacionService.contarNoLeidas(usuario));
     }
 
-    @PatchMapping("/api/notificaciones/{id}/leida")
-    public NotificacionResponse marcarComoLeida(@PathVariable Integer id) {
+    @PatchMapping("/api/notificaciones/{idNotificacion}/leida")
+    public NotificacionResponse marcarComoLeida(@PathVariable Integer idNotificacion) {
         Usuario usuario = requireUsuario();
-        return toResponse(notificacionService.marcarComoLeida(id, usuario));
+        return toResponse(notificacionService.marcarComoLeida(idNotificacion, usuario));
     }
 
     private Usuario requireUsuario() {

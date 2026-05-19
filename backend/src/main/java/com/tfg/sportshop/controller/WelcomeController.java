@@ -9,7 +9,7 @@ public class WelcomeController {
     @GetMapping("/")
     public Map<String, Object> welcome() {
         return Map.of(
-            "message", "Bienvenido al API de Campus FP Uniformes",
+            "message", "Bienvenido al API de Sportshop",
             "version", "1.0.0",
             "status", "Online",
             "endpoints", Map.of(
@@ -21,7 +21,7 @@ public class WelcomeController {
                 ),
                 "catalog", Map.of(
                     "all", "GET /api/catalogo",
-                    "byId", "GET /api/catalogo/{id}"
+                    "byId", "GET /api/catalogo/{idProducto}"
                 )
             ),
             "documentation", Map.of(

@@ -87,9 +87,9 @@ public class CatalogoController {
         return productoService.verProductos().stream().map(this::toProductoResponse) .toList();     
     }
 
-    @GetMapping("/catalogo/{id}")
-    public AdminProductoResponse verProductoPorId(@PathVariable Long id) {
-        return toProductoResponse(productoService.buscarProductoPorId(id));
+    @GetMapping("/catalogo/{idProducto}")
+    public AdminProductoResponse verProductoPorId(@PathVariable Long idProducto) {
+        return toProductoResponse(productoService.buscarProductoPorId(idProducto));
     }
 
     @PostMapping("/catalogo")
@@ -100,27 +100,27 @@ public class CatalogoController {
         return toProductoResponse(producto);
     }
 
-    @PutMapping("/catalogo/{id}")
-    public AdminProductoResponse actualizarProducto( @PathVariable Long id, @Valid @RequestBody AdminProductoRequest request) {
+    @PutMapping("/catalogo/{idProducto}")
+    public AdminProductoResponse actualizarProducto(@PathVariable Long idProducto, @Valid @RequestBody AdminProductoRequest request) {
         validarAdministrador();
-        Producto producto = productoService.actualizarProducto(id, request);
+        Producto producto = productoService.actualizarProducto(idProducto, request);
         return toProductoResponse(producto);
     }
 
-    @DeleteMapping("/catalogo/{id}")
+    @DeleteMapping("/catalogo/{idProducto}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void eliminarProducto(@PathVariable Long id) {
+    public void eliminarProducto(@PathVariable Long idProducto) {
         validarAdministrador();
-        productoService.eliminarProducto(id);
+        productoService.eliminarProducto(idProducto);
     }
 
     // =========================
     // TALLAS
     // =========================
 
-    @GetMapping("/catalogo/{id}/tallas")
-    public ResponseEntity<List<TallaStockDTO>> tallasPorProducto(@PathVariable Integer id) {
-        List<TallaStockDTO> tallaStockDTO = productoTallaService.buscarTallasPorProducto(id).stream()
+    @GetMapping("/catalogo/{idProducto}/tallas")
+    public ResponseEntity<List<TallaStockDTO>> tallasPorProducto(@PathVariable Integer idProducto) {
+        List<TallaStockDTO> tallaStockDTO = productoTallaService.buscarTallasPorProducto(idProducto).stream()
                 .map(pt -> new TallaStockDTO(pt.getTalla().getIdTalla(), pt.getTalla().getNombre(), pt.getStock())).toList();
         return ResponseEntity.ok(tallaStockDTO);
     }
@@ -129,45 +129,45 @@ public class CatalogoController {
     // IMÁGENES
     // =========================
 
-    @PostMapping("/catalogo/{id}/imagen")
+    @PostMapping("/catalogo/{idProducto}/imagen")
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductoImagenResponse subirImagen(@PathVariable Long id, @RequestParam("file") MultipartFile file,
+    public ProductoImagenResponse subirImagen(@PathVariable Long idProducto, @RequestParam("file") MultipartFile file,
             @RequestParam(value = "esPrincipal", defaultValue = "false") Boolean esPrincipal) throws IOException {
         validarAdministrador();
-        ProductoImagen imagen = productoImagenService.subirImagen(id, file, esPrincipal);
+        ProductoImagen imagen = productoImagenService.subirImagen(idProducto, file, esPrincipal);
         return toImagenResponse(imagen);
     }
 
-    @GetMapping("/catalogo/{id}/imagenes")
-    public List<ProductoImagenResponse> obtenerImagenesProducto(@PathVariable Long id) {
-        return productoImagenService.obtenerImagenesProducto(id).stream().map(this::toImagenResponse).toList();     
+    @GetMapping("/catalogo/{idProducto}/imagenes")
+    public List<ProductoImagenResponse> obtenerImagenesProducto(@PathVariable Long idProducto) {
+        return productoImagenService.obtenerImagenesProducto(idProducto).stream().map(this::toImagenResponse).toList();     
     }
 
-    @PostMapping("/catalogo/{id}/imagenes")
-    public List<ProductoImagenResponse> subirImagenes(@PathVariable Long id, @RequestParam("files") MultipartFile[] files,
+    @PostMapping("/catalogo/{idProducto}/imagenes")
+    public List<ProductoImagenResponse> subirImagenes(@PathVariable Long idProducto, @RequestParam("files") MultipartFile[] files,
             @RequestParam(value = "principalIndex", required = false) Integer principalIndex) throws IOException {
         validarAdministrador();
         List<ProductoImagenResponse> responses = new java.util.ArrayList<>();
         for(int i = 0; i < files.length; i++) {
             MultipartFile f = files[i];
             Boolean esPrincipal = (principalIndex != null && principalIndex == i);
-            responses.add(toImagenResponse(productoImagenService.subirImagen(id, f, esPrincipal)));
+            responses.add(toImagenResponse(productoImagenService.subirImagen(idProducto, f, esPrincipal)));
         }
         return responses;
     }
 
     // Documentos (PDF)
-    @PostMapping("/catalogo/{id}/documentos")
-    public ProductoDocumentoResponse subirDocumento(@PathVariable Long id, @RequestParam("file") MultipartFile file,
+    @PostMapping("/catalogo/{idProducto}/documentos")
+    public ProductoDocumentoResponse subirDocumento(@PathVariable Long idProducto, @RequestParam("file") MultipartFile file,
             @RequestParam(value = "nombre", required = false) String nombre ) throws IOException {
         validarAdministrador();
-        var doc = productoDocumentoService.subirDocumento(id, file, nombre);
+        var doc = productoDocumentoService.subirDocumento(idProducto, file, nombre);
         return toDocumentoResponse(doc);
     }
 
-    @GetMapping("/catalogo/{id}/documentos")
-    public List<ProductoDocumentoResponse> obtenerDocumentosProducto(@PathVariable Long id) {
-        return productoDocumentoService.obtenerDocumentosPorProducto(id).stream()
+    @GetMapping("/catalogo/{idProducto}/documentos")
+    public List<ProductoDocumentoResponse> obtenerDocumentosProducto(@PathVariable Long idProducto) {
+        return productoDocumentoService.obtenerDocumentosPorProducto(idProducto).stream()
                 .map(d -> toDocumentoResponse(d)).toList();
     }
 
@@ -194,9 +194,9 @@ public class CatalogoController {
         return kitService.obtenerTodosLosKits().stream().map(this::toKitResponsePublico).toList();
     }
 
-    @GetMapping("/kits/{id}")
-    public KitResponse obtenerKitPublico(@PathVariable Integer id) {
-        Kit kit = kitService.obtenerKitPorId(id);
+    @GetMapping("/kits/{idKit}")
+    public KitResponse obtenerKitPublico(@PathVariable Integer idKit) {
+        Kit kit = kitService.obtenerKitPorId(idKit);
         return toKitResponsePublico(kit);
     }
 
@@ -230,19 +230,19 @@ public class CatalogoController {
         return toCategoriaResponse(categoria);
     }
 
-    @PutMapping("/categorias/{id}")
-    public AdminCategoriaResponse actualizarCategoria(@PathVariable Integer id, @Valid @RequestBody AdminCategoriaRequest request) {
+    @PutMapping("/categorias/{idCategoria}")
+    public AdminCategoriaResponse actualizarCategoria(@PathVariable Integer idCategoria, @Valid @RequestBody AdminCategoriaRequest request) {
         validarAdministrador();
-        Categoria categoria = categoriaService.actualizarCategoria(id, request.nombreCategoria(), request.slug(),   
+        Categoria categoria = categoriaService.actualizarCategoria(idCategoria, request.nombreCategoria(), request.slug(),   
                 request.descripcion(), request.imagenUrl(), request.ordenVisualizacion(), request.productoIds());
         return toCategoriaResponse(categoria);
     }
 
-    @DeleteMapping("/categorias/{id}")
+    @DeleteMapping("/categorias/{idCategoria}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void eliminarCategoria(@PathVariable Integer id) {
+    public void eliminarCategoria(@PathVariable Integer idCategoria) {
         validarAdministrador();
-        categoriaService.eliminarCategoria(id);
+        categoriaService.eliminarCategoria(idCategoria);
     }
 
     // =========================
@@ -255,10 +255,10 @@ public class CatalogoController {
         return kitService.obtenerTodosLosKits().stream().map(this::toKitResponse).toList();   
     }
 
-    @GetMapping("/admin/kits/{id}")
-    public AdminKitResponse obtenerKitAdmin(@PathVariable Integer id) {
+    @GetMapping("/admin/kits/{idKit}")
+    public AdminKitResponse obtenerKitAdmin(@PathVariable Integer idKit) {
         validarAdministrador();
-        return toKitResponse(kitService.obtenerKitPorId(id));
+        return toKitResponse(kitService.obtenerKitPorId(idKit));
     }
 
     @PostMapping("/admin/kits")
@@ -269,18 +269,18 @@ public class CatalogoController {
         return toKitResponse(kit);
     }
 
-    @PutMapping("/admin/kits/{id}")
-    public AdminKitResponse actualizarKitAdmin(@PathVariable Integer id, @Valid @RequestBody AdminKitRequest request) {
+    @PutMapping("/admin/kits/{idKit}")
+    public AdminKitResponse actualizarKitAdmin(@PathVariable Integer idKit, @Valid @RequestBody AdminKitRequest request) {
         validarAdministrador();
-        Kit kit = kitService.actualizarKit(id, request);
+        Kit kit = kitService.actualizarKit(idKit, request);
         return toKitResponse(kit);
     }
 
-    @DeleteMapping("/admin/kits/{id}")
+    @DeleteMapping("/admin/kits/{idKit}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void eliminarKitAdmin(@PathVariable Integer id) {
+    public void eliminarKitAdmin(@PathVariable Integer idKit) {
         validarAdministrador();
-        kitService.eliminarKit(id);
+        kitService.eliminarKit(idKit);
     }
 
     // =========================
@@ -299,25 +299,25 @@ public class CatalogoController {
         return backorderPedidoService.obtenerTodosBackorders().stream().map(backorderPedidoService::toResponse).toList();    
     }
 
-    @GetMapping("/admin/backorders/producto/{id}")
-    public List<BackorderResponse> obtenerBackordersPorProducto(@PathVariable Integer id) {
+    @GetMapping("/admin/backorders/producto/{idProducto}")
+    public List<BackorderResponse> obtenerBackordersPorProducto(@PathVariable Integer idProducto) {
         validarAdministrador();
-        return backorderPedidoService.obtenerBackordersPorProducto(id).stream().map(backorderPedidoService::toResponse).toList();
+        return backorderPedidoService.obtenerBackordersPorProducto(idProducto).stream().map(backorderPedidoService::toResponse).toList();
     }
 
-    @PutMapping("/admin/backorders/{id}")
-    public BackorderResponse actualizarBackorder(@PathVariable Integer id, @RequestParam String estado,
+    @PutMapping("/admin/backorders/{idBackorder}")
+    public BackorderResponse actualizarBackorder(@PathVariable Integer idBackorder, @RequestParam String estado,
             @RequestParam(required = false) String observaciones) {
         validarAdministrador();
-        BackorderPedido backorder = backorderPedidoService.actualizar(id, estado, observaciones);
+        BackorderPedido backorder = backorderPedidoService.actualizar(idBackorder, estado, observaciones);
         return backorderPedidoService.toResponse(backorder);
     }
 
-    @DeleteMapping("/admin/backorders/{id}")
+    @DeleteMapping("/admin/backorders/{idBackorder}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void eliminarBackorder(@PathVariable Integer id) {
+    public void eliminarBackorder(@PathVariable Integer idBackorder) {
         validarAdministrador();
-        backorderPedidoService.eliminar(id);
+        backorderPedidoService.eliminar(idBackorder);
     }
 
     // =========================

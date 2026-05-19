@@ -40,10 +40,10 @@ public class DevolucionController {
         return devolucionService.listarTodasLasDevoluciones().stream().map(this::toResponse).toList();
     }
 
-    @GetMapping("/api/devoluciones/{id}")
-    public DevolucionResponse verDetalle(@PathVariable Integer id) {
+    @GetMapping("/api/devoluciones/{idDevolucion}")
+    public DevolucionResponse verDetalle(@PathVariable Integer idDevolucion) {
         Usuario usuario = getUsuarioAutenticado();
-        Devolucion devolucion = devolucionService.obtenerDevolucion(id);
+        Devolucion devolucion = devolucionService.obtenerDevolucion(idDevolucion);
         boolean esAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         if(!esAdmin && !devolucion.getUsuario().getIdUsuario().equals(usuario.getIdUsuario())) {
@@ -52,12 +52,12 @@ public class DevolucionController {
         return toResponse(devolucion);
     }
 
-    @PutMapping("/api/admin/devoluciones/{id}/estado")
+    @PutMapping("/api/admin/devoluciones/{idDevolucion}/estado")
     public DevolucionResponse actualizarEstado(
-            @PathVariable Integer id,
+            @PathVariable Integer idDevolucion,
             @Valid @RequestBody ActualizarEstadoDevolucionRequest request) {
         validarAdministrador();
-        Devolucion devolucion = devolucionService.actualizarEstadoDevolucion(id, request.estado(), request.comentarios());
+        Devolucion devolucion = devolucionService.actualizarEstadoDevolucion(idDevolucion, request.estado(), request.comentarios());
         return toResponse(devolucion);
     }
 

@@ -18,9 +18,9 @@ public class ProductoController {
         return ResponseEntity.ok(productoService.verProductos());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Producto> getProducto(@PathVariable Integer id) {
-        Producto producto = productoService.buscarProductoPorId(id.longValue());
+    @GetMapping("/{idProducto}")
+    public ResponseEntity<Producto> getProducto(@PathVariable Integer idProducto) {
+        Producto producto = productoService.buscarProductoPorId(idProducto.longValue());
         return ResponseEntity.ok(producto);
     }
 }
