@@ -8,17 +8,17 @@ import com.tfg.sportshop.services.CategoriaService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @RestController
-@RequestMapping("/api/categorias")
+@RequestMapping("/api")
 public class CategoriaController {
     @Autowired
     private CategoriaService categoriaService;
 
-    @GetMapping
+    @GetMapping("/categorias")
     public ResponseEntity<List<Categoria>> getAllCategorias() {
         return ResponseEntity.ok(categoriaService.verCategorias());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/categorias/{id}")
     public ResponseEntity<Categoria> getCategoria(@PathVariable Integer id) {
         return categoriaService.buscarCategoriaPorId(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());                    
     }
