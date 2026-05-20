@@ -1,5 +1,5 @@
-import { getUsuarios } from './servicios.js';
-import { request } from './api.js';
+import { getUsuarios } from './script_servicios.js';
+import { request } from './script_api.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const studentsBody = document.getElementById('studentsBody');

@@ -1,4 +1,4 @@
-import { getStoredToken } from './api.js';
+import { getStoredToken } from './script_api.js';
 
 const apiBaseUrl = '/api';
 const message = document.getElementById('message');

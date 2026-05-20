@@ -1,4 +1,4 @@
-import { request } from './api.js';
+import { request } from './script_api.js';
 
 export async function getProductos() {
     return request('/catalogo');

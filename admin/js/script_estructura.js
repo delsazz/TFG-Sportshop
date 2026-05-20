@@ -1,4 +1,4 @@
-import { logout, checkAuth } from './autenticacion.js';
+import { logout, checkAuth } from './script_autenticacion.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();

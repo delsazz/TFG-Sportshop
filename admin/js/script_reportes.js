@@ -1,4 +1,4 @@
-import { request } from './api.js';
+import { request } from './script_api.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const fechaDesde = document.getElementById('fechaDesde');

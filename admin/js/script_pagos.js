@@ -1,4 +1,4 @@
-import { getPedidos, getPedido } from './servicios.js';
+import { getPedidos, getPedido } from './script_servicios.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const paymentsBody = document.getElementById('paymentsBody');

@@ -1,5 +1,5 @@
-import { getKits, getProductos, getCategorias } from './servicios.js';
-import { request } from './api.js';
+import { getKits, getProductos, getCategorias } from './script_servicios.js';
+import { request } from './script_api.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const kitsBody = document.getElementById('kitsBody');

@@ -1,5 +1,5 @@
 import { getPedidos, getPedido, actualizarEstadoPedido } from './services.js';
-import { request } from './api.js';
+import { request } from './script_api.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const ordersBody = document.getElementById('ordersBody');

@@ -1,4 +1,4 @@
-import { request, setStoredToken, clearStoredToken } from './api.js';
+import { request, setStoredToken, clearStoredToken } from './script_api.js';
 
 export async function login(email, password) {
     const data = await request('/auth/admin/login', {
@@ -17,7 +17,7 @@ export async function login(email, password) {
 export function logout() {
     clearStoredToken();
     localStorage.removeItem('admin_user');
-    window.location.href = '/login.html';
+    window.location.href = '/iniciar_sesion.html';
 }
 
 export function isAuthenticated() {
@@ -27,7 +27,8 @@ export function isAuthenticated() {
 }
 
 export function checkAuth() {
-    if (!isAuthenticated() && !window.location.pathname.endsWith('login.html')) {
-        window.location.href = '/login.html';
+    if (!isAuthenticated() && !window.location.pathname.endsWith('iniciar_sesion.html')) {
+        window.location.href = '/iniciar_sesion.html';
     }
 }
+
