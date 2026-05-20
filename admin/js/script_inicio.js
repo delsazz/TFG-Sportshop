@@ -1,4 +1,4 @@
-import { getProductos, getPedidos, getUsuarios } from './servicios.js';
+import { getProductos, getPedidos, getUsuarios } from './script_servicios.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const statsGrid = document.getElementById('statsGrid');

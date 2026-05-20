@@ -1,5 +1,5 @@
-import { getCategorias } from './servicios.js';
-import { request } from './api.js';
+import { getCategorias } from './script_servicios.js';
+import { request } from './script_api.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const categoriesBody = document.getElementById('categoriesBody');

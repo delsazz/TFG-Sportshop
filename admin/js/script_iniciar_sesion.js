@@ -1,4 +1,4 @@
-import { login, isAuthenticated } from './autenticacion.js';
+import { login, isAuthenticated } from './script_autenticacion.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     if (isAuthenticated()) {

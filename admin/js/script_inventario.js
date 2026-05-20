@@ -1,4 +1,4 @@
-import { getProductos, getCategorias } from './servicios.js';
+import { getProductos, getCategorias } from './script_servicios.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const inventoryBody = document.getElementById('inventoryBody');

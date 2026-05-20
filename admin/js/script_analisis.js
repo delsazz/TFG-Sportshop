@@ -1,4 +1,4 @@
-import { getPedidos, getUsuarios } from './servicios.js';
+import { getPedidos, getUsuarios } from './script_servicios.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const salesChart = document.getElementById('salesChart');
