@@ -124,9 +124,7 @@ function closeAddedModal() {
 }
 
 function getSlugFromUrl() {
-  const parts =
-    window.location.pathname.split('/');
-  return parts[parts.length - 1];
-
+  const params = new URLSearchParams(window.location.search);
+  return params.get('slug') || '';
 }
 loadData();
