@@ -72,10 +72,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   if (isLoggedIn) {
     btnAction.textContent = 'Ir a mi perfil';
-    btnAction.href = '/perfil.html';
+    btnAction.href = 'perfil.html';
   } else {
     btnAction.textContent = 'Iniciar sesión';
-    btnAction.href = '/iniciar_sesion.html';
+    btnAction.href = 'iniciar_sesion.html';
   }
 
   // Load categories
@@ -87,15 +87,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const imagenSrc = categoria.imagenUrl || legacyCategoryImages[categoria.slug] || legacyCategoryImages[String(categoria.idCategoria)] || '/img/categorias/ropa_deportiva.jpg';
     
     const catHtml = `
-      <a href="/catalogo.html?slug=${categoria.slug}" class="group overflow-hidden rounded-4xl border border-slate-100 bg-white shadow-lg shadow-slate-200/60 transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-100">
-        <img
-          src="${imagenSrc}"
-          alt="${categoria.nombreCategoria}"
-          class="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-        <div class="p-6 text-center sm:p-8">
-          <h3 class="mb-3 text-xl font-black text-slate-900 sm:text-2xl">${categoria.nombreCategoria}</h3>
-          <p class="text-gray-600">${categoria.descripcion || 'Ver uniforme de esta categoria.'}</p>
+      <a href="/catalogo.html?slug=${categoria.slug}" class="category-card" style="background-image: url('${imagenSrc}');">
+        <div class="category-card-content">
+          <h3>${categoria.nombreCategoria}</h3>
+          <p>${categoria.descripcion || 'Ver uniforme de esta categoría.'}</p>
         </div>
       </a>
     `;
