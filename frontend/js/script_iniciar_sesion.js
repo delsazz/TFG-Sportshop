@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window.dispatchEvent(new Event('auth-changed'));
         
-        const returnUrl = urlParams.get('from') || '/inicio.html';
+        const returnUrl = urlParams.get('from') || 'inicio.html';
         window.location.href = returnUrl;
         return;
       }
