@@ -5,14 +5,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/comunidades")
+@RequestMapping("/api")
 @CrossOrigin(origins = "*")
 public class ComunidadAutonomaController {
     private final ComunidadAutonomaService comunidadAutonomaService;
     public ComunidadAutonomaController(ComunidadAutonomaService comunidadAutonomaService) {
         this.comunidadAutonomaService = comunidadAutonomaService;
     }
-    @GetMapping("/")
+    @GetMapping("/comunidades")
     public List<ComunidadAutonomaDTO> getAll() {
         return comunidadAutonomaService.getAll();
     }

@@ -8,11 +8,9 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class ProvinciaController {
     private final ProvinciaService provinciaService;
-
     public ProvinciaController(ProvinciaService provinciaService) {
         this.provinciaService = provinciaService;
     }
-
     @GetMapping("/por/comunidad/{idComunidad}")
     public List<ProvinciaDTO> getByComunidad(@PathVariable Integer idComunidad) {
         return provinciaService.getByComunidad(idComunidad);
