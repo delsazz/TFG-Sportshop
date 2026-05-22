@@ -46,10 +46,20 @@ function clearError() {
 }
 
 async function loadComunidades() {
-  const res = await fetch(`${API}/comunidades`);
-  const data = await res.json();
-  comunidadSelect.innerHTML = `<option value="">Selecciona comunidad</option>` +
-    data.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+  try {
+    const url = `${window.location.origin}${API}/comunidades`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      console.error('Failed to fetch comunidades:', res.status, res.statusText);
+      return;
+    }
+    const data = await res.json();
+    console.log('Comunidades loaded:', data);
+    comunidadSelect.innerHTML = `<option value="">Selecciona comunidad</option>` +
+      data.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+  } catch (e) {
+    console.error('Error loading comunidades:', e);
+  }
 }
 
 async function loadProvincias(idComunidad) {
