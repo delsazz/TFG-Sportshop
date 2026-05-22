@@ -1,1 +1,17 @@
-﻿@import url('base.css');
+@import url('base.css');
+
+/* Registration page specific overrides */
+.registro-page input,
+.registro-page select,
+.registro-page textarea {
+    background: #fff !important;
+    color: #000 !important;
+    border-color: #ccc !important;
+}
+
+.registro-page input:focus,
+.registro-page select:focus,
+.registro-page textarea:focus {
+    border-color: var(--primary) !important;
+    outline: none;
+}
