@@ -9,7 +9,7 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 @Component
 public class JWTTokenProvider {
-    @Value("${jwt.secret:your-secret-key-here}")
+    @Value("${jwt.secret:your-very-long-secret-key-here-for-hs512-algorithm-minimum-64-bytes}")
     private String jwt;
     @Value("${jwt.expiration:86400000}")
     private long expiracion;

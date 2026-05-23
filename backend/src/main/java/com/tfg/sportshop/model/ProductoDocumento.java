@@ -13,6 +13,7 @@ public class ProductoDocumento {
     private int idDocumento;
     @ManyToOne
     @JoinColumn(name = "id_producto", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Producto producto;
     @Column(name = "nombre", nullable = false, length = 255)
     private String nombre;
