@@ -426,7 +426,7 @@ public class AuthController {
 
     private void aplicarDireccion(Usuario usuario, String direccion, String calle, String numero, String piso, String ciudad,
             String provincia, String codigoPostal) {
-        if(List.of(direccion, calle, numero, piso, ciudad, provincia, codigoPostal).stream().allMatch(valor -> valor == null)) {
+        if(java.util.stream.Stream.of(direccion, calle, numero, piso, ciudad, provincia, codigoPostal).allMatch(valor -> valor == null)) {
             return;
         }
         usuario.setDireccionCalle(normalizar(calle));
@@ -448,11 +448,11 @@ public class AuthController {
     }
 
     private String construirDireccion(Usuario usuario) {
-        String via = List.of( usuario.getDireccionCalle(), usuario.getDireccionNumero(), usuario.getDireccionPiso()).stream()
+        String via = java.util.stream.Stream.of( usuario.getDireccionCalle(), usuario.getDireccionNumero(), usuario.getDireccionPiso())
                 .filter(valor -> valor != null && !valor.isBlank()).reduce((actual, siguiente) -> actual + ", " + siguiente).orElse("");       
-        String localidad = List.of(usuario.getCodigoPostal(), usuario.getDireccionCiudad(), usuario.getDireccionProvincia()).stream()
+        String localidad = java.util.stream.Stream.of(usuario.getCodigoPostal(), usuario.getDireccionCiudad(), usuario.getDireccionProvincia())
                 .filter(valor -> valor != null && !valor.isBlank()).reduce((actual, siguiente) -> actual + " " + siguiente).orElse("");      
-        return List.of(via, localidad).stream().filter(valor -> valor != null && !valor.isBlank())
+        return java.util.stream.Stream.of(via, localidad).filter(valor -> valor != null && !valor.isBlank())
                 .reduce((actual, siguiente) -> actual + " - " + siguiente).orElse("");  
     }
 }

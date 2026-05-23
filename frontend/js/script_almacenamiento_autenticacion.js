@@ -13,3 +13,7 @@ function clearAuthStorage() {
   sessionStorage.removeItem('userId');
   sessionStorage.removeItem('userEmail');
 }
+
+function getToken() {
+  return getAuthValue('token');
+}
