@@ -75,7 +75,7 @@ app:
       from: ${PASSWORD_RESET_EMAIL_FROM:${MAIL_USERNAME:}}
 
 jwt:
-  secret: ${JWT_SECRET:sportshop-dev-secret-key-2026-sportshop-dev-secret}
+  secret: ${JWT_SECRET:sportshop-dev-secret-key-2026-sportshop-dev-secret-very-long-for-hs512}
   expiration: ${JWT_EXPIRATION:86400000}
 
 ---
