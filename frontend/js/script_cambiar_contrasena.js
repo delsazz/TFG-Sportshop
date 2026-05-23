@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const token = getToken();
       if (!token) {
-        window.location.href = '/iniciar_sesion.html';
+        window.location.href = 'iniciar_sesion.html';
         return;
       }
 

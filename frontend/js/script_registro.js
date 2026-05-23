@@ -47,7 +47,7 @@ function clearError() {
 
 async function loadComunidades() {
   try {
-    const url = `${window.location.origin}${API}/comunidades`;
+    const url = `${API}/comunidades`;
     const res = await fetch(url);
     if (!res.ok) {
       console.error('Failed to fetch comunidades:', res.status, res.statusText);
@@ -84,17 +84,17 @@ async function loadCiudades(idProvincia) {
 function updateState(e) {
   const { name, value, type, checked } = e.target;
   formState[name] = type === 'checkbox' ? checked : value;
-  if(name === 'direccionComunidad') {
+  if (name === 'direccionComunidad') {
     formState.direccionProvincia = '';
     formState.direccionCiudad = '';
     loadProvincias(value);
   }
-  if(name === 'direccionProvincia') {
+  if (name === 'direccionProvincia') {
     formState.direccionCiudad = '';
     loadCiudades(value);
   }
-  if(name === 'direccionCiudad') {
-    if(value === OTRA_CIUDAD) {
+  if (name === 'direccionCiudad') {
+    if (value === OTRA_CIUDAD) {
       otraCiudadContainer.classList.remove('hidden');
     } else {
       otraCiudadContainer.classList.add('hidden');
@@ -105,20 +105,20 @@ function updateState(e) {
 form.addEventListener('input', updateState);
 form.addEventListener('change', updateState);
 captchaCheckbox.addEventListener('change', () => {
-  if(captchaCheckbox.checked && !formState.captchaVerified) {
+  if (captchaCheckbox.checked && !formState.captchaVerified) {
     const a = Math.floor(Math.random() * 8) + 2;
     const b = Math.floor(Math.random() * 8) + 2;
     captchaExpected = a + b;
     captchaQuestion.textContent = `Resuelve el captcha: ${a} + ${b}`;
     captchaChallenge.classList.remove('hidden');
     captchaAnswer.focus();
-  } else if(!formState.captchaVerified) {
+  } else if (!formState.captchaVerified) {
     captchaChallenge.classList.add('hidden');
   }
 });
 
 captchaVerify.addEventListener('click', () => {
-  if(Number(captchaAnswer.value) !== captchaExpected) {
+  if (Number(captchaAnswer.value) !== captchaExpected) {
     setError('Captcha incorrecto. Inténtalo de nuevo.');
     return;
   }
@@ -137,13 +137,13 @@ form.addEventListener('submit', async (e) => {
   if (!formState.apellidos.trim()) return setError('Los apellidos son obligatorios.');
   if (!formState.email.trim()) return setError('El email es obligatorio.');
   if (!formState.password.trim()) return setError('La contraseña es obligatoria.');
-  if(!passwordRegex.test(formState.password)) {
+  if (!passwordRegex.test(formState.password)) {
     return setError('La contraseña debe tener 8 caracteres, mayúscula, minúscula, número y símbolo.');
   }
-  if(!formState.aceptoTerminos) {
+  if (!formState.aceptoTerminos) {
     return setError('Debes aceptar los términos y condiciones.');
   }
-  if(!formState.captchaVerified) {
+  if (!formState.captchaVerified) {
     return setError('Debes completar el captcha.');
   }
   const payload = {
@@ -172,8 +172,8 @@ form.addEventListener('submit', async (e) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    if(res.ok) {
-      window.location.href = '/iniciar_sesion.html?registered=1';
+    if (res.ok) {
+      window.location.href = 'iniciar_sesion.html?registered=1';
     } else {
       const data = await res.json();
       setError(data.message || 'Error al registrarse');

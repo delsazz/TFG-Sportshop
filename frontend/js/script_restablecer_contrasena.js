@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
       confirmPasswordInput.value = '';
       
       setTimeout(() => {
-        window.location.href = '/iniciar_sesion.html';
+        window.location.href = 'iniciar_sesion.html';
       }, 1200);
       
     } catch (error) {

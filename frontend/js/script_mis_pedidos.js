@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const token = getToken();
       if (!token) {
-        window.location.href = '/iniciar_sesion.html';
+        window.location.href = 'iniciar_sesion.html';
         return;
       }
 
@@ -53,9 +53,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     deliveredOrdersList.innerHTML = '';
     pedidos.forEach(pedido => {
       const a = document.createElement('a');
-      a.href = `/detalle_pedido.html?id=${pedido.idPedido}`;
+      a.href = `detalle_pedido.html?id=${pedido.idPedido}`;
       a.className = 'block bg-white border border-slate-200 rounded-3xl p-5 hover:shadow-md transition sm:p-6';
-      
+
       const dateStr = new Date(pedido.fecha).toLocaleDateString('es-ES');
       const totalStr = (pedido.total || 0).toFixed(2);
       const estadoClass = getEstadoClass(pedido.estado);
@@ -74,12 +74,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>
       `;
       ordersList.appendChild(a);
-      if(String(pedido.estado || '').toLowerCase().includes('entregado')) {
+      if (String(pedido.estado || '').toLowerCase().includes('entregado')) {
         const delivered = a.cloneNode(true);
         deliveredOrdersList.appendChild(delivered);
       }
     });
-    if(!deliveredOrdersList.children.length) {
+    if (!deliveredOrdersList.children.length) {
       deliveredOrdersList.innerHTML = '<p class="rounded-3xl bg-white p-5 text-slate-500 ring-1 ring-slate-200">Todavía no tienes pedidos entregados.</p>';
     }
   }
@@ -89,7 +89,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     errorContainer.classList.remove('hidden');
     errorContainer.textContent = msg;
   }
-
   fetchMisPedidos();
 });
-

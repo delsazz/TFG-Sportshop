@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (!token || !roles.includes('ADMIN')) {
     alert('Acceso denegado. Se requiere rol de administrador.');
-    window.location.href = '/iniciar_sesion.html';
+    window.location.href = 'iniciar_sesion.html';
     return;
   }
 
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Logout
   document.getElementById('logout-btn').addEventListener('click', () => {
     clearAuthStorage();
-    window.location.href = '/iniciar_sesion.html';
+    window.location.href = 'iniciar_sesion.html';
   });
 
   function loadTabData(tabId) {
