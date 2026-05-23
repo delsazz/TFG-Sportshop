@@ -63,8 +63,16 @@ async function loadComunidades() {
 }
 
 async function loadProvincias(idComunidad) {
+  if (!idComunidad) {
+    provinciaSelect.innerHTML = `<option value="">Selecciona comunidad primero</option>`;
+    provinciaSelect.disabled = true;
+    ciudadSelect.innerHTML = `<option value="">Selecciona provincia primero</option>`;
+    ciudadSelect.disabled = true;
+    return;
+  }
   const res = await fetch(`${API}/provincias/por/comunidad/${idComunidad}`);
   const data = await res.json();
+  provinciaSelect.disabled = false;
   provinciaSelect.innerHTML = `<option value="">Selecciona provincia</option>` +
     data.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
   ciudadSelect.innerHTML = `<option value="">Selecciona provincia primero</option>`;
@@ -72,6 +80,11 @@ async function loadProvincias(idComunidad) {
 }
 
 async function loadCiudades(idProvincia) {
+  if (!idProvincia) {
+    ciudadSelect.innerHTML = `<option value="">Selecciona provincia primero</option>`;
+    ciudadSelect.disabled = true;
+    return;
+  }
   const res = await fetch(`${API}/ciudades/por/provincia/${idProvincia}`);
   const data = await res.json();
   ciudadSelect.disabled = false;
