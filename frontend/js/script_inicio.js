@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const imagenSrc = categoria.imagenUrl || legacyCategoryImages[categoria.slug] || legacyCategoryImages[String(categoria.idCategoria)] || '/img/categorias/ropa_deportiva.jpg';
     
     const catHtml = `
-        <a href="categoria_catalogo.html?slug=${categoria.slug}" class="category-card" style="background-image: url('${imagenSrc}');">
+        <a href="catalogo.html?slug=${categoria.slug}" class="category-card" style="background-image: url('${imagenSrc}');">
           <div class="category-card-content">
             <h3>${categoria.nombreCategoria}</h3>
             <p>${categoria.descripcion || 'Ver uniforme de esta categoría.'}</p>
