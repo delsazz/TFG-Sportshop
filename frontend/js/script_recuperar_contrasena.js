@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showSuccess(data.message || 'Si el email está registrado, recibirás un código de verificación.');
       
       setTimeout(() => {
-        window.location.href = `/restablecer_contrasena.html?email=${encodeURIComponent(email)}`;
+        window.location.href = `restablecer_contrasena.html?email=${encodeURIComponent(email)}`;
       }, 900);
       
     } catch (error) {

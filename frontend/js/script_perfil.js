@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!token) {
         clearAuthStorage();
         window.dispatchEvent(new Event('auth-changed'));
-        window.location.href = '/iniciar_sesion.html';
+        window.location.href = 'iniciar_sesion.html';
         return;
       }
 
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (response.status === 401) {
         clearAuthStorage();
         window.dispatchEvent(new Event('auth-changed'));
-        window.location.href = '/iniciar_sesion.html';
+        window.location.href = 'iniciar_sesion.html';
         return;
       }
 

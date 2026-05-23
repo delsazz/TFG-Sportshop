@@ -8,7 +8,7 @@ const PAYMENT_OPTIONS = [
 document.addEventListener('DOMContentLoaded', async () => {
   const token = getAuthValue('token');
   if (!token) {
-    window.location.href = '/iniciar_sesion.html?from=/finalizar_compra.html';
+    window.location.href = 'iniciar_sesion.html?from=finalizar_compra.html';
     return;
   }
 
@@ -71,16 +71,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     PAYMENT_OPTIONS.forEach(option => {
       const isOptionDisabled = option.value === 'tarjeta' && !configuracion_pago.tarjetaHabilitada;
       const isChecked = selectedMethod === option.value;
-      
-      let classes = isOptionDisabled 
-        ? 'cursor-not-allowed border-slate-200 bg-slate-100 opacity-60' 
-        : (isChecked 
-            ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-100' 
-            : 'border-slate-200 bg-slate-50 hover:border-slate-300');
+
+      let classes = isOptionDisabled
+        ? 'cursor-not-allowed border-slate-200 bg-slate-100 opacity-60'
+        : (isChecked
+          ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-100'
+          : 'border-slate-200 bg-slate-50 hover:border-slate-300');
 
       const label = document.createElement('label');
       label.className = `block rounded-3xl border p-5 transition ${classes}`;
-      
+
       label.innerHTML = `
         <div class="flex items-start gap-4">
           <input type="radio" name="payment-method" value="${option.value}" ${isChecked ? 'checked' : ''} ${isOptionDisabled ? 'disabled' : ''} class="mt-1 h-4 w-4 border-slate-300 text-blue-700 focus:ring-blue-500" />
@@ -144,22 +144,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         submitBtn.textContent = `Confirmar pedido de ${total.toFixed(2)} EUR`;
         return;
       }
-
-      // Success
       sessionStorage.removeItem('checkoutDraft');
       sessionStorage.setItem('lastOrder', JSON.stringify({
         ...payload,
         paymentMethod: selectedMethod,
         total
       }));
-
-      // In real implementation you would redirect to specific payment pages or Stripe checkout
       if (selectedMethod === 'tarjeta' && payload.idPedido) {
-        // Mocking Stripe redirect
         alert('Redirigiendo a pasarela de tarjeta...');
       } else {
         alert('Pedido realizado con éxito.');
-        window.location.href = '/inicio.html'; // Or confirmacion.html
+        window.location.href = 'inicio.html';
       }
     } catch (err) {
       errorMessage.textContent = err.message || 'Error de red';
