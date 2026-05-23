@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
-  
+
   const loadingContainer = document.getElementById('loading-container');
   const profileContainer = document.getElementById('profile-container');
   const editModal = document.getElementById('edit-modal');
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnChangePassword = document.getElementById('btn-change-password');
   const btnClosePasswordModal = document.getElementById('btn-close-password-modal');
   const btnSavePassword = document.getElementById('btn-save-password');
-  
+
   let currentUser = null;
   const apiBaseUrl = '/api';
 
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const token = getToken();
       const userEmail = getAuthValue('userEmail');
-      
+
       if (!token) {
         clearAuthStorage();
         window.dispatchEvent(new Event('auth-changed'));
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       currentUser = await response.json();
       renderProfile(currentUser);
-      
+
       loadingContainer.classList.add('hidden');
       profileContainer.classList.remove('hidden');
     } catch (error) {
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function getAddressDisplay(user) {
     if (!user) return 'No indicada';
-    
+
     const street = [user.direccionCalle, user.direccionNumero, user.direccionPiso].filter(Boolean).join(', ');
     const location = [user.codigoPostal, user.direccionCiudad, user.direccionProvincia].filter(Boolean).join(' ');
     const structuredAddress = [street, location].filter(Boolean).join(' - ');
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderProfile(user) {
     const profileInitial = document.getElementById('profile-initial');
-    if(user.avatarUrl) {
+    if (user.avatarUrl) {
       profileInitial.innerHTML = `<img src="${user.avatarUrl}" alt="Foto de perfil" class="h-full w-full rounded-[inherit] object-cover" />`;
     } else {
       profileInitial.textContent = (user.nombre?.[0] || 'U').toUpperCase();
@@ -92,46 +92,33 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('profile-role-badge').textContent = user.roles?.length ? user.roles.join(', ') : 'Sin rol asignado';
     document.getElementById('profile-orders-badge').textContent = `${user.totalPedidos ?? 0} pedidos`;
 
-    const rows = [
-      { label: 'ID de usuario', value: user.idUsuario ? `#${user.idUsuario}` : '-', icon: 'user' },
-      { label: 'Nombre', value: user.nombre || '-', icon: 'user' },
-      { label: 'Apellidos', value: user.apellidos || '-', icon: 'user' },
-      { label: 'Email', value: user.email || '-', icon: 'mail' },
-      { label: 'Teléfono', value: user.telefono || 'No indicado', icon: 'phone' },
-      { label: 'Dirección', value: getAddressDisplay(user), icon: 'map-pin' },
-      { label: 'Rol', value: user.roles?.length ? user.roles.join(', ') : 'Sin rol asignado', icon: 'shield' },
-      { label: 'Pedidos realizados', value: String(user.totalPedidos ?? 0), icon: 'save' },
-      { label: 'Contraseña', value: '<span id="password-display">Oculta por seguridad</span><button type="button" id="btn-show-password" class="mt-3 inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-white"><i data-lucide="eye" class="h-4 w-4"></i> Ver contraseña</button>', icon: 'lock', html: true },
-    ];
-
-    const container = document.getElementById('profile-rows-container');
-    container.innerHTML = '';
-    
-    rows.forEach(row => {
-      const div = document.createElement('div');
-      div.className = 'rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200';
-      div.innerHTML = `
-        <div class="flex items-center gap-3 text-slate-500">
-          <i data-lucide="${row.icon}" class="h-5 w-5"></i>
-          <span class="text-sm font-semibold uppercase tracking-[0.18em]">${row.label}</span>
-        </div>
-        <p class="mt-4 break-words text-lg font-semibold text-slate-900">${row.html ? row.value : escapeHtml(row.value)}</p>
-      `;
-      container.appendChild(div);
-    });
+    document.getElementById('display-nombre').textContent = user.nombre || '-';
+    document.getElementById('display-apellidos').textContent = user.apellidos || '-';
+    document.getElementById('display-email').textContent = user.email || '-';
+    document.getElementById('display-telefono').textContent = user.telefono || 'No indicado';
+    document.getElementById('display-direccion').textContent = getAddressDisplay(user);
 
     lucide.createIcons();
+
     const showPasswordButton = document.getElementById('btn-show-password');
-    if(showPasswordButton) {
-      showPasswordButton.addEventListener('click', () => {
-        const passwordDisplay = document.getElementById('password-display');
+    if (showPasswordButton) {
+      const newBtn = showPasswordButton.cloneNode(true);
+      showPasswordButton.parentNode.replaceChild(newBtn, showPasswordButton);
+
+      newBtn.addEventListener('click', () => {
+        const passwordDisplay = document.getElementById('display-password');
         passwordDisplay.textContent = 'No se puede mostrar: se guarda cifrada';
-        showPasswordButton.disabled = true;
+        passwordDisplay.classList.remove('tracking-[0.25em]', 'text-2xl', 'font-bold');
+        passwordDisplay.classList.add('text-lg', 'font-semibold');
+        newBtn.disabled = true;
         setTimeout(() => {
-          passwordDisplay.textContent = 'Oculta por seguridad';
-          showPasswordButton.disabled = false;
+          passwordDisplay.textContent = '••••••••••••';
+          passwordDisplay.classList.add('tracking-[0.25em]', 'text-2xl', 'font-bold');
+          passwordDisplay.classList.remove('text-lg', 'font-semibold');
+          newBtn.disabled = false;
         }, 20000);
       });
+      lucide.createIcons();
     }
   }
 
@@ -157,11 +144,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function showMessage(msg, type) {
     messageContainer.textContent = msg;
-    messageContainer.className = `mb-6 rounded-2xl px-5 py-4 text-sm font-semibold block ${
-      type === 'success'
+    messageContainer.className = `mb-6 rounded-2xl px-5 py-4 text-sm font-semibold block ${type === 'success'
         ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200'
         : 'bg-red-50 text-red-700 ring-1 ring-red-200'
-    }`;
+      }`;
   }
 
   function hideMessage() {
@@ -181,10 +167,17 @@ document.addEventListener('DOMContentLoaded', () => {
   btnCloseModal.addEventListener('click', closeModal);
   btnCancel.addEventListener('click', closeModal);
 
-  btnChangePassword.addEventListener('click', () => {
+  function openPasswordModal() {
     passwordForm.reset();
     passwordMessage.className = 'hidden rounded-2xl px-4 py-3 text-sm font-semibold';
     passwordModal.classList.remove('hidden');
+  }
+
+  btnChangePassword.addEventListener('click', openPasswordModal);
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#btn-change-password-block')) {
+      openPasswordModal();
+    }
   });
 
   btnClosePasswordModal.addEventListener('click', () => passwordModal.classList.add('hidden'));
@@ -199,10 +192,12 @@ document.addEventListener('DOMContentLoaded', () => {
     event.preventDefault();
     const formData = new FormData(passwordForm);
     const payload = Object.fromEntries(formData);
-    if(payload.newPassword !== payload.confirmPassword) {
-      showPasswordMessage('Las contraseñas nuevas no coinciden', 'error');
+
+    if (payload.newPassword !== payload.confirmPassword) {
+      showPasswordMessage('❌ Las contraseñas nuevas introducidas no coinciden. Por favor, vuelve a intentarlo.', 'error');
       return;
     }
+
     btnSavePassword.disabled = true;
     btnSavePassword.textContent = 'Guardando...';
     try {
@@ -217,12 +212,20 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify(payload)
       });
       const data = await response.json().catch(() => ({}));
-      if(!response.ok) {
-        throw new Error(data.error || data.message || 'No se pudo cambiar la contraseña');
+      if (!response.ok) {
+        const msg = data.error || data.message || '';
+        const isWrongCurrent =
+          response.status === 400 ||
+          response.status === 401 ||
+          /actual|incorrect|wrong|current|antigua/i.test(msg);
+        if (isWrongCurrent) {
+          throw new Error('❌ Contraseña actual errónea. Por favor, comprueba tu contraseña actual e inténtalo de nuevo.');
+        }
+        throw new Error(msg || 'No se pudo cambiar la contraseña');
       }
-      showPasswordMessage(data.mensaje || 'Contraseña cambiada correctamente', 'success');
+      showPasswordMessage('✅ ' + (data.mensaje || 'Contraseña cambiada correctamente'), 'success');
       passwordForm.reset();
-    } catch(error) {
+    } catch (error) {
       showPasswordMessage(error.message, 'error');
     } finally {
       btnSavePassword.disabled = false;
@@ -232,14 +235,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function showPasswordMessage(message, type) {
     passwordMessage.textContent = message;
-    passwordMessage.className = `rounded-2xl px-4 py-3 text-sm font-semibold ${
-      type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
-    }`;
+    passwordMessage.className = `rounded-2xl px-4 py-3 text-sm font-semibold ${type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+      }`;
   }
 
   avatarInput.addEventListener('change', () => {
     const file = avatarInput.files?.[0];
-    if(file) uploadAvatar(file);
+    if (file) uploadAvatar(file);
   });
 
   ['dragenter', 'dragover'].forEach(eventName => {
@@ -256,11 +258,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   avatarDropZone.addEventListener('drop', event => {
     const file = event.dataTransfer.files?.[0];
-    if(file) uploadAvatar(file);
+    if (file) uploadAvatar(file);
   });
 
   async function uploadAvatar(file) {
-    if(!['image/jpeg', 'image/png'].includes(file.type)) {
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
       showMessage('Solo se permiten archivos jpg o png.', 'error');
       return;
     }
@@ -274,13 +276,13 @@ document.addEventListener('DOMContentLoaded', () => {
         body: data
       });
       const result = await response.json().catch(() => ({}));
-      if(!response.ok) {
+      if (!response.ok) {
         throw new Error(result.message || 'No se pudo subir la foto');
       }
       currentUser = result.usuario || { ...currentUser, avatarUrl: result.avatarUrl };
       renderProfile(currentUser);
       showMessage('Foto de perfil actualizada.', 'success');
-    } catch(error) {
+    } catch (error) {
       showMessage(error.message, 'error');
     }
   }
@@ -288,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     hideMessage();
-    
+
     setFormDisabled(true);
 
     const formData = new FormData(form);
@@ -299,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const token = getToken();
       const userEmail = getAuthValue('userEmail');
-      
+
       const headers = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -320,12 +322,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const responseData = await response.json();
       currentUser = responseData.usuario;
-      
+
       setAuthValue('token', responseData.token);
       setAuthValue('userName', responseData.usuario.nombre);
       setAuthValue('userEmail', responseData.usuario.email);
       window.dispatchEvent(new Event('auth-changed'));
-      
+
       renderProfile(currentUser);
       showMessage(responseData.mensaje || 'Perfil actualizado correctamente.', 'success');
       closeModal();
