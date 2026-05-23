@@ -83,8 +83,68 @@
           </label>
         </div>
 
-        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3" id="profile-rows-container">
-          <!-- Rows cargadas por JS -->
+        <div class="grid gap-6 lg:grid-cols-2" id="profile-blocks-container">
+          <!-- Bloque Datos del usuario -->
+          <div class="rounded-3xl bg-slate-50 p-6 ring-1 ring-slate-200">
+            <div class="mb-6 flex items-center gap-3 text-slate-900">
+              <i data-lucide="user" class="h-6 w-6 text-blue-700"></i>
+              <h3 class="text-lg font-bold uppercase tracking-wide">Datos del usuario</h3>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <p class="text-sm font-semibold uppercase tracking-wider text-slate-500">Nombre</p>
+                <p id="display-nombre" class="mt-1 text-lg font-semibold text-slate-900">-</p>
+              </div>
+              <div>
+                <p class="text-sm font-semibold uppercase tracking-wider text-slate-500">Apellidos</p>
+                <p id="display-apellidos" class="mt-1 text-lg font-semibold text-slate-900">-</p>
+              </div>
+              <div class="sm:col-span-2">
+                <p class="text-sm font-semibold uppercase tracking-wider text-slate-500">Email</p>
+                <p id="display-email" class="mt-1 text-lg font-semibold text-slate-900">-</p>
+              </div>
+              <div class="sm:col-span-2">
+                <p class="text-sm font-semibold uppercase tracking-wider text-slate-500">Teléfono</p>
+                <p id="display-telefono" class="mt-1 text-lg font-semibold text-slate-900">-</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bloque Dirección -->
+          <div class="rounded-3xl bg-slate-50 p-6 ring-1 ring-slate-200">
+            <div class="mb-6 flex items-center gap-3 text-slate-900">
+              <i data-lucide="map-pin" class="h-6 w-6 text-blue-700"></i>
+              <h3 class="text-lg font-bold uppercase tracking-wide">Dirección</h3>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <p class="text-sm font-semibold uppercase tracking-wider text-slate-500">Dirección completa</p>
+                <p id="display-direccion" class="mt-1 text-lg font-semibold text-slate-900">-</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bloque Contraseña -->
+          <div class="rounded-3xl bg-slate-50 p-6 ring-1 ring-slate-200 lg:col-span-2">
+            <div class="mb-6 flex items-center gap-3 text-slate-900">
+              <i data-lucide="lock" class="h-6 w-6 text-blue-700"></i>
+              <h3 class="text-lg font-bold uppercase tracking-wide">Opciones de Contraseña</h3>
+            </div>
+            <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p class="text-sm font-semibold uppercase tracking-wider text-slate-500">Contraseña actual</p>
+                <p id="display-password" class="mt-1 text-2xl font-bold tracking-[0.25em] text-slate-900">••••••••••••</p>
+              </div>
+              <div class="flex flex-col gap-3 sm:flex-row">
+                <button type="button" id="btn-show-password" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                  <i data-lucide="eye" class="h-4 w-4"></i> Ver contraseña
+                </button>
+                <button type="button" id="btn-change-password-block" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-800">
+                  <i data-lucide="key-round" class="h-4 w-4"></i> Cambiar contraseña
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
