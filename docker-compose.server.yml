@@ -53,6 +53,7 @@ services:
       DB_URL: jdbc:mysql://database:3306/sportshop?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Madrid
       DB_USERNAME: root
       DB_PASSWORD: ${DB_PASSWORD:-curso}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       MAIL_HOST: ${MAIL_HOST:-}
       MAIL_PORT: ${MAIL_PORT:-587}

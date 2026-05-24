@@ -20,10 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Restrict code input to numeric
   codeInput.addEventListener('input', (e) => {
-    e.target.value = e.target.value.replace(//D/g, '');
+    e.target.value = e.target.value.replace(/\D/g, '');
   });
 
-  const passwordIsValid = (pwd) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*/d).{8,}$/.test(pwd);
+  const passwordIsValid = (pwd) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(pwd);
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
