@@ -4,7 +4,7 @@ function escapeCsvValue(value) {
     if (value === null || value === undefined) {
         return '';
     }
-    const normalized = String(value).replace(//r?/n/g, ' ');
+    const normalized = String(value).replace(/\r?\n/g, ' ');
     return `"${normalized.replace(/"/g, '""')}"`;
 }
 
@@ -20,7 +20,7 @@ export function downloadCsv(options) {
         ...rows.map((row) => columns.map((column) => escapeCsvValue(column.value(row))).join(';')),
     ];
 
-    const csv = `/uFEFF${lines.join('/r/n')}`;
+    const csv = `\uFEFF${lines.join('\r\n')}`;
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');

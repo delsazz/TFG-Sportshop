@@ -1,10 +1,10 @@
 export function renderFooterFragment(target, data = {}) {
   if (!target) return;
 
-  target.innerHTML = 
+  target.innerHTML = `
     <section class="component-fragment" data-component="Footer">
       <div class="component-fragment__body"></div>
-    </section>
+    </section>`
   ;
 
   target.dataset.source = 'version-react-original';

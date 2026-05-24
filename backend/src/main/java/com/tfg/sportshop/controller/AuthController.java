@@ -377,10 +377,6 @@ public class AuthController {
         }
 
         if(email == null || email.isBlank()) {
-            email = request.getHeader("X-User-Email");
-        }
-
-        if(email == null || email.isBlank()) {
             throw new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
         }

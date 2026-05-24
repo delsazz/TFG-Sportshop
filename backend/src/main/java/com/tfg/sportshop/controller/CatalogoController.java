@@ -422,9 +422,6 @@ public class CatalogoController {
             }
         }
         if(email == null || email.isBlank()) {
-            email = request.getHeader("X-User-Email");
-        }
-        if(email == null || email.isBlank()) {
             return null;
         }
         return usuarioService.buscarUsuarioPorEmail(email)

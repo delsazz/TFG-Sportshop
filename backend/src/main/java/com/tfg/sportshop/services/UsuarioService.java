@@ -70,7 +70,10 @@ public class UsuarioService {
             if(Boolean.TRUE.equals(usuario.getLoginBloqueado())) {
                 throw new IllegalStateException("LOGIN_BLOQUEADO");
             }
-            if(passwordEncoder.matches(password, usuario.getPassword())) {
+            if(passwordMatches(password, usuario.getPassword())) {
+                if(!isBcryptHash(usuario.getPassword())) {
+                    usuario.setPassword(passwordEncoder.encode(password));
+                }
                 usuario.setLoginIntentosFallidos(0);
                 usuario.setLoginBloqueado(false);
                 usuario.setLoginDesbloqueoToken(null);
@@ -90,6 +93,20 @@ public class UsuarioService {
             usuarioRepository.save(usuario);
         }
         return Optional.empty();
+    }
+
+    private boolean passwordMatches(String rawPassword, String storedPassword) {
+        if(rawPassword == null || storedPassword == null) {
+            return false;
+        }
+        if(isBcryptHash(storedPassword)) {
+            return passwordEncoder.matches(rawPassword, storedPassword);
+        }
+        return rawPassword.equals(storedPassword);
+    }
+
+    private boolean isBcryptHash(String password) {
+        return password != null && password.matches("^\\$2[aby]\\$\\d{2}\\$.*");
     }
 
     @Transactional
