@@ -87,7 +87,7 @@ async function initAdminCategories() {
                   <div class="space-y-4">
                     <div>
                       <h4 class="text-sm font-semibold text-gray-900">Ropa de categoria</h4>
-                      <p class="mt-1 text-xs text-gray-500">Seleccionar aquí mueve esas prendas a esta categoria.</p>
+                      <p class="mt-1 text-xs text-gray-500">Seleccionar aquí mueve esos productos a esta categoria.</p>
                     </div>
 
                     <div id="cat-products-list" class="max-h-[28rem] space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-3"></div>
@@ -243,7 +243,7 @@ window.editCategory = function(id) {
   
   curContainer.classList.remove('hidden');
   if (currentProducts.length === 0) {
-    curList.innerHTML = '<span class="text-xs text-gray-500">Sin prendas asignadas.</span>';
+    curList.innerHTML = '<span class="text-xs text-gray-500">Sin productos asignados.</span>';
   } else {
     curList.innerHTML = currentProducts.map(p => `
       <span class="rounded-full bg-white px-3 py-1 text-xs text-gray-700 ring-1 ring-gray-200">${p.nombre}</span>

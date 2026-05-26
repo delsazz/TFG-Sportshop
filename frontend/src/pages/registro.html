@@ -12,8 +12,6 @@
 
 <body class="bg-slate-50">
 
-  <div id="layout-container"></div>
-
   <div class="min-h-[calc(100vh-128px)] flex items-center justify-center bg-gray-50 px-4 py-10 sm:py-12">
 
     <div class="bg-white registro-page p-6 rounded-lg shadow-md w-full max-w-2xl sm:p-8">
@@ -118,35 +116,59 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Ciclo</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Categoría deportiva favorita</label>
           <select id="ciclo" name="ciclo" class="w-full px-3 py-2 border border-gray-300 rounded" required>
-            <option value="">Selecciona ciclo</option>
-            <option value="proteccion-civil">Protección Civil</option>
-            <option value="emergencias-sanitarias">Emergencias Sanitarias</option>
-            <option value="sanidad">Sanidad</option>
+            <option value="">Selecciona categoría</option>
+            <option value="ropa-deportiva">Ropa deportiva</option>
+            <option value="calzado">Calzado</option>
+            <option value="accesorios">Accesorios</option>
+            <option value="equipamiento">Equipamiento</option>
+            <option value="suplementos">Suplementos</option>
           </select>
         </div>
 
         <div class="flex items-start gap-2">
           <input id="aceptoTerminos" name="aceptoTerminos" type="checkbox" class="mt-1 h-4 w-4" required />
           <label class="text-sm text-gray-700">
-            Acepto los términos y condiciones
+            Acepto los
+            <a href="terminos_condiciones.html" class="legal-link">términos y condiciones</a>
           </label>
         </div>
 
-        <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
-          <label class="flex cursor-pointer items-center gap-3 text-sm font-semibold text-gray-800">
-            <input id="captchaCheckbox" type="checkbox" class="h-5 w-5 rounded border-gray-300" />
-            <span id="captchaLabel">No soy un robot</span>
-            <span id="captchaTick" class="hidden ml-auto rounded-full bg-green-100 px-2 py-1 text-green-700">✓</span>
+        <div class="flex items-start gap-2">
+          <input id="aceptoPrivacidad" name="aceptoPrivacidad" type="checkbox" class="mt-1 h-4 w-4" required />
+          <label class="text-sm text-gray-700">
+            Acepto la
+            <a href="politica_privacidad.html" class="legal-link">política de privacidad</a>
           </label>
-          <div id="captchaChallenge" class="mt-4 hidden rounded border border-gray-200 bg-white p-4">
-            <p id="captchaQuestion" class="mb-3 text-sm text-gray-700"></p>
-            <div class="flex gap-3">
-              <input id="captchaAnswer" type="text" inputmode="numeric"
-                class="flex-1 rounded border border-gray-300 px-3 py-2" />
-              <button id="captchaVerify" type="button"
-                class="rounded bg-blue-600 px-4 py-2 text-white">Verificar</button>
+        </div>
+
+        <div class="captcha-section">
+          <p class="captcha-section-title">Comprobación de seguridad</p>
+          <button id="captchaCheckbox" type="button" class="captcha-check" aria-pressed="false">
+            <span class="captcha-box" aria-hidden="true">
+              <span id="captchaTick" class="captcha-tick hidden">✓</span>
+            </span>
+            <span class="captcha-text">No soy un robot</span>
+            <span class="captcha-brand" aria-hidden="true">
+              <span class="captcha-logo">↻</span>
+              <span>reCAPTCHA</span>
+              <small>Privacidad - Términos</small>
+            </span>
+          </button>
+
+          <div id="captchaChallenge" class="captcha-modal hidden" role="dialog" aria-modal="true" aria-labelledby="captchaQuestion">
+            <div class="captcha-card">
+              <div class="captcha-header">
+                <span>Selecciona todas las imágenes con</span>
+                <strong id="captchaQuestion"></strong>
+              </div>
+              <div id="captchaGrid" class="captcha-grid"></div>
+              <p id="captchaFeedback" class="captcha-feedback hidden"></p>
+              <div class="captcha-actions">
+                <button id="captchaReload" type="button" class="captcha-tool" aria-label="Nuevo captcha">↻</button>
+                <button id="captchaVerify" type="button" class="captcha-verify">Verificar</button>
+              </div>
             </div>
           </div>
         </div>
@@ -161,7 +183,7 @@
 
       <p class="text-center mt-4 text-gray-600 text-sm">
         ¿Ya tienes una cuenta?
-        <a href="/iniciar_sesion.html" class="text-blue-600 hover:underline">
+        <a href="iniciar_sesion.html" class="text-blue-600 hover:underline">
           Inicia sesión aquí
         </a>
       </p>
@@ -169,6 +191,7 @@
     </div>
   </div>
   <script src="/js/script_registro.js"></script>
+  <script src="/js/components/footer.js"></script>
 </body>
 
 </html>

@@ -29,7 +29,7 @@
     <aside id="sidebar" class="admin-sidebar">
       <div class="admin-sidebar-header">
         <h1 class="font-bold text-xl flex items-center gap-2">
-          <span>📦</span> Campus FP Admin
+          <span>📦</span> SportShop Admin
         </h1>
         <button id="close-sidebar-mobile" class="md:hidden">✖</button>
       </div>
@@ -37,7 +37,7 @@
       <nav class="admin-nav" id="admin-nav-links">
         <button class="nav-item active" data-tab="dashboard">📊 Dashboard</button>
         <button class="nav-item" data-tab="pedidos">🛒 Pedidos</button>
-        <button class="nav-item" data-tab="alumnos">👥 Alumnos</button>
+        <button class="nav-item" data-tab="clientes">👥 Clientes</button>
         <button class="nav-item" data-tab="catalogo">📦 Catálogo</button>
         <button class="nav-item" data-tab="kits">📦 Kits</button>
         <button class="nav-item" data-tab="categorias">📁 Categorías</button>
@@ -79,11 +79,11 @@
                 </div>
               </div>
             </div>
-            <div class="rounded-xl border p-6 shadow-sm border-green-200 bg-green-50 cursor-pointer hover:shadow-md transition-shadow" onclick="document.querySelector('[data-tab=/'alumnos/']').click()">
+            <div class="rounded-xl border p-6 shadow-sm border-green-200 bg-green-50 cursor-pointer hover:shadow-md transition-shadow" onclick="document.querySelector('[data-tab=/'clientes/']').click()">
               <div class="flex items-start justify-between">
                 <div class="flex-1">
-                  <p class="text-sm font-medium text-green-900">Total Alumnos</p>
-                  <p id="stat-alumnos" class="mt-2 text-3xl font-bold text-green-900">...</p>
+                  <p class="text-sm font-medium text-green-900">Total Clientes</p>
+                  <p id="stat-clientes" class="mt-2 text-3xl font-bold text-green-900">...</p>
                   <p class="mt-1 text-xs text-green-900 opacity-75">Usuarios registrados</p>
                 </div>
               </div>
@@ -164,9 +164,9 @@
           <h2 class="text-2xl font-bold mb-4">Gestión de Pedidos</h2>
           <div id="pedidos-container">Cargando...</div>
         </div>
-        <div id="tab-alumnos" class="tab-content">
-          <h2 class="text-2xl font-bold mb-4">Gestión de Alumnos</h2>
-          <div id="alumnos-container">Cargando...</div>
+        <div id="tab-clientes" class="tab-content">
+          <h2 class="text-2xl font-bold mb-4">Gestión de Clientes</h2>
+          <div id="clientes-container">Cargando...</div>
         </div>
         <div id="tab-catalogo" class="tab-content">
           <h2 class="text-2xl font-bold mb-4">Gestión de Catálogo</h2>
@@ -184,16 +184,17 @@
     </main>
   </div>
 
-  <script src="/js/script_almacenamiento_script_autenticacion.js"></script>
+  <script src="/js/script_almacenamiento_autenticacion.js"></script>
   <!-- Main admin controller -->
   <script src="/js/script_administracion.js"></script>
   <!-- Tab specific scripts -->
   <script src="/js/admin/script_inicio.js"></script>
   <script src="/js/admin/script_pedidos.js"></script>
-  <script src="/js/admin/script_alumnos.js"></script>
+  <script src="/js/admin/script_clientes.js"></script>
   <script src="/js/admin/script_catalogo.js"></script>
   <script src="/js/admin/script_kits.js"></script>
   <script src="/js/admin/script_categorias.js"></script>
+  <script src="/js/components/footer.js"></script>
 </body>
 </html>
 
