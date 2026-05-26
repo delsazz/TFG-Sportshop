@@ -15,7 +15,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const emptyState = document.getElementById('empty-state');
   const checkoutContent = document.getElementById('checkout-content');
   const orderItemsContainer = document.getElementById('order-items');
+  const orderItemsCount = document.getElementById('order-items-count');
   const orderTotalEl = document.getElementById('order-total');
+  const orderTotalBottomEl = document.getElementById('order-total-bottom');
   const paymentOptionsContainer = document.getElementById('payment-options');
   const checkoutForm = document.getElementById('checkout-form');
   const submitBtn = document.getElementById('submit-btn');
@@ -41,9 +43,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     checkoutContent.classList.remove('hidden');
   }
 
-  // Calculate total
+  // Calculate total and product count
   const total = orderItems.reduce((acc, item) => acc + (item.precioUnitario * item.cantidad), 0);
+  const totalCount = orderItems.reduce((acc, item) => acc + Number(item.cantidad || 0), 0);
   orderTotalEl.textContent = `${total.toFixed(2)} EUR`;
+  if (orderTotalBottomEl) {
+    orderTotalBottomEl.textContent = `${total.toFixed(2)} EUR`;
+  }
+  if (orderItemsCount) {
+    orderItemsCount.textContent = `${totalCount} ${totalCount === 1 ? 'producto' : 'productos'} en el carrito.`;
+  }
   submitBtn.textContent = `Confirmar pedido de ${total.toFixed(2)} EUR`;
 
   // Render items
