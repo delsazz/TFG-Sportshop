@@ -3,7 +3,7 @@ const fallbackCategorias = [
     idCategoria: 1,
     nombreCategoria: 'Ropa deportiva',
     slug: 'ropa-deportiva',
-    descripcion: 'Camisetas, pantalones y prendas para entrenar.',
+    descripcion: 'Camisetas, pantalones y ropa técnica para entrenar.',
     imagenUrl: '/img/categorias/ropa_deportiva.jpg',
     ordenVisualizacion: 1,
   },
@@ -54,6 +54,9 @@ const legacyCategoryImages = {
   'suplementos': '/img/categorias/suplementos_deportivos.jpg',
 };
 
+const pagesBase = window.location.pathname.includes('/src/pages/') ? '/src/pages/' : '/';
+const pageHref = (file) => `${pagesBase}${file}`;
+
 async function getCategorias() {
   try {
     const response = await fetch('/api/categorias');
@@ -66,19 +69,6 @@ async function getCategorias() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Check auth
-  const isLoggedIn = !!sessionStorage.getItem('token');
-  const btnAction = document.getElementById('btn-action');
-  
-  if (isLoggedIn) {
-    btnAction.textContent = 'Ir a mi perfil';
-    btnAction.href = 'perfil.html';
-  } else {
-    btnAction.textContent = 'Iniciar sesión';
-    btnAction.href = 'iniciar_sesion.html';
-  }
-
-  // Load categories
   const categoriasContainer = document.getElementById('categorias-container');
   const categorias = await getCategorias();
   const categoriasMostrar = categorias.length > 0 ? categorias : fallbackCategorias;
@@ -87,10 +77,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const imagenSrc = categoria.imagenUrl || legacyCategoryImages[categoria.slug] || legacyCategoryImages[String(categoria.idCategoria)] || '/img/categorias/ropa_deportiva.jpg';
     
     const catHtml = `
-        <a href="catalogo.html?slug=${categoria.slug}" class="category-card" style="background-image: url('${imagenSrc}');">
+        <a href="${pageHref('catalogo.html')}?slug=${categoria.slug}" class="category-card" style="background-image: url('${imagenSrc}');">
           <div class="category-card-content">
             <h3>${categoria.nombreCategoria}</h3>
-            <p>${categoria.descripcion || 'Ver uniforme de esta categoría.'}</p>
+            <p>${categoria.descripcion || 'Ver productos de esta categoría.'}</p>
           </div>
         </a>
       `;

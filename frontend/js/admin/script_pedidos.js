@@ -38,7 +38,7 @@ async function initAdminOrders() {
       <div class="space-y-6">
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <input type="text" id="filter-id" placeholder="ID exacto (ej: 5)" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500" />
-          <input type="text" id="filter-user" placeholder="Nombre o email alumno..." class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500" />
+          <input type="text" id="filter-user" placeholder="Nombre o email cliente..." class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500" />
           <select id="filter-status" class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
             <option value="">Todos los estados</option>
             ${statusOptions.map(s => `<option value="${s.value}">${s.label}</option>`).join('')}
@@ -50,12 +50,12 @@ async function initAdminOrders() {
         <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
           <div class="mb-4 flex items-center justify-between">
             <div>
-              <h3 class="text-lg font-semibold text-gray-900">Unidades pendientes por alumno</h3>
-              <p class="text-sm text-gray-500">Resumen de prendas entregadas parcialmente o aún sin entregar.</p>
+              <h3 class="text-lg font-semibold text-gray-900">Unidades pendientes por cliente</h3>
+              <p class="text-sm text-gray-500">Resumen de productos entregados parcialmente o aún sin entregar.</p>
             </div>
             <span id="pendientes-total-badge" class="rounded-full bg-orange-50 px-3 py-1 text-sm font-medium text-orange-700">0 pendientes</span>
           </div>
-          <div id="pendientes-alumno-container" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <div id="pendientes-cliente-container" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             <p class="text-sm text-gray-500">Calculando pendientes...</p>
           </div>
         </section>
@@ -65,7 +65,7 @@ async function initAdminOrders() {
             <thead class="bg-gray-50">
               <tr>
                 <th class="px-4 py-3 text-sm font-medium text-gray-500">ID</th>
-                <th class="px-4 py-3 text-sm font-medium text-gray-500">Alumno</th>
+                <th class="px-4 py-3 text-sm font-medium text-gray-500">Cliente</th>
                 <th class="px-4 py-3 text-sm font-medium text-gray-500">Fecha</th>
                 <th class="px-4 py-3 text-sm font-medium text-gray-500">Estado</th>
                 <th class="px-4 py-3 text-sm font-medium text-gray-500">Unidades</th>
@@ -174,7 +174,7 @@ function renderOrders() {
 }
 
 function renderPendientes() {
-  const container = document.getElementById('pendientes-alumno-container');
+  const container = document.getElementById('pendientes-cliente-container');
   const badge = document.getElementById('pendientes-total-badge');
 
   const resumen = ordersData.reduce((acc, p) => {
@@ -182,10 +182,10 @@ function renderPendientes() {
     if (pnds <= 0) return acc;
 
     const key = p.usuario?.idUsuario ? String(p.usuario.idUsuario) : `pedido-${p.idPedido}`;
-    const alumno = p.usuario ? `${p.usuario.nombre} ${p.usuario.apellidos}`.trim() : 'Sin usuario';
+    const cliente = p.usuario ? `${p.usuario.nombre} ${p.usuario.apellidos}`.trim() : 'Sin usuario';
 
     if (!acc[key]) {
-      acc[key] = { alumno, email: p.usuario?.email || 'Sin email', pedidos: 0, unidadesPendientes: 0 };
+      acc[key] = { cliente, email: p.usuario?.email || 'Sin email', pedidos: 0, unidadesPendientes: 0 };
     }
     acc[key].pedidos += 1;
     acc[key].unidadesPendientes += pnds;
@@ -206,7 +206,7 @@ function renderPendientes() {
     <div class="rounded-lg border border-gray-200 px-4 py-3">
       <div class="flex items-start justify-between gap-3">
         <div>
-          <p class="font-medium text-gray-900">${item.alumno}</p>
+          <p class="font-medium text-gray-900">${item.cliente}</p>
           <p class="text-sm text-gray-500">${item.email}</p>
         </div>
         <span class="rounded-full bg-gray-100 px-2.5 py-1 text-sm font-semibold text-gray-800">${item.unidadesPendientes}</span>
@@ -378,7 +378,7 @@ function renderOrderDetail() {
     `;
   }).join('');
 
-  const prendasHtml = p.detalles.map(d => {
+  const productosHtml = p.detalles.map(d => {
     return `
       <div class="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-xl hover:border-blue-300 transition-colors">
         <div class="mb-4 md:mb-0">
@@ -432,13 +432,13 @@ function renderOrderDetail() {
         </div>
       </div>
 
-      <h4 class="font-bold text-gray-900 mb-4 border-b pb-2 uppercase text-xs tracking-widest">Prendas y Entregas</h4>
+      <h4 class="font-bold text-gray-900 mb-4 border-b pb-2 uppercase text-xs tracking-widest">Productos y Entregas</h4>
       <div class="space-y-3">
-        ${prendasHtml}
+        ${productosHtml}
       </div>
 
       <div class="mt-8 pt-6 border-t flex flex-col sm:flex-row gap-4 justify-between items-center">
-        <p class="text-xs text-gray-500">Selecciona las prendas y pulsa el botón para registrar la entrega parcial o total.</p>
+        <p class="text-xs text-gray-500">Selecciona los productos y pulsa el botón para registrar la entrega parcial o total.</p>
         <button onclick="registrarEntrega()" class="w-full sm:w-auto bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition-colors cursor-pointer">
           REGISTRAR ENTREGA
         </button>

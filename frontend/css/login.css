@@ -2,12 +2,17 @@
 
 /* Premium login page styling */
 body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   min-height: 100vh;
   background: linear-gradient(135deg, hsl(210, 30%, 95%), hsl(210, 30%, 85%));
   font-family: 'Inter', sans-serif;
+}
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
 }
 
 /* Centered card with glassmorphism */

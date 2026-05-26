@@ -1,23 +1,80 @@
 const productImagesById = {
-  1: ['/img/productos/chaqueta-pc.jpg', '/img/productos/CEÑIDOR-pc.jpg'],
-  2: ['/img/productos/camiseta-pc.jpg'],
-  3: ['/img/productos/pantalon-pc.jpg'],
-  4: ['/img/productos/botas-pc.jpg'],
-  5: [
-    '/img/productos/chaqueta-te.jpg',
-    '/img/productos/F._T_CHAQUETA-te.jpg',
-    '/img/productos/TABLA_TALLA_CHAQUETA_C-2931-te.jpg',
-    '/img/productos/CASCO AMARILLO-te.jpg',
-    '/img/productos/GAFAS.jpg',
-    '/img/productos/mochila-te.jpg',
-  ],
-  6: ['/img/productos/camiseta-te.jpg', '/img/productos/CAMISETA NEGRA-te.jpg'],
-  7: ['/img/productos/pantalon-te.jpg', '/img/productos/F._T_PANTALON-te.jpg'],
-  8: ['/img/productos/botas-te.jpg'],
-  9: ['/img/productos/parte-superior-sanidad.jpg'],
-  10: ['/img/productos/pantalon-sanidad.jpg'],
-  11: ['/img/productos/crocs-sanidad.jpg'],
+  1: ['/img/productos/camiseta_nike.jpg'],
+  2: ['/img/productos/zapatillas_adidas.jpg'],
+  3: ['/img/productos/mochila_puma.jpg'],
+  4: ['/img/productos/pesas_10kg.jpg'],
+  5: ['/img/productos/proteina_whey.jpg'],
 };
+
+const fallbackProductsById = {
+  1: {
+    idProducto: 1,
+    nombre: 'Camiseta Nike Dri-FIT',
+    tipoPrenda: 'Ropa deportiva',
+    descripcion: 'Camiseta transpirable para entrenamiento diario.',
+    color: 'Negro',
+    precio: 24.99,
+    stock: 40,
+    imagen: '/img/productos/camiseta_nike.jpg',
+    categoria: { nombreCategoria: 'Ropa deportiva', slug: 'ropa-deportiva' },
+  },
+  2: {
+    idProducto: 2,
+    nombre: 'Zapatillas Adidas Run',
+    tipoPrenda: 'Calzado',
+    descripcion: 'Zapatillas ligeras para running y gimnasio.',
+    color: 'Blanco',
+    precio: 69.99,
+    stock: 25,
+    imagen: '/img/productos/zapatillas_adidas.jpg',
+    categoria: { nombreCategoria: 'Calzado', slug: 'calzado' },
+  },
+  3: {
+    idProducto: 3,
+    nombre: 'Mochila Puma Training',
+    tipoPrenda: 'Accesorios',
+    descripcion: 'Mochila deportiva con compartimentos amplios.',
+    color: 'Azul',
+    precio: 34.99,
+    stock: 18,
+    imagen: '/img/productos/mochila_puma.jpg',
+    categoria: { nombreCategoria: 'Accesorios', slug: 'accesorios' },
+  },
+  4: {
+    idProducto: 4,
+    nombre: 'Set de pesas 10 kg',
+    tipoPrenda: 'Equipamiento',
+    descripcion: 'Kit de mancuernas para fuerza y tonificación.',
+    color: 'Negro',
+    precio: 44.99,
+    stock: 12,
+    imagen: '/img/productos/pesas_10kg.jpg',
+    categoria: { nombreCategoria: 'Equipamiento', slug: 'equipamiento' },
+  },
+  5: {
+    idProducto: 5,
+    nombre: 'Proteína Whey Sport',
+    tipoPrenda: 'Suplementos',
+    descripcion: 'Suplemento proteico para recuperación muscular.',
+    color: 'Vainilla',
+    precio: 29.99,
+    stock: 30,
+    imagen: '/img/productos/proteina_whey.jpg',
+    categoria: { nombreCategoria: 'Suplementos', slug: 'suplementos' },
+  },
+};
+
+function isSportShopProduct(product) {
+  const text = [
+    product?.nombre,
+    product?.descripcion,
+    product?.tipoPrenda,
+    product?.categoria?.nombreCategoria,
+    product?.categoria?.categoria,
+  ].join(' ').toLowerCase();
+
+  return !/(proteccion|protección|emergencia|sanidad|laboratorio|uniforme|campus|dotes)/i.test(text);
+}
 
 function resolveImage(path) {
   const img = path?.trim();
@@ -44,6 +101,8 @@ function getFallbackSizes(product) {
 
 document.addEventListener('DOMContentLoaded', async () => {
   lucide.createIcons();
+  const pagesBase = window.location.pathname.includes('/src/pages/') ? '/src/pages/' : '/';
+  const pageHref = (file) => `${pagesBase}${file}`;
   
   const urlParams = new URLSearchParams(window.location.search);
   const productIdStr = urlParams.get('id');
@@ -52,6 +111,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const loadingContainer = document.getElementById('loading-container');
   const errorContainer = document.getElementById('error-container');
   const productContainer = document.getElementById('product-container');
+  const sizeSelect = document.getElementById('product-size');
 
   if (!productId || isNaN(productId)) {
     loadingContainer.classList.add('hidden');
@@ -71,6 +131,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const productRes = await fetch(`${apiBaseUrl}/productos/${productId}`);
     if (!productRes.ok) throw new Error('Producto no encontrado');
     product = await productRes.json();
+    if (!isSportShopProduct(product) && fallbackProductsById[productId]) {
+      product = fallbackProductsById[productId];
+    }
 
     // Fetch images (optional)
     let dbImages = [];
@@ -92,7 +155,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadingContainer.classList.add('hidden');
     productContainer.classList.remove('hidden');
 
-    document.getElementById('back-link').href = product.categoria?.slug ? `/catalogo.html?slug=${product.categoria.slug}` : '/catalogo.html';
+    document.getElementById('back-link').href = product.categoria?.slug ? `${pageHref('catalogo.html')}?slug=${product.categoria.slug}` : pageHref('catalogo.html');
     
     document.getElementById('product-category').textContent = product.categoria?.nombreCategoria || '-';
     document.getElementById('product-title').textContent = product.nombre || '-';
@@ -100,7 +163,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('product-price').textContent = `${(product.precio || 0).toFixed(2)} EUR`;
     document.getElementById('product-stock').textContent = `Stock ${product.stock || 0}`;
 
-    const fallbackDescription = `${product.tipoPrenda} en color ${product.color}. Producto de ${product.categoria?.nombreCategoria || 'catálogo'} preparado para uso académico y profesional.`;
+    const fallbackDescription = `${product.tipoPrenda || 'Producto'} en color ${product.color || 'no indicado'}. Artículo de ${product.categoria?.nombreCategoria || 'catálogo'} preparado para entrenamiento, competición y uso diario.`;
     document.getElementById('product-description').textContent = product.descripcion || fallbackDescription;
     
     document.getElementById('product-color').textContent = product.color || 'No indicado';
@@ -110,7 +173,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Sizes
     availableSizes = sizes.length > 0 ? sizes : getFallbackSizes(product);
-    const sizeSelect = document.getElementById('product-size');
     availableSizes.forEach(size => {
       const opt = document.createElement('option');
       opt.value = size.nombre;
@@ -168,17 +230,63 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
   } catch (err) {
-    loadingContainer.classList.add('hidden');
-    errorContainer.classList.remove('hidden');
-    errorContainer.textContent = `Error: ${err.message}`;
+    if (fallbackProductsById[productId]) {
+      product = fallbackProductsById[productId];
+      loadingContainer.classList.add('hidden');
+      productContainer.classList.remove('hidden');
+
+      document.getElementById('back-link').href = product.categoria?.slug ? `${pageHref('catalogo.html')}?slug=${product.categoria.slug}` : pageHref('catalogo.html');
+      document.getElementById('product-category').textContent = product.categoria?.nombreCategoria || '-';
+      document.getElementById('product-title').textContent = product.nombre || '-';
+      document.getElementById('product-type').textContent = product.tipoPrenda || '-';
+      document.getElementById('product-price').textContent = `${(product.precio || 0).toFixed(2)} EUR`;
+      document.getElementById('product-stock').textContent = `Stock ${product.stock || 0}`;
+      document.getElementById('product-description').textContent = product.descripcion || '-';
+      document.getElementById('product-color').textContent = product.color || 'No indicado';
+      document.getElementById('product-composition').textContent = 'No indicada';
+      document.getElementById('product-norm').textContent = 'No indicada';
+      document.getElementById('product-wash').textContent = 'No indicado';
+
+      availableSizes = getFallbackSizes(product);
+      availableSizes.forEach(size => {
+        const opt = document.createElement('option');
+        opt.value = size.nombre;
+        opt.textContent = `${size.nombre} (Stock: ${size.stock})`;
+        sizeSelect.appendChild(opt);
+      });
+
+      const mainImgEl = document.getElementById('main-product-image');
+      const placeholderEl = document.getElementById('main-product-placeholder');
+      placeholderEl.classList.add('hidden');
+      mainImgEl.classList.remove('hidden');
+      mainImgEl.src = product.imagen;
+      mainImgEl.alt = product.nombre;
+    } else {
+      loadingContainer.classList.add('hidden');
+      errorContainer.classList.remove('hidden');
+      errorContainer.textContent = `Error: ${err.message}`;
+    }
   }
 
   // Cart logic
   const btnAddCart = document.getElementById('btn-add-cart');
-  const sizeSelect = document.getElementById('product-size');
   const sizeError = document.getElementById('size-error');
-  const loginModal = document.getElementById('login-modal');
   const addedModal = document.getElementById('added-modal');
+
+  function openAccountMenu() {
+    const accountButton = document.querySelector('[data-account-toggle]');
+    const accountPanel = document.querySelector('[data-account-panel]');
+    const cartPanel = document.querySelector('[data-cart-panel]');
+
+    if (accountButton && accountPanel) {
+      if (cartPanel) cartPanel.hidden = true;
+      accountPanel.hidden = false;
+      accountButton.focus();
+      return;
+    }
+
+    window.location.href = pageHref('iniciar_sesion.html');
+  }
 
   sizeSelect.addEventListener('change', () => {
     sizeError.classList.add('hidden');
@@ -196,7 +304,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const token = getToken();
     if (!token) {
-      loginModal.classList.remove('hidden');
+      openAccountMenu();
       return;
     }
 
@@ -219,13 +327,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     sessionStorage.setItem('checkoutDraft', JSON.stringify(draft));
+    window.dispatchEvent(new Event('cart-changed'));
     
     document.getElementById('added-product-name').textContent = `${product.nombre} (Talla ${selectedSize})`;
     addedModal.classList.remove('hidden');
-  });
-
-  document.getElementById('btn-close-login-modal').addEventListener('click', () => {
-    loginModal.classList.add('hidden');
   });
 
   document.getElementById('btn-close-added-modal').addEventListener('click', () => {

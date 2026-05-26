@@ -42,7 +42,7 @@ window.addEventListener('admin-tab-loaded', async (e) => {
     document.getElementById('stat-productos').textContent = productos.length;
     document.getElementById('stat-productos-sub').textContent = `${productosActivos} en stock`;
     
-    document.getElementById('stat-alumnos').textContent = usuarios.length;
+    document.getElementById('stat-clientes').textContent = usuarios.length;
     
     document.getElementById('stat-pedidos').textContent = pedidos.length;
     document.getElementById('stat-ventas-sub').textContent = `Venta total: €${totalVentas.toFixed(2)}`;

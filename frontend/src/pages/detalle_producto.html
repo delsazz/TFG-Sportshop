@@ -106,25 +106,6 @@
     </div>
   </div>
 
-  <!-- Modal Login Requerido -->
-  <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 hidden">
-    <div class="mx-4 w-full max-w-md rounded-2xl bg-white p-10 text-center shadow-xl">
-      <h2 class="mb-4 text-3xl font-bold">Acceso restringido</h2>
-      <p class="mb-8 text-gray-600">Para añadir productos debes iniciar sesión o registrarte.</p>
-      <div class="flex flex-col justify-center gap-4 sm:flex-row">
-        <a href="/iniciar_sesion.html" class="rounded-xl bg-slate-900 px-8 py-3.5 font-medium text-white hover:bg-slate-800">
-          Iniciar sesión
-        </a>
-        <a href="/registro.html" class="rounded-xl bg-gray-800 px-8 py-3.5 font-medium text-white hover:bg-gray-900">
-          Registrarse
-        </a>
-      </div>
-      <button id="btn-close-login-modal" class="mt-6 text-gray-500 underline hover:text-gray-700 cursor-pointer">
-        Cancelar
-      </button>
-    </div>
-  </div>
-
   <!-- Modal Producto Añadido -->
   <div id="added-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 hidden">
     <div class="mx-4 w-full max-w-md rounded-2xl bg-white p-10 text-center shadow-xl">
@@ -141,8 +122,10 @@
     </div>
   </div>
 
-  <script src="/js/script_almacenamiento_script_autenticacion.js"></script>
+  <script src="/js/components/estructura.js"></script>
+  <script src="/js/script_almacenamiento_autenticacion.js"></script>
   <script src="/js/script_detalle_producto.js"></script>
+  <script src="/js/components/footer.js"></script>
 </body>
 </html>
 

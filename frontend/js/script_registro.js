@@ -9,7 +9,9 @@ const errorMsg = document.getElementById('error-message');
 const captchaCheckbox = document.getElementById('captchaCheckbox');
 const captchaChallenge = document.getElementById('captchaChallenge');
 const captchaQuestion = document.getElementById('captchaQuestion');
-const captchaAnswer = document.getElementById('captchaAnswer');
+const captchaGrid = document.getElementById('captchaGrid');
+const captchaFeedback = document.getElementById('captchaFeedback');
+const captchaReload = document.getElementById('captchaReload');
 const captchaVerify = document.getElementById('captchaVerify');
 const captchaTick = document.getElementById('captchaTick');
 const API = '/api';
@@ -31,9 +33,23 @@ let formState = {
   password: '',
   ciclo: '',
   aceptoTerminos: false,
+  aceptoPrivacidad: false,
   captchaVerified: false,
 };
-let captchaExpected = 0;
+const captchaPool = [
+  { concept: 'camisetas', src: '/img/productos/camiseta_nike.jpg', alt: 'Camiseta deportiva' },
+  { concept: 'zapatillas', src: '/img/productos/zapatillas_adidas.jpg', alt: 'Zapatillas deportivas' },
+  { concept: 'mochilas', src: '/img/productos/mochila_puma.jpg', alt: 'Mochila deportiva' },
+  { concept: 'pesas', src: '/img/productos/pesas_10kg.jpg', alt: 'Pesas de entrenamiento' },
+  { concept: 'suplementos', src: '/img/productos/proteina_whey.jpg', alt: 'Proteína deportiva' },
+  { concept: 'camisetas', src: '/img/categorias/ropa_deportiva.jpg', alt: 'Ropa deportiva' },
+  { concept: 'zapatillas', src: '/img/categorias/calzado_deportivo.jpg', alt: 'Calzado deportivo' },
+  { concept: 'mochilas', src: '/img/categorias/accesorios_deportivos.jpg', alt: 'Accesorios deportivos' },
+  { concept: 'pesas', src: '/img/categorias/equipamiento_deportivo.jpg', alt: 'Equipamiento deportivo' },
+  { concept: 'suplementos', src: '/img/categorias/suplementos_deportivos.jpg', alt: 'Suplementos deportivos' },
+];
+let captchaCurrentConcept = '';
+let captchaSelectedIndexes = new Set();
 
 function setError(message) {
   errorMsg.textContent = message;
@@ -117,27 +133,71 @@ function updateState(e) {
 }
 form.addEventListener('input', updateState);
 form.addEventListener('change', updateState);
-captchaCheckbox.addEventListener('change', () => {
-  if (captchaCheckbox.checked && !formState.captchaVerified) {
-    const a = Math.floor(Math.random() * 8) + 2;
-    const b = Math.floor(Math.random() * 8) + 2;
-    captchaExpected = a + b;
-    captchaQuestion.textContent = `Resuelve el captcha: ${a} + ${b}`;
-    captchaChallenge.classList.remove('hidden');
-    captchaAnswer.focus();
-  } else if (!formState.captchaVerified) {
-    captchaChallenge.classList.add('hidden');
+
+function shuffle(items) {
+  return [...items].sort(() => Math.random() - 0.5);
+}
+
+function renderCaptchaChallenge() {
+  const concepts = [...new Set(captchaPool.map((item) => item.concept))];
+  captchaCurrentConcept = concepts[Math.floor(Math.random() * concepts.length)];
+  captchaSelectedIndexes = new Set();
+  captchaFeedback.classList.add('hidden');
+  captchaFeedback.textContent = '';
+  captchaQuestion.textContent = captchaCurrentConcept;
+
+  const correct = shuffle(captchaPool.filter((item) => item.concept === captchaCurrentConcept)).slice(0, 3);
+  const distractors = shuffle(captchaPool.filter((item) => item.concept !== captchaCurrentConcept)).slice(0, 6);
+  const challengeImages = shuffle([...correct, ...distractors]);
+
+  captchaGrid.innerHTML = challengeImages.map((item, index) => `
+    <button type="button" class="captcha-tile" data-index="${index}" data-correct="${item.concept === captchaCurrentConcept}" aria-label="${item.alt}">
+      <img src="${item.src}" alt="${item.alt}" />
+    </button>
+  `).join('');
+}
+
+function openCaptchaChallenge() {
+  if (formState.captchaVerified) return;
+  renderCaptchaChallenge();
+  captchaChallenge.classList.remove('hidden');
+}
+
+captchaCheckbox.addEventListener('click', openCaptchaChallenge);
+
+captchaGrid.addEventListener('click', (event) => {
+  const tile = event.target.closest('.captcha-tile');
+  if (!tile) return;
+
+  const index = Number(tile.dataset.index);
+  if (captchaSelectedIndexes.has(index)) {
+    captchaSelectedIndexes.delete(index);
+    tile.classList.remove('is-selected');
+  } else {
+    captchaSelectedIndexes.add(index);
+    tile.classList.add('is-selected');
   }
 });
 
+captchaReload.addEventListener('click', renderCaptchaChallenge);
+
 captchaVerify.addEventListener('click', () => {
-  if (Number(captchaAnswer.value) !== captchaExpected) {
-    setError('Captcha incorrecto. Inténtalo de nuevo.');
+  const tiles = [...captchaGrid.querySelectorAll('.captcha-tile')];
+  const isCorrect = tiles.every((tile, index) => {
+    const shouldSelect = tile.dataset.correct === 'true';
+    return captchaSelectedIndexes.has(index) === shouldSelect;
+  });
+
+  if (!isCorrect) {
+    captchaFeedback.textContent = 'No coincide. Prueba con un nuevo captcha.';
+    captchaFeedback.classList.remove('hidden');
+    setTimeout(renderCaptchaChallenge, 700);
     return;
   }
+
   clearError();
   formState.captchaVerified = true;
-  captchaCheckbox.checked = true;
+  captchaCheckbox.setAttribute('aria-pressed', 'true');
   captchaCheckbox.disabled = true;
   captchaChallenge.classList.add('hidden');
   captchaTick.classList.remove('hidden');
@@ -155,6 +215,9 @@ form.addEventListener('submit', async (e) => {
   }
   if (!formState.aceptoTerminos) {
     return setError('Debes aceptar los términos y condiciones.');
+  }
+  if (!formState.aceptoPrivacidad) {
+    return setError('Debes aceptar la política de privacidad.');
   }
   if (!formState.captchaVerified) {
     return setError('Debes completar el captcha.');

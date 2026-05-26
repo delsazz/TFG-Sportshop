@@ -56,9 +56,9 @@ async function initAdminKits() {
           </div>
 
           <div>
-            <label class="block text-sm font-medium mb-2">Prendas en el Kit</label>
+            <label class="block text-sm font-medium mb-2">Productos en el kit</label>
             <div id="kit-products-list" class="space-y-3 max-h-96 overflow-y-auto border rounded-lg p-4"></div>
-            <div class="text-sm text-gray-600 mt-2" id="kit-selected-count">Prendas seleccionadas: 0</div>
+            <div class="text-sm text-gray-600 mt-2" id="kit-selected-count">Productos seleccionados: 0</div>
           </div>
 
           <div class="flex gap-2 justify-end">
@@ -81,7 +81,7 @@ async function initAdminKits() {
                 <tr>
                   <th class="px-4 py-2">Nombre</th>
                   <th class="px-4 py-2">Categoria</th>
-                  <th class="px-4 py-2">Prendas</th>
+                  <th class="px-4 py-2">Productos</th>
                   <th class="px-4 py-2">Precio</th>
                   <th class="px-4 py-2">Stock</th>
                   <th class="px-4 py-2">Acciones</th>
@@ -260,7 +260,7 @@ function renderKitProductsList() {
     `;
   }).join('');
 
-  countLabel.textContent = `Prendas seleccionadas: ${kitSelectedProducts.size}`;
+  countLabel.textContent = `Productos seleccionados: ${kitSelectedProducts.size}`;
   document.getElementById('btn-kit-submit').disabled = kitSelectedProducts.size === 0;
 }
 

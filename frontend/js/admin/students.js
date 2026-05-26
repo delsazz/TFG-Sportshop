@@ -1,5 +1,5 @@
 window.addEventListener('admin-tab-loaded', (e) => {
-  if (e.detail.tabId !== 'alumnos') return;
+  if (e.detail.tabId !== 'clientes') return;
   initAdminStudents();
 });
 
@@ -14,20 +14,20 @@ let modalMode = null; // 'create', 'edit', 'view', null
 let editingStudent = null;
 
 async function initAdminStudents() {
-  const container = document.getElementById('alumnos-container');
+  const container = document.getElementById('clientes-container');
   if (!container.dataset.initialized) {
     container.innerHTML = `
       <div class="space-y-6">
         <div class="flex items-center justify-between">
-          <p class="mt-1 text-sm text-gray-600">Gestión de alumnos con sus pedidos activos y datos personales.</p>
+          <p class="mt-1 text-sm text-gray-600">Gestión de clientes con sus pedidos activos y datos personales.</p>
           <button onclick="openStudentModal('create')" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors cursor-pointer">
-            + Crear Alumno
+            + Crear Cliente
           </button>
         </div>
 
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
           <input type="text" id="student-filter" placeholder="Buscar por nombre, email o teléfono..." class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:flex-1" />
-          <span id="student-count" class="text-sm text-gray-500">0 alumnos</span>
+          <span id="student-count" class="text-sm text-gray-500">0 clientes</span>
         </div>
 
         <div id="student-error" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 hidden"></div>
@@ -45,7 +45,7 @@ async function initAdminStudents() {
               </tr>
             </thead>
             <tbody id="students-tbody">
-              <tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">Cargando alumnos...</td></tr>
+              <tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">Cargando clientes...</td></tr>
             </tbody>
           </table>
         </div>
@@ -91,7 +91,7 @@ function renderStudents() {
     return term.includes(filterVal);
   });
 
-  document.getElementById('student-count').textContent = `${filteredStudents.length} alumno${filteredStudents.length !== 1 ? 's' : ''}`;
+  document.getElementById('student-count').textContent = `${filteredStudents.length} cliente${filteredStudents.length !== 1 ? 's' : ''}`;
 
   const totalPages = Math.max(1, Math.ceil(filteredStudents.length / PAGE_SIZE));
   if (currentPage > totalPages) currentPage = totalPages;
@@ -101,7 +101,7 @@ function renderStudents() {
   const tbody = document.getElementById('students-tbody');
 
   if (paginated.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">No se encontraron alumnos.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">No se encontraron clientes.</td></tr>`;
   } else {
     tbody.innerHTML = paginated.map(u => {
       const rolesStr = u.roles.length ? u.roles.map(r => r.nombreRol).join(', ') : 'Sin rol';
@@ -140,7 +140,7 @@ function renderExpandedStudentOrders(idUsuario) {
   }
   const pedidos = pedidosMap[idUsuario] || [];
   if (pedidos.length === 0) {
-    return `<tr class="bg-indigo-50/40"><td colspan="6" class="px-6 py-4"><p class="text-sm text-gray-500">Este alumno no tiene pedidos activos.</p></td></tr>`;
+    return `<tr class="bg-indigo-50/40"><td colspan="6" class="px-6 py-4"><p class="text-sm text-gray-500">Este cliente no tiene pedidos activos.</p></td></tr>`;
   }
 
   const rows = pedidos.map(p => `
@@ -259,12 +259,12 @@ window.goToStudentPage = function(p) {
 window.deleteStudent = async function(idUsuario) {
   const student = studentsData.find(u => u.idUsuario === idUsuario);
   if (!student) return;
-  if (!confirm(`¿Eliminar alumno ${student.nombre} ${student.apellidos}?`)) return;
+  if (!confirm(`¿Eliminar cliente ${student.nombre} ${student.apellidos}?`)) return;
 
   try {
     const token = getToken();
     const res = await fetch(`/api/usuarios/${idUsuario}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-    if (!res.ok) throw new Error('No se pudo eliminar el alumno');
+    if (!res.ok) throw new Error('No se pudo eliminar el cliente');
     
     studentsData = studentsData.filter(u => u.idUsuario !== idUsuario);
     renderStudents();
@@ -299,9 +299,9 @@ function renderStudentModal() {
   const isEdit = modalMode === 'edit';
   const isCreate = modalMode === 'create';
   
-  let title = 'Detalles del Alumno';
-  if (isEdit) title = 'Editar Alumno';
-  if (isCreate) title = 'Crear Nuevo Alumno';
+  let title = 'Detalles del Cliente';
+  if (isEdit) title = 'Editar Cliente';
+  if (isCreate) title = 'Crear Nuevo Cliente';
 
   let html = `
     <div class="flex items-center justify-between mb-6">
@@ -377,7 +377,7 @@ function renderStudentModal() {
         <div class="flex gap-3 pt-6 border-t border-gray-200">
           <button type="button" onclick="closeStudentModal()" class="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer">Cancelar</button>
           <button type="submit" id="btn-submit-student" class="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 cursor-pointer">
-            ${isEdit ? 'Guardar Cambios' : 'Crear Alumno'}
+            ${isEdit ? 'Guardar Cambios' : 'Crear Cliente'}
           </button>
         </div>
       </form>

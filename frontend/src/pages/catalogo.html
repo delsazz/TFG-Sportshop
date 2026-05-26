@@ -33,26 +33,6 @@
     <div id="products-grid" class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
     </div>
 
-    <div id="login-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div class="mx-4 w-full max-w-md rounded-2xl bg-white p-10 text-center">
-        <div class="mb-6 text-6xl">🔒</div>
-        <h2 class="mb-4 text-3xl font-bold">Acceso restringido</h2>
-        <p class="mb-8 text-gray-600">Para añadir productos al carrito debes iniciar sesión o registrarte.</p>
-        <div class="flex flex-col justify-center gap-4 sm:flex-row">
-          <a href="/iniciar_sesion.html"
-            class="rounded-xl bg-slate-900 px-8 py-3.5 font-medium text-white hover:bg-slate-800">
-            Iniciar sesión
-          </a>
-          <a href="/registro.html" class="rounded-xl bg-gray-800 px-8 py-3.5 font-medium text-white hover:bg-gray-900">
-            Registrarse
-          </a>
-        </div>
-        <button id="close-login-modal" class="mt-6 text-gray-500 underline hover:text-gray-700">
-          Cancelar
-        </button>
-      </div>
-    </div>
-
     <div id="added-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60">
       <div class="mx-4 w-full max-w-md rounded-2xl bg-white p-10 text-center">
         <div class="mb-6 text-6xl">✅</div>
@@ -71,8 +51,10 @@
       </div>
     </div>
   </div>
-  <script src="/js/script_almacenamiento_script_autenticacion.js"></script>
+  <script src="/js/components/estructura.js"></script>
+  <script src="/js/script_almacenamiento_autenticacion.js"></script>
   <script src="/js/script_catalogo.js"></script>
+  <script src="/js/components/footer.js"></script>
 </body>
 
 </html>
