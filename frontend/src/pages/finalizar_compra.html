@@ -24,47 +24,60 @@
   </div>
 
   <div id="checkout-content" class="hidden px-4 py-12">
-    <div class="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:gap-8">
-      <!-- Metodos de pago -->
-      <section class="rounded-[1.5rem] bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:rounded-[2rem] sm:p-8">
-        <p class="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">Métodos de pago</p>
-        <h1 class="mt-4 text-2xl font-bold text-slate-900 sm:text-3xl">Finaliza tu pedido</h1>
-        <p class="mt-3 text-slate-600">Selecciona como quieres pagar: tarjeta, Bizum, transferencia bancaria o en el mostrador.</p>
+    <div class="mx-auto max-w-6xl">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p class="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">Carrito</p>
+          <h1 class="mt-2 text-3xl font-bold text-slate-900 sm:text-4xl">Tu pedido en detalle</h1>
+          <p id="order-items-count" class="mt-3 text-slate-600">Revisa tus productos y selecciona un método de pago.</p>
+        </div>
+        <div class="rounded-3xl bg-slate-50 px-6 py-4 ring-1 ring-slate-200">
+          <p class="text-sm text-slate-500">Total provisional</p>
+          <p id="order-total" class="mt-2 text-3xl font-bold text-slate-900">0.00 EUR</p>
+        </div>
+      </div>
 
-        <div id="error-message" class="hidden mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
+      <div class="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:gap-8">
+        <!-- Metodos de pago -->
+        <section class="rounded-[1.5rem] bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:rounded-[2rem] sm:p-8">
+          <p class="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">Métodos de pago</p>
+          <h2 class="mt-4 text-2xl font-bold text-slate-900 sm:text-3xl">Finaliza tu pedido</h2>
+          <p class="mt-3 text-slate-600">Selecciona cómo quieres pagar: tarjeta, Bizum, transferencia bancaria o en el mostrador.</p>
 
-        <form id="checkout-form" class="mt-8 space-y-6">
-          <div class="space-y-4" id="payment-options">
-            <!-- Payment methods injected by JS -->
+          <div id="error-message" class="hidden mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
+
+          <form id="checkout-form" class="mt-8 space-y-6">
+            <div class="space-y-4" id="payment-options">
+              <!-- Payment methods injected by JS -->
+            </div>
+
+            <button id="submit-btn" type="submit" class="inline-flex w-full items-center justify-center rounded-2xl bg-blue-700 px-6 py-4 font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-slate-300">
+              Confirmar pedido
+            </button>
+          </form>
+        </section>
+
+        <!-- Resumen -->
+        <aside class="rounded-[1.5rem] bg-slate-950 p-5 text-white shadow-sm sm:rounded-[2rem] sm:p-8">
+          <p class="text-sm font-semibold uppercase tracking-[0.24em] text-blue-300">Resumen</p>
+          <h2 class="mt-4 text-2xl font-bold">Pedido listo para confirmar</h2>
+
+          <div id="order-items" class="mt-8 space-y-4">
+            <!-- Order items injected by JS -->
           </div>
 
-          <button id="submit-btn" type="submit" class="inline-flex w-full items-center justify-center rounded-2xl bg-blue-700 px-6 py-4 font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-slate-300">
-            Confirmar pedido
-          </button>
-        </form>
-      </section>
-
-      <!-- Resumen -->
-      <aside class="rounded-[1.5rem] bg-slate-950 p-5 text-white shadow-sm sm:rounded-[2rem] sm:p-8">
-        <p class="text-sm font-semibold uppercase tracking-[0.24em] text-blue-300">Resumen</p>
-        <h2 class="mt-4 text-2xl font-bold">Pedido listo para confirmar</h2>
-
-        <div id="order-items" class="mt-8 space-y-4">
-          <!-- Order items injected by JS -->
-        </div>
-
-        <div class="mt-8 border-t border-white/10 pt-6">
-          <div class="flex items-center justify-between text-slate-300">
-            <span>Total</span>
-            <span id="order-total" class="text-2xl font-bold text-white">0.00 EUR</span>
+          <div class="mt-8 border-t border-white/10 pt-6">
+            <div class="flex items-center justify-between text-slate-300">
+              <span>Total</span>
+              <span id="order-total-bottom" class="text-2xl font-bold text-white">0.00 EUR</span>
+            </div>
+            <p class="mt-3 text-sm text-slate-400">El pedido se registrará con el método de pago seleccionado y quedará pendiente de gestión.</p>
+            <button id="clear-cart" type="button" class="mt-6 text-sm font-medium text-blue-300 underline decoration-transparent transition hover:decoration-current">
+              Vaciar carrito
+            </button>
           </div>
-          <p class="mt-3 text-sm text-slate-400">El pedido se registrará con el método de pago seleccionado y quedará pendiente de gestión.</p>
-          <button id="clear-cart" type="button" class="mt-6 text-sm font-medium text-blue-300 underline decoration-transparent transition hover:decoration-current">
-            Vaciar carrito
-          </button>
-        </div>
-      </aside>
-    </div>
+        </aside>
+      </div>
   </div>
 
   <script src="/js/components/estructura.js"></script>
