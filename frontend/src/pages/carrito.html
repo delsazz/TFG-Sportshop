@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" href="/img/sportshop.jpg" />
@@ -7,6 +8,7 @@
   <title>Mi Carrito - SportShop</title>
   <link rel="stylesheet" href="/css/checkout.css" />
 </head>
+
 <body class="bg-slate-50">
   <div id="layout-container">
     <!-- Navbar placeholder -->
@@ -17,7 +19,8 @@
       <p class="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">Carrito</p>
       <h1 class="mt-4 text-3xl font-bold text-slate-900">Tu carrito está vacío</h1>
       <p class="mt-3 text-slate-600">No hay productos añadidos todavía.</p>
-      <a href="catalogo.html" class="mt-8 inline-flex rounded-2xl bg-blue-700 px-6 py-3 font-semibold text-white transition hover:bg-blue-800">
+      <a href="catalogo.html"
+        class="mt-8 inline-flex rounded-2xl bg-blue-700 px-6 py-3 font-semibold text-white transition hover:bg-blue-800">
         Ir al catálogo
       </a>
     </div>
@@ -29,20 +32,23 @@
         <div>
           <p class="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">Tu carrito</p>
           <h1 class="mt-2 text-3xl font-bold text-slate-900 sm:text-4xl">Revisa tus productos</h1>
-          <p id="cart-items-count" class="mt-3 text-slate-600">Puedes modificar las unidades o eliminar productos antes de pagar.</p>
+          <p id="cart-items-count" class="mt-3 text-slate-600">Puedes modificar las unidades o eliminar productos antes
+            de pagar.</p>
         </div>
       </div>
 
       <div class="mt-8 flex flex-col gap-8">
         <!-- Lista de productos -->
-        <section class="rounded-[1.5rem] bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:rounded-[2rem] sm:p-8 w-full overflow-x-auto">
+        <section
+          class="rounded-[1.5rem] bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:rounded-[2rem] sm:p-8 w-full overflow-x-auto">
           <div class="flex justify-between items-center pb-4 mb-4">
-             <h2 class="text-2xl font-bold text-slate-900">Productos</h2>
+            <h2 class="text-2xl font-bold text-slate-900">Productos</h2>
           </div>
-          
+
           <div class="min-w-[700px]">
             <!-- Encabezado de la tabla -->
-            <div class="grid grid-cols-[3fr_1fr_1fr_1fr] gap-4 bg-slate-100 p-4 font-bold text-slate-900 mb-2 rounded-t-xl">
+            <div
+              class="grid grid-cols-[3fr_1fr_1fr_1fr] gap-4 bg-slate-200/60 p-4 font-bold text-slate-700 text-sm mb-0 rounded-t-lg">
               <div>Producto</div>
               <div class="text-center">Precio</div>
               <div class="text-center">Cantidad</div>
@@ -55,37 +61,27 @@
           </div>
         </section>
 
-        <div class="grid gap-6 lg:grid-cols-2 lg:gap-8 items-start">
-          <!-- Código Promocional -->
-          <section>
-            <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-700 mb-3">Código Promocional</h3>
-            <div class="flex gap-3">
-              <input type="text" placeholder="Código de cupón" class="flex-1 rounded-xl border-slate-300 ring-1 ring-slate-200 px-4 py-3 focus:border-blue-500 focus:ring-blue-500 focus:outline-none">
-              <button type="button" class="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700">
-                APLICAR CUPÓN
-              </button>
-            </div>
-          </section>
-
+        <div class="flex justify-end mt-8">
           <!-- Resumen -->
-          <aside class="rounded-[1.5rem] bg-slate-950 p-5 text-white shadow-sm sm:rounded-[2rem] sm:p-8">
-            <p class="text-sm font-semibold uppercase tracking-[0.24em] text-blue-300">Resumen</p>
-            <h2 class="mt-4 text-2xl font-bold">Total del carrito</h2>
+          <aside class="w-full lg:w-1/2 rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h2 class="text-xl font-bold text-slate-900 mb-6">Total del carrito</h2>
 
-            <div class="mt-8 border-t border-white/10 pt-6 space-y-4">
-              <div class="flex items-center justify-between text-slate-300">
-                <span class="font-semibold">Subtotal</span>
-                <span id="cart-subtotal" class="text-xl text-white">0.00 EUR</span>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+                <span class="font-semibold text-slate-700">Subtotal</span>
+                <span id="cart-subtotal" class="text-lg font-medium text-slate-900">0.00 EUR</span>
               </div>
-              <div class="flex items-center justify-between text-slate-300">
-                <span class="text-xl font-bold">Total</span>
-                <span id="cart-total" class="text-2xl font-bold text-white">0.00 EUR</span>
+              <div class="flex items-center justify-between pt-2 pb-4">
+                <span class="font-bold text-slate-900">Total</span>
+                <span id="cart-total" class="text-xl font-bold text-slate-900">0.00 EUR</span>
               </div>
-              
-              <a href="finalizar_compra.html" class="mt-8 flex w-full items-center justify-center rounded-2xl bg-blue-600 px-6 py-4 font-semibold text-white transition hover:bg-blue-700 text-lg">
-                PROCEDER AL PAGO
+
+              <a href="finalizar_compra.html"
+                class="mt-4 flex w-full items-center justify-center rounded-full bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700">
+                Pedir y pagar
               </a>
-              <button id="clear-cart-btn" type="button" class="mt-6 mx-auto block text-sm font-medium text-blue-300 underline decoration-transparent transition hover:decoration-current">
+              <button id="clear-cart-btn" type="button"
+                class="mt-4 mx-auto block text-sm font-medium text-slate-500 hover:text-red-600 transition">
                 Vaciar carrito
               </button>
             </div>
@@ -100,4 +96,5 @@
   <script src="/js/script_carrito.js"></script>
   <script src="/js/components/script_footer.js"></script>
 </body>
+
 </html>
