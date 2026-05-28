@@ -1,8 +1,8 @@
 const PAYMENT_OPTIONS = [
-  { value: 'tarjeta', label: 'Tarjeta', description: 'Paga ahora con tarjeta de forma segura.' },
-  { value: 'bizum', label: 'Bizum', description: 'Te llevaremos a una pantalla con el telefono de contacto para hacer el Bizum.' },
-  { value: 'transferencia bancaria', label: 'Transferencia bancaria', description: 'Veras el numero de cuenta y el concepto que debes indicar.' },
-  { value: 'pago en mostrador', label: 'En el mostrador', description: 'Reservamos tu pedido para pagarlo y recogerlo presencialmente.' },
+  { value: 'bizum', label: 'Pago con Bizum' },
+  { value: 'tarjeta', label: 'Tarjeta de crédito' },
+  { value: 'paypal', label: 'PayPal' },
+  { value: 'transferencia bancaria', label: 'Transferencia anticipada', extra: 'El envío se efectuará tras recibir la transferencia bancaria.' }
 ];
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -14,10 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const emptyState = document.getElementById('empty-state');
   const checkoutContent = document.getElementById('checkout-content');
-  const orderItemsContainer = document.getElementById('order-items');
-  const orderItemsCount = document.getElementById('order-items-count');
-  const orderTotalEl = document.getElementById('order-total');
-  const orderTotalBottomEl = document.getElementById('order-total-bottom');
+  const paymentOptionsContainer = document.getElementById('payment-options');
   const paymentOptionsContainer = document.getElementById('payment-options');
   const checkoutForm = document.getElementById('checkout-form');
   const submitBtn = document.getElementById('submit-btn');
@@ -43,71 +40,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     checkoutContent.classList.remove('hidden');
   }
 
-  // Calculate total and product count
+  // Calculate total
   const total = orderItems.reduce((acc, item) => acc + (item.precioUnitario * item.cantidad), 0);
-  const totalCount = orderItems.reduce((acc, item) => acc + Number(item.cantidad || 0), 0);
-  orderTotalEl.textContent = `${total.toFixed(2)} EUR`;
-  if (orderTotalBottomEl) {
-    orderTotalBottomEl.textContent = `${total.toFixed(2)} EUR`;
-  }
-  if (orderItemsCount) {
-    orderItemsCount.textContent = `${totalCount} ${totalCount === 1 ? 'producto' : 'productos'} en el carrito.`;
-  }
   submitBtn.textContent = `Confirmar pedido de ${total.toFixed(2)} EUR`;
 
-  // Render items
-  orderItems.forEach(item => {
-    const html = `
-      <div class="rounded-3xl border border-white/10 bg-white/5 p-4">
-        <div class="flex items-start justify-between gap-4">
-          <div>
-            <p class="font-semibold">${item.nombre}</p>
-            <p class="mt-1 text-sm text-slate-300">Talla ${item.talla}</p>
-          </div>
-          <div class="text-right">
-            <p class="font-semibold">x${item.cantidad}</p>
-            <p class="mt-1 text-sm text-slate-300">${parseFloat(item.precioUnitario).toFixed(2)} EUR</p>
-          </div>
-        </div>
-      </div>
-    `;
-    orderItemsContainer.insertAdjacentHTML('beforeend', html);
-  });
-
-  // Render payment methods
   // Render payment methods
   function renderPaymentMethods() {
     paymentOptionsContainer.innerHTML = '';
     
     const icons = {
-      'tarjeta': `<svg class="w-10 h-10 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>`,
-      'bizum': `<span class="font-bold text-xl tracking-tighter text-slate-700">% bizum</span>`,
-      'transferencia bancaria': `<svg class="w-10 h-10 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>`,
-      'pago en mostrador': `<svg class="w-10 h-10 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>`
+      'bizum': `<span class="bizum-logo-text">% bizum</span>`,
+      'tarjeta': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 32" width="48" height="32" fill="none"><rect width="48" height="32" rx="4" fill="#eee"/><text x="24" y="20" font-family="Arial" font-size="10" font-weight="bold" fill="#666" text-anchor="middle">VISA / MC</text></svg>`,
+      'paypal': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="#666"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z"/></svg><span style="margin-left: 4px; font-weight: bold; color: #666; font-size: 1.1rem; letter-spacing: -0.5px;">PayPal</span>`,
+      'transferencia bancaria': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>`
     };
 
     PAYMENT_OPTIONS.forEach(option => {
       const isOptionDisabled = option.value === 'tarjeta' && !configuracion_pago.tarjetaHabilitada;
       const isChecked = selectedMethod === option.value;
 
-      let borderClass = isOptionDisabled
-        ? 'border-slate-200 opacity-60'
-        : (isChecked ? 'border-blue-200' : 'border-slate-200');
-
       const label = document.createElement('label');
-      label.className = `flex items-stretch border ${borderClass} mb-3 cursor-pointer overflow-hidden bg-white transition hover:border-slate-300`;
+      label.className = `payment-option ${isChecked ? 'active' : ''} ${isOptionDisabled ? 'disabled' : ''}`;
 
       label.innerHTML = `
-        <div class="flex items-start gap-4 p-5 flex-1">
-          <input type="radio" name="payment-method" value="${option.value}" ${isChecked ? 'checked' : ''} ${isOptionDisabled ? 'disabled' : ''} class="mt-1 h-5 w-5 border-2 border-slate-400 text-blue-900 focus:ring-blue-900 bg-white" style="accent-color: #1e3a8a;" />
-          <div>
-            <p class="text-lg text-slate-700">${option.label}</p>
-            ${isOptionDisabled ? '<p class="mt-2 text-sm font-semibold text-slate-700">No disponible temporalmente.</p>' : ''}
-            ${option.value === 'transferencia bancaria' ? `<p class="mt-1 text-sm text-slate-600">El envío se efectuará tras recibir la transferencia bancaria.</p><p class="mt-2 text-sm font-semibold text-slate-800">IBAN: ${configuracion_pago.transferenciaIban}</p>` : ''}
-            ${option.value === 'bizum' ? `<p class="mt-2 text-sm font-semibold text-slate-800">Teléfono: ${configuracion_pago.bizumTelefono}</p>` : ''}
+        <div class="payment-option-left">
+          <input type="radio" name="payment-method" value="${option.value}" ${isChecked ? 'checked' : ''} ${isOptionDisabled ? 'disabled' : ''} />
+          <div class="payment-option-text">
+            <p class="payment-option-title">${option.label}</p>
+            ${isOptionDisabled ? '<p class="payment-option-extra">No disponible temporalmente.</p>' : ''}
+            ${option.extra ? `<p class="payment-option-desc">${option.extra}</p>` : ''}
+            ${option.value === 'bizum' ? `<p class="payment-option-extra">Teléfono: ${configuracion_pago.bizumTelefono}</p>` : ''}
+            ${option.value === 'transferencia bancaria' ? `<p class="payment-option-extra">IBAN: ${configuracion_pago.transferenciaIban}</p>` : ''}
           </div>
         </div>
-        <div class="w-32 bg-slate-100 flex items-center justify-center border-l border-slate-200 shrink-0">
+        <div class="payment-option-right">
           ${icons[option.value] || ''}
         </div>
       `;
@@ -125,10 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   renderPaymentMethods();
 
-  document.getElementById('clear-cart').addEventListener('click', () => {
-    sessionStorage.removeItem('checkoutDraft');
-    window.location.reload();
-  });
+  renderPaymentMethods();
 
   checkoutForm.addEventListener('submit', async (e) => {
     e.preventDefault();
