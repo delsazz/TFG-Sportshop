@@ -323,6 +323,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         tallasDisponibles: availableSizes.map((size) => size.nombre),
         cantidad: 1,
         precioUnitario: product.precio,
+        imagen: product.imagen || (document.getElementById('main-product-image').src.includes('http') ? new URL(document.getElementById('main-product-image').src).pathname : ''),
       });
     }
 
