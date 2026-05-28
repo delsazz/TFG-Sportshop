@@ -5,81 +5,42 @@
   <link rel="icon" href="/img/sportshop.jpg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Finalizar compra - SportShop</title>
-<link rel="stylesheet" href="/css/checkout.css" />
+  <link rel="stylesheet" href="/css/checkout.css" />
 </head>
-<body class="bg-slate-50">
+<body>
   <div id="layout-container">
     <!-- Navbar placeholder -->
   </div>
 
-  <div id="empty-state" class="hidden min-h-[calc(100vh-8rem)] px-4 py-16">
-    <div class="mx-auto max-w-3xl rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-10">
-      <p class="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">Checkout</p>
-      <h1 class="mt-4 text-3xl font-bold text-slate-900">Tu carrito está vacío</h1>
-      <p class="mt-3 text-slate-600">No hay productos pendientes de confirmar.</p>
-      <a href="/inicio.html" class="mt-8 inline-flex rounded-2xl bg-blue-700 px-6 py-3 font-semibold text-white transition hover:bg-blue-800">
-        Volver al catálogo
-      </a>
+  <main class="checkout-main-container container">
+    <div id="empty-state" class="checkout-empty-state hidden">
+      <p class="subtitle">Checkout</p>
+      <h1>Tu carrito está vacío</h1>
+      <p>No hay productos pendientes de confirmar.</p>
+      <a href="/inicio.html" class="btn-sport btn-empty-cart">Volver al catálogo</a>
     </div>
-  </div>
 
-  <div id="checkout-content" class="hidden px-4 py-12">
-    <div class="mx-auto max-w-6xl">
-      <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p class="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">Carrito</p>
-          <h1 class="mt-2 text-3xl font-bold text-slate-900 sm:text-4xl">Tu pedido en detalle</h1>
-          <p id="order-items-count" class="mt-3 text-slate-600">Revisa tus productos y selecciona un método de pago.</p>
+    <div id="checkout-content" class="checkout-content hidden">
+      <div class="checkout-form-wrapper">
+        <div class="checkout-form-header">
+           <span class="step-number">3</span>
+           <h2>Método de pago:</h2>
         </div>
-        <div class="rounded-3xl bg-slate-50 px-6 py-4 ring-1 ring-slate-200">
-          <p class="text-sm text-slate-500">Total provisional</p>
-          <p id="order-total" class="mt-2 text-3xl font-bold text-slate-900">0.00 EUR</p>
-        </div>
+        
+        <form id="checkout-form" class="checkout-form">
+          <div id="error-message" class="error-msg hidden"></div>
+          
+          <div id="payment-options" class="payment-options-list">
+            <!-- Payment methods injected by JS -->
+          </div>
+
+          <button id="submit-btn" type="submit" class="btn-sport btn-submit">
+            Confirmar pedido
+          </button>
+        </form>
       </div>
-
-      <div class="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:gap-8">
-        <!-- Metodos de pago -->
-        <section class="rounded-[1.5rem] bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:rounded-[2rem] sm:p-8">
-          <div class="flex items-center gap-3 mb-6 bg-slate-100 p-4 -mx-5 -mt-5 sm:-mx-8 sm:-mt-8 rounded-t-[1.5rem] sm:rounded-t-[2rem]">
-             <span class="flex items-center justify-center w-9 h-9 rounded-full border-[2px] border-orange-500 text-orange-500 font-bold text-lg">3</span>
-             <h2 class="text-2xl text-slate-700 font-normal">Método de pago:</h2>
-          </div>
-
-          <div id="error-message" class="hidden mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
-
-          <form id="checkout-form" class="mt-8 space-y-6">
-            <div class="space-y-4" id="payment-options">
-              <!-- Payment methods injected by JS -->
-            </div>
-
-            <button id="submit-btn" type="submit" class="inline-flex w-full items-center justify-center rounded-2xl bg-blue-700 px-6 py-4 font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-slate-300">
-              Confirmar pedido
-            </button>
-          </form>
-        </section>
-
-        <!-- Resumen -->
-        <aside class="rounded-[1.5rem] bg-slate-950 p-5 text-white shadow-sm sm:rounded-[2rem] sm:p-8">
-          <p class="text-sm font-semibold uppercase tracking-[0.24em] text-blue-300">Resumen</p>
-          <h2 class="mt-4 text-2xl font-bold">Pedido listo para confirmar</h2>
-
-          <div id="order-items" class="mt-8 space-y-4">
-            <!-- Order items injected by JS -->
-          </div>
-
-          <div class="mt-8 border-t border-white/10 pt-6">
-            <div class="flex items-center justify-between text-slate-300">
-              <span>Total</span>
-              <span id="order-total-bottom" class="text-2xl font-bold text-white">0.00 EUR</span>
-            </div>
-            <p class="mt-3 text-sm text-slate-400">El pedido se registrará con el método de pago seleccionado y quedará pendiente de gestión.</p>
-            <button id="clear-cart" type="button" class="mt-6 text-sm font-medium text-blue-300 underline decoration-transparent transition hover:decoration-current">
-              Vaciar carrito
-            </button>
-          </div>
-        </aside>
-      </div>
-  </div>
+    </div>
+  </main>
 
   <script src="/js/components/script_estructura.js"></script>
   <script src="/js/script_almacenamiento_autenticacion.js"></script>
