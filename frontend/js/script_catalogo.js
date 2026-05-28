@@ -303,7 +303,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           <button class="add-btn catalog-add-button"
             data-id="${product.idProducto}"
             data-name="${product.nombre}"
-            data-price="${Number(product.precio || 0)}">
+            data-price="${Number(product.precio || 0)}"
+            data-image="${imgSrc}">
             Añadir al carrito
           </button>
         </div>
@@ -361,6 +362,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       talla: 'M',
       cantidad: 1,
       precioUnitario: Number(btn.dataset.price),
+      imagen: btn.dataset.image,
     });
     showAddedModal(btn.dataset.name);
   });

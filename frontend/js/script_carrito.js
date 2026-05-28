@@ -45,41 +45,46 @@ document.addEventListener('DOMContentLoaded', () => {
       totalItems += quantity;
       totalPrice += price * quantity;
 
-      const imageUrl = item.imagenPrincipal || item.imagen || ''; // Intentar coger imagen si existe
-
-      const rowBgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
+      const defaultImages = {
+        1: '/img/productos/camiseta_nike.jpg',
+        2: '/img/productos/zapatillas_adidas.jpg',
+        3: '/img/productos/mochila_puma.jpg',
+        4: '/img/productos/pesas_10kg.jpg',
+        5: '/img/productos/proteina_whey.jpg'
+      };
+      
+      const imageUrl = item.imagenPrincipal || item.imagen || defaultImages[item.productoId] || '/img/sportshop.jpg';
 
       const itemHtml = `
-        <div class="grid grid-cols-[3fr_1fr_1fr_1fr] gap-4 p-4 border-b border-slate-200 items-center min-w-[700px] ${rowBgClass}">
-          <div class="flex items-center gap-4">
-            <button type="button" class="text-slate-400 hover:text-red-500 transition remove-item-btn p-1" aria-label="Eliminar producto" data-index="${index}">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
-            </button>
-            <div class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-slate-200 bg-white flex items-center justify-center">
-              ${imageUrl ? `<img src="${imageUrl}" alt="${item.nombre}" class="h-full w-full object-cover object-center" />` : `<svg class="w-8 h-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>`}
+        <tr>
+          <td class="col-product">
+            <div class="product-info-cell">
+              <button type="button" class="remove-item-btn" aria-label="Eliminar producto" data-index="${index}">
+                &times;
+              </button>
+              <div class="product-image-box">
+                ${imageUrl ? `<img src="${imageUrl}" alt="${item.nombre}" />` : `<div class="placeholder-img"></div>`}
+              </div>
+              <div class="product-details">
+                <h3>${item.nombre || 'Producto'}</h3>
+                ${item.talla ? `<p>Talla: ${item.talla}</p>` : ''}
+              </div>
             </div>
-            <div>
-              <h3 class="font-bold text-slate-900">${item.nombre || 'Producto'}</h3>
-              <p class="text-sm text-slate-500">Talla: ${item.talla || 'Única'}</p>
-            </div>
-          </div>
-          
-          <div class="text-center font-medium text-slate-700">
+          </td>
+          <td class="col-price">
             ${price.toFixed(2)} EUR
-          </div>
-
-          <div class="flex justify-center">
-            <div class="flex items-center border border-slate-300 rounded overflow-hidden w-24">
-              <button type="button" class="px-2 py-1 bg-white hover:bg-slate-100 text-slate-700 font-bold transition decrease-qty-btn w-1/3" data-index="${index}">-</button>
-              <span class="py-1 text-slate-900 font-semibold text-center w-1/3 bg-white border-x border-slate-300">${quantity}</span>
-              <button type="button" class="px-2 py-1 bg-white hover:bg-slate-100 text-slate-700 font-bold transition increase-qty-btn w-1/3" data-index="${index}">+</button>
+          </td>
+          <td class="col-quantity">
+            <div class="qty-control">
+              <button type="button" class="decrease-qty-btn" data-index="${index}">-</button>
+              <span class="qty-value">${quantity}</span>
+              <button type="button" class="increase-qty-btn" data-index="${index}">+</button>
             </div>
-          </div>
-          
-          <div class="text-right font-medium text-slate-700">
+          </td>
+          <td class="col-subtotal font-bold">
             ${(price * quantity).toFixed(2)} EUR
-          </div>
-        </div>
+          </td>
+        </tr>
       `;
       cartItemsContainer.insertAdjacentHTML('beforeend', itemHtml);
     });
