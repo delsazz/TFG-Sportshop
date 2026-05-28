@@ -1,13 +1,15 @@
 <!doctype html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" href="/img/sportshop.jpg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Detalle del Producto — SportShop</title>
-<link rel="stylesheet" href="/css/product-detail.css" />
+  <link rel="stylesheet" href="/css/product-detail.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body class="bg-slate-50">
   <div id="layout-container">
     <!-- Navbar placeholder (if needed) -->
@@ -22,11 +24,8 @@
   </div>
 
   <div id="product-container" class="mx-auto max-w-7xl px-4 py-10 hidden">
-    <a
-      id="back-link"
-      href="/"
-      class="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900"
-    >
+    <a id="back-link" href="/"
+      class="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900">
       <i data-lucide="arrow-left" class="h-4 w-4"></i>
       Volver al catálogo
     </a>
@@ -35,7 +34,8 @@
       <div>
         <div class="flex aspect-4/3 items-center justify-center overflow-hidden rounded-xl bg-slate-100">
           <img id="main-product-image" src="" alt="Producto" class="h-full w-full object-cover hidden" />
-          <span id="main-product-placeholder" class="px-8 text-center text-2xl font-semibold text-slate-500">Producto</span>
+          <span id="main-product-placeholder"
+            class="px-8 text-center text-2xl font-semibold text-slate-500">Producto</span>
         </div>
 
         <div id="gallery-container" class="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-6 hidden">
@@ -59,20 +59,15 @@
           <label for="product-size" class="text-sm font-semibold uppercase text-slate-600">
             Talla
           </label>
-          <select
-            id="product-size"
-            class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-blue-500"
-          >
+          <select id="product-size"
+            class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-blue-500">
             <option value="">Seleccionar talla</option>
           </select>
           <p id="size-error" class="mt-2 text-sm font-semibold text-red-600 hidden"></p>
         </div>
 
-        <button
-          type="button"
-          id="btn-add-cart"
-          class="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-4 font-semibold text-white transition hover:bg-slate-800 sm:w-auto cursor-pointer"
-        >
+        <button type="button" id="btn-add-cart"
+          class="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-4 font-semibold text-white transition hover:bg-slate-800 sm:w-auto cursor-pointer">
           <i data-lucide="shopping-bag" class="h-5 w-5"></i>
           Añadir al carrito
         </button>
@@ -109,13 +104,15 @@
   <!-- Modal Producto Añadido -->
   <div id="added-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 hidden">
     <div class="mx-4 w-full max-w-md rounded-2xl bg-white p-10 text-center shadow-xl">
-      <h2 class="mb-4 text-2xl font-bold text-slate-900">¡Producto añadido!</h2>
+      <h2 class="mb-4 text-2xl font-bold text-slate-900">Producto añadido</h2>
       <p id="added-product-name" class="mb-8 text-gray-600 font-medium"></p>
       <div class="flex flex-col gap-4">
-        <a href="/finalizar_compra.html" class="w-full rounded-xl bg-slate-900 px-6 py-4 text-center font-semibold text-white transition hover:bg-slate-800">
+        <a href="carrito.html"
+          class="w-full rounded-xl bg-slate-900 px-6 py-4 text-center font-semibold text-white transition hover:bg-slate-800">
           Ir al carrito
         </a>
-        <button id="btn-close-added-modal" class="w-full rounded-xl border border-slate-200 bg-white px-6 py-4 font-semibold text-slate-700 transition hover:bg-slate-50 cursor-pointer">
+        <button id="btn-close-added-modal"
+          class="w-full rounded-xl border border-slate-200 bg-white px-6 py-4 font-semibold text-slate-700 transition hover:bg-slate-50 cursor-pointer">
           Seguir comprando
         </button>
       </div>
@@ -127,6 +124,5 @@
   <script src="/js/script_detalle_producto.js"></script>
   <script src="/js/components/script_footer.js"></script>
 </body>
+
 </html>
-
-

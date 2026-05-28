@@ -125,7 +125,7 @@
           <div class="sport-dropdown-title">Tu carrito</div>
           <div data-cart-body></div>
           <div class="sport-cart-total"><span>Total</span><strong data-cart-total>0.00 EUR</strong></div>
-          <a class="sport-dropdown-cta" href="${pageHref('finalizar_compra.html')}">Finalizar compra</a>
+          <a class="sport-dropdown-cta" href="${pageHref('carrito.html')}">Ver carrito</a>
         </div>
       </header>
     `;
