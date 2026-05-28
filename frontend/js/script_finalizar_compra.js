@@ -75,31 +75,40 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Render payment methods
+  // Render payment methods
   function renderPaymentMethods() {
     paymentOptionsContainer.innerHTML = '';
+    
+    const icons = {
+      'tarjeta': `<svg class="w-10 h-10 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>`,
+      'bizum': `<span class="font-bold text-xl tracking-tighter text-slate-700">% bizum</span>`,
+      'transferencia bancaria': `<svg class="w-10 h-10 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>`,
+      'pago en mostrador': `<svg class="w-10 h-10 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>`
+    };
+
     PAYMENT_OPTIONS.forEach(option => {
       const isOptionDisabled = option.value === 'tarjeta' && !configuracion_pago.tarjetaHabilitada;
       const isChecked = selectedMethod === option.value;
 
-      let classes = isOptionDisabled
-        ? 'cursor-not-allowed border-slate-200 bg-slate-100 opacity-60'
-        : (isChecked
-          ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-100'
-          : 'border-slate-200 bg-slate-50 hover:border-slate-300');
+      let borderClass = isOptionDisabled
+        ? 'border-slate-200 opacity-60'
+        : (isChecked ? 'border-blue-200' : 'border-slate-200');
 
       const label = document.createElement('label');
-      label.className = `block rounded-3xl border p-5 transition ${classes}`;
+      label.className = `flex items-stretch border ${borderClass} mb-3 cursor-pointer overflow-hidden bg-white transition hover:border-slate-300`;
 
       label.innerHTML = `
-        <div class="flex items-start gap-4">
-          <input type="radio" name="payment-method" value="${option.value}" ${isChecked ? 'checked' : ''} ${isOptionDisabled ? 'disabled' : ''} class="mt-1 h-4 w-4 border-slate-300 text-blue-700 focus:ring-blue-500" />
+        <div class="flex items-start gap-4 p-5 flex-1">
+          <input type="radio" name="payment-method" value="${option.value}" ${isChecked ? 'checked' : ''} ${isOptionDisabled ? 'disabled' : ''} class="mt-1 h-5 w-5 border-2 border-slate-400 text-blue-900 focus:ring-blue-900 bg-white" style="accent-color: #1e3a8a;" />
           <div>
-            <p class="font-semibold text-slate-900">${option.label}</p>
-            <p class="mt-1 text-sm text-slate-600">${option.description}</p>
+            <p class="text-lg text-slate-700">${option.label}</p>
             ${isOptionDisabled ? '<p class="mt-2 text-sm font-semibold text-slate-700">No disponible temporalmente.</p>' : ''}
-            ${option.value === 'transferencia bancaria' ? `<p class="mt-2 text-sm font-semibold text-slate-800">IBAN: ${configuracion_pago.transferenciaIban}</p>` : ''}
-            ${option.value === 'bizum' ? `<p class="mt-2 text-sm font-semibold text-slate-800">Telefono: ${configuracion_pago.bizumTelefono}</p>` : ''}
+            ${option.value === 'transferencia bancaria' ? `<p class="mt-1 text-sm text-slate-600">El envío se efectuará tras recibir la transferencia bancaria.</p><p class="mt-2 text-sm font-semibold text-slate-800">IBAN: ${configuracion_pago.transferenciaIban}</p>` : ''}
+            ${option.value === 'bizum' ? `<p class="mt-2 text-sm font-semibold text-slate-800">Teléfono: ${configuracion_pago.bizumTelefono}</p>` : ''}
           </div>
+        </div>
+        <div class="w-32 bg-slate-100 flex items-center justify-center border-l border-slate-200 shrink-0">
+          ${icons[option.value] || ''}
         </div>
       `;
 
