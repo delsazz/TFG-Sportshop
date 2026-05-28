@@ -45,28 +45,37 @@ document.addEventListener('DOMContentLoaded', () => {
       totalItems += quantity;
       totalPrice += price * quantity;
 
+      const imageUrl = item.imagenPrincipal || item.imagen || ''; // Intentar coger imagen si existe
+
       const itemHtml = `
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-4 border-b border-slate-100 last:border-0 last:pb-0">
-          <div class="flex-1">
-            <h3 class="font-bold text-slate-900 text-lg">${item.nombre || 'Producto'}</h3>
-            <p class="text-sm text-slate-500 mt-1">Talla: <span class="font-medium text-slate-700">${item.talla || 'Única'}</span></p>
-            <p class="text-sm text-slate-500">Precio unidad: <span class="font-medium text-slate-700">${price.toFixed(2)} EUR</span></p>
+        <div class="grid grid-cols-[3fr_1fr_1fr_1fr] gap-4 py-4 border-b border-slate-200 items-center min-w-[700px]">
+          <div class="flex items-center gap-4">
+            <button type="button" class="text-slate-400 hover:text-red-500 transition remove-item-btn p-1" aria-label="Eliminar producto" data-index="${index}">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
+            </button>
+            <div class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center">
+              ${imageUrl ? `<img src="${imageUrl}" alt="${item.nombre}" class="h-full w-full object-cover object-center" />` : `<svg class="w-8 h-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>`}
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-900">${item.nombre || 'Producto'}</h3>
+              <p class="text-sm text-slate-500">Talla: ${item.talla || 'Única'}</p>
+            </div>
           </div>
           
-          <div class="flex items-center gap-6 self-end sm:self-auto w-full sm:w-auto justify-between sm:justify-end">
-            <div class="flex items-center border border-slate-300 rounded-lg overflow-hidden">
-              <button type="button" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold transition decrease-qty-btn" data-index="${index}">-</button>
-              <span class="px-4 py-2 text-slate-900 font-semibold min-w-[3rem] text-center">${quantity}</span>
-              <button type="button" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold transition increase-qty-btn" data-index="${index}">+</button>
+          <div class="text-center font-semibold text-slate-900">
+            ${price.toFixed(2)} EUR
+          </div>
+
+          <div class="flex justify-center">
+            <div class="flex items-center border border-slate-300 rounded-lg overflow-hidden w-24">
+              <button type="button" class="px-2 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold transition decrease-qty-btn w-1/3" data-index="${index}">-</button>
+              <span class="py-1 text-slate-900 font-semibold text-center w-1/3">${quantity}</span>
+              <button type="button" class="px-2 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold transition increase-qty-btn w-1/3" data-index="${index}">+</button>
             </div>
-            
-            <div class="text-right min-w-[5rem]">
-              <p class="font-bold text-slate-900">${(price * quantity).toFixed(2)} EUR</p>
-            </div>
-            
-            <button type="button" class="text-red-500 hover:text-red-700 transition remove-item-btn p-2" aria-label="Eliminar producto" data-index="${index}">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
-            </button>
+          </div>
+          
+          <div class="text-right font-bold text-slate-900">
+            ${(price * quantity).toFixed(2)} EUR
           </div>
         </div>
       `;
