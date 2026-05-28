@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const emptyState = document.getElementById('empty-state');
   const checkoutContent = document.getElementById('checkout-content');
   const paymentOptionsContainer = document.getElementById('payment-options');
-  const paymentOptionsContainer = document.getElementById('payment-options');
   const checkoutForm = document.getElementById('checkout-form');
   const submitBtn = document.getElementById('submit-btn');
   const errorMessage = document.getElementById('error-message');
@@ -25,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   let configuracion_pago = { tarjetaHabilitada: true, transferenciaIban: 'ES00...', bizumTelefono: '+34...' };
 
   try {
-    const configRes = await fetch('/api/config/payment');
+    const configRes = await fetch('/api/config/payment', { headers: { 'Authorization': `Bearer ${token}` } });
     if (configRes.ok) {
       configuracion_pago = await configRes.json();
     }
@@ -88,8 +87,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       paymentOptionsContainer.appendChild(label);
     });
   }
-
-  renderPaymentMethods();
 
   renderPaymentMethods();
 
