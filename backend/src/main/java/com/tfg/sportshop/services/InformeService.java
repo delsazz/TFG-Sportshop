@@ -81,7 +81,7 @@ public class InformeService {
         validarRangoFechas(fechaDesde, fechaHasta);
         List<Pedido> pedidosFiltrados = pedidoRepository.findAllWithRelations().stream()
             .filter(pedidoEnRango(fechaDesde, fechaHasta)).filter(pedidoPorEstado(estado))
-            .sorted(Comparator.comparing(Pedido::getFecha).reversed()).toList();
+            .sorted(Comparator.comparing(Pedido::getFechaPedido).reversed()).toList();
         Map<Integer, List<Pedido>> pedidosAgrupados = pedidosFiltrados.stream()
             .filter(pedido -> pedido.getUsuario() != null)
             .collect(Collectors.groupingBy(pedido -> pedido.getUsuario().getIdUsuario()));
