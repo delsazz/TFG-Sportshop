@@ -63,7 +63,7 @@ window.addEventListener('admin-tab-loaded', async (e) => {
       recentOrdersContainer.innerHTML = '<div class="px-6 py-8 text-center text-gray-500">No hay pedidos registrados</div>';
     } else {
       let rows = recientes.map(pedido => {
-        const dateStr = new Date(pedido.fecha).toLocaleDateString('es-ES');
+        const dateStr = new Date(pedido.fechaPedido).toLocaleDateString('es-ES');
         const userStr = pedido.usuario ? `${pedido.usuario.nombre} ${pedido.usuario.apellidos}` : 'Sin usuario';
         return `
           <tr class="hover:bg-gray-50 transition-colors">

@@ -146,7 +146,7 @@ function renderExpandedStudentOrders(idUsuario) {
   const rows = pedidos.map(p => `
     <tr>
       <td class="py-2 pr-6 font-mono text-gray-700">#${p.idPedido}</td>
-      <td class="py-2 pr-6 text-gray-600">${new Date(p.fecha).toLocaleDateString('es-ES')}</td>
+      <td class="py-2 pr-6 text-gray-600">${new Date(p.fechaPedido).toLocaleDateString('es-ES')}</td>
       <td class="py-2 pr-6 text-gray-600">${p.totalLineas || 0}</td>
       <td class="py-2 pr-6 text-gray-700">${Number(p.total).toFixed(2)} €</td>
       <td class="py-2">${badgeEstado(p.estado)}</td>

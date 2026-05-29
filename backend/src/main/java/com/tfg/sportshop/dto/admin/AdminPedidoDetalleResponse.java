@@ -6,7 +6,7 @@ import java.util.List;
 
 public record AdminPedidoDetalleResponse(
     Integer idPedido,
-    LocalDateTime fecha,
+    LocalDateTime fechaPedido,
     BigDecimal total,
     String estado,
     AdminPedidoUsuarioResponse usuario,

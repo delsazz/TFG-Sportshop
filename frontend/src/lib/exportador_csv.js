@@ -48,7 +48,7 @@ export function exportUsersToCSV(users) {
 export function exportOrdersToCSV(orders) {
     const data = orders.map((order) => ({
         'ID Pedido': order.idPedido,
-        Fecha: new Date(order.fecha).toLocaleDateString('es-ES'),
+        Fecha: new Date(order.fechaPedido).toLocaleDateString('es-ES'),
         Cliente: order.usuario ? `${order.usuario.nombre} ${order.usuario.apellidos}` : 'Sin usuario',
         Email: order.usuario?.email || '-',
         Estado: order.estado,

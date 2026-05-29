@@ -153,7 +153,7 @@ public class CorreoTemplateService {
             Map.entry("estadoAnterior", normalizarTexto(estadoAnterior, "")),
             Map.entry("estadoNuevo", normalizarTexto(estadoNuevo, "")),
             Map.entry("total", formatearTotal(pedido.getTotal())),
-            Map.entry("fecha", formatearFecha(pedido.getFecha()))
+            Map.entry("fecha", formatearFecha(pedido.getFechaPedido()))
         );
     }
 

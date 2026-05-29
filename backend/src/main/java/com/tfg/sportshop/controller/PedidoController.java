@@ -126,7 +126,7 @@ public class PedidoController {
                 ? List.of() : pedido.getPagos().stream().map(this::toPagoResponse).toList();       
         List<EntregaResponse> entregas = pedidoService.verEntregas(pedido.getIdPedido()).stream()
                 .map(entrega -> toEntregaResponse(entrega, pedido.getEstado())).toList();        
-        return new PedidoResponse(pedido.getIdPedido(), pedido.getFecha(), pedido.getTotal(), pedido.getEstado(), detalles, pagos, entregas);  
+        return new PedidoResponse(pedido.getIdPedido(), pedido.getFechaPedido(), pedido.getTotal(), pedido.getEstado(), detalles, pagos, entregas);  
     }
 
     private PedidoLineaResponse toPedidoLineaResponse(DetallePedido detalle) {

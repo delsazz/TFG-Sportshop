@@ -20,7 +20,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
     @Query("SELECT pedido FROM Pedido pedido WHERE pedido.idPedido = :id")
     Optional<Pedido> findByIdWithRelations(@Param("id") Integer id);
 
-    @Query("SELECT pedido FROM Pedido pedido WHERE pedido.usuario.idUsuario = :idUsuario ORDER BY pedido.fecha DESC")
+    @Query("SELECT pedido FROM Pedido pedido WHERE pedido.usuario.idUsuario = :idUsuario ORDER BY pedido.fechaPedido DESC")
     List<Pedido> findByUsuarioIdUsuarioOrderByFechaDesc(@Param("idUsuario") Integer idUsuario);
 
     long countByUsuarioIdUsuario(Integer idUsuario);

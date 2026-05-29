@@ -264,25 +264,67 @@ public class InformeService {
         );
     }
 
-    private Predicate<Pedido> pedidoEnRango(LocalDate fechaDesde, LocalDate fechaHasta) {
-        return pedido -> {
-            LocalDate fechaPedido = pedido.getFecha() == null ? null : pedido.getFecha().toLocalDate();
-            if(fechaPedido == null) {
-                return false;
-            }
-            if(fechaDesde != null && fechaPedido.isBefore(fechaDesde)) {
-                return false;
-            }
-            if(fechaHasta != null && fechaPedido.isAfter(fechaHasta)) {
-                return false;
-            }
-            return true;
-        };
-    }
+        // Updated predicates and sorting to use fechaPedido
+        private Predicate<Pedido> pedidoEnRango(LocalDate fechaDesde, LocalDate fechaHasta) {
+            return pedido -> {
+                LocalDate fechaPedido = pedido.getFechaPedido() == null ? null : pedido.getFechaPedido().toLocalDate();
+                if (fechaPedido == null) {
+                    return false;
+                }
+                if (fechaDesde != null && fechaPedido.isBefore(fechaDesde)) {
+                    return false;
+                }
+                if (fechaHasta != null && fechaPedido.isAfter(fechaHasta)) {
+                    return false;
+                }
+                return true;
+            };
+        }
 
-    private Predicate<Pedido> pedidoPorEstado(String estado) {
-        return pedido -> estado == null || estado.isBlank() || normalizarTexto(pedido.getEstado()).equals(normalizarTexto(estado));
-    }
+        private Predicate<Pedido> pedidoPorEstado(String estado) {
+            return pedido -> estado == null || estado.isBlank() || normalizarTexto(pedido.getEstado()).equals(normalizarTexto(estado));
+        }
+
+        private InformePedidoAlumnoResponse toInformePedidoAlumnoResponse(List<Pedido> pedidos) {
+            Usuario usuario = pedidos.getFirst().getUsuario();
+            BigDecimal importeTotal = pedidos.stream().map(Pedido::getTotal).filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            var ultimoPedido = pedidos.stream().map(Pedido::getFechaPedido).filter(Objects::nonNull).max(Comparator.naturalOrder())
+                .orElse(null);
+            return new InformePedidoAlumnoResponse(
+                usuario.getIdUsuario(),
+                usuario.getNombre(),
+                usuario.getApellidos(),
+                usuario.getEmail(),
+                (long) pedidos.size(),
+                importeTotal,
+                ultimoPedido
+            );
+        }
+
+        private AdminPedidoResponse toAdminPedidoResponse(Pedido pedido) {
+            Map<Integer, Integer> cantidadesEntregadas = pedidoEntregaLineaRepository.sumEntregadoPorPedido(pedido.getIdPedido())
+                .stream().collect(Collectors.toMap(fila -> (Integer) fila[0], fila -> ((Long) fila[1]).intValue()));
+            int totalUnidades = pedido.getDetalles() == null ? 0 : pedido.getDetalles().stream()
+                .mapToInt(detalle -> detalle.getCantidad() == null ? 0 : detalle.getCantidad()).sum();
+            int unidadesEntregadas = pedido.getDetalles() == null ? 0
+                : pedido.getDetalles().stream().mapToInt(detalle -> Math.min(
+                    cantidadesEntregadas.getOrDefault(detalle.getIdDetalle(), 0),
+                    detalle.getCantidad() == null ? 0 : detalle.getCantidad()
+                ))
+                .sum();
+            return new AdminPedidoResponse(
+                pedido.getIdPedido(),
+                pedido.getFechaPedido(),
+                pedido.getTotal(),
+                pedido.getEstado(),
+                toAdminPedidoUsuarioResponse(pedido.getUsuario()),
+                pedido.getDetalles() == null ? 0 : pedido.getDetalles().size(),
+                totalUnidades,
+                unidadesEntregadas,
+                Math.max(totalUnidades - unidadesEntregadas, 0)
+            );
+        }
 
     private Predicate<Pago> pagoEnRango(LocalDate fechaDesde, LocalDate fechaHasta) {
         return pago -> {
@@ -334,7 +376,7 @@ public class InformeService {
                 .sum();
         return new AdminPedidoResponse(
             pedido.getIdPedido(),
-            pedido.getFecha(),
+            pedido.getFechaPedido(),
             pedido.getTotal(),
             pedido.getEstado(),
             toAdminPedidoUsuarioResponse(pedido.getUsuario()),

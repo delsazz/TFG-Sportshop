@@ -136,7 +136,7 @@ function renderOrders() {
   }
 
   tbody.innerHTML = filtered.map(p => {
-    const dateStr = new Date(p.fecha).toLocaleDateString('es-ES');
+    const dateStr = new Date(p.fechaPedido).toLocaleDateString('es-ES');
     const isLocked = p.estado === 'ENTREGADO_COMPLETO' || p.estado === 'CANCELADO';
     const allowedTransitions = pedidoTransitions[p.estado] || [p.estado];
     
@@ -413,7 +413,7 @@ function renderOrderDetail() {
         </div>
         <div class="rounded-lg border border-gray-200 bg-white px-4 py-3">
           <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Fecha</p>
-          <p class="mt-1 text-sm font-semibold text-gray-900">${new Date(p.fecha).toLocaleDateString()}</p>
+          <p class="mt-1 text-sm font-semibold text-gray-900">${new Date(p.fechaPedido).toLocaleDateString()}</p>
         </div>
         <div class="rounded-lg border border-gray-200 bg-white px-4 py-3">
           <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Estado</p>
