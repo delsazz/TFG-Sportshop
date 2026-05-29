@@ -151,7 +151,7 @@ public class PedidoController {
             }
         }
 
-        return new AdminPedidoResponse(pedido.getIdPedido(), pedido.getFecha(), pedido.getTotal(), pedido.getEstado(),
+        return new AdminPedidoResponse(pedido.getIdPedido(), pedido.getFechaPedido(), pedido.getTotal(), pedido.getEstado(),
                 toPedidoUsuarioResponse(pedido.getUsuario()),
                 pedido.getDetalles() == null ? 0 : pedido.getDetalles().size(), totalUnidades, unidadesEntregadas,
                 Math.max(totalUnidades - unidadesEntregadas, 0));
@@ -167,7 +167,7 @@ public class PedidoController {
                 : pedido.getPagos().stream().map(this::toPagoResponse).toList();
         List<AdminPedidoHistorialResponse> historial = pedidoService.verHistorial(pedido.getIdPedido().longValue())
                 .stream().map(this::toPedidoHistorialResponse).toList();
-        return new AdminPedidoDetalleResponse(pedido.getIdPedido(), pedido.getFecha(), pedido.getTotal(), pedido.getEstado(),
+        return new AdminPedidoDetalleResponse(pedido.getIdPedido(), pedido.getFechaPedido(), pedido.getTotal(), pedido.getEstado(),
                 toPedidoUsuarioResponse(pedido.getUsuario()), detalles, pagos, historial, 
                 pedidoService.verEntregas(pedido.getIdPedido()).stream()
                         .map(entrega -> toEntregaResponse(entrega, pedido.getEstado())).toList());
