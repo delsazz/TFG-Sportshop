@@ -346,47 +346,6 @@ public class InformeService {
         return pago -> estado == null || estado.isBlank() || normalizarTexto(pago.getEstado()).equals(normalizarTexto(estado));
     }
 
-    private InformePedidoAlumnoResponse toInformePedidoAlumnoResponse(List<Pedido> pedidos) {
-        Usuario usuario = pedidos.getFirst().getUsuario();
-        BigDecimal importeTotal = pedidos.stream().map(Pedido::getTotal).filter(Objects::nonNull)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-        var ultimoPedido = pedidos.stream().map(Pedido::getFecha).filter(Objects::nonNull).max(Comparator.naturalOrder())
-            .orElse(null);
-        return new InformePedidoAlumnoResponse(
-            usuario.getIdUsuario(),
-            usuario.getNombre(),
-            usuario.getApellidos(),
-            usuario.getEmail(),
-            (long) pedidos.size(),
-            importeTotal,
-            ultimoPedido
-        );
-    }
-
-    private AdminPedidoResponse toAdminPedidoResponse(Pedido pedido) {
-        Map<Integer, Integer> cantidadesEntregadas = pedidoEntregaLineaRepository.sumEntregadoPorPedido(pedido.getIdPedido())
-            .stream().collect(Collectors.toMap(fila -> (Integer) fila[0], fila -> ((Long) fila[1]).intValue()));
-        int totalUnidades = pedido.getDetalles() == null ? 0 : pedido.getDetalles().stream()   
-                .mapToInt(detalle -> detalle.getCantidad() == null ? 0 : detalle.getCantidad()).sum();
-        int unidadesEntregadas = pedido.getDetalles() == null ? 0
-            : pedido.getDetalles().stream().mapToInt(detalle -> Math.min(
-                    cantidadesEntregadas.getOrDefault(detalle.getIdDetalle(), 0),
-                    detalle.getCantidad() == null ? 0 : detalle.getCantidad()
-                ))
-                .sum();
-        return new AdminPedidoResponse(
-            pedido.getIdPedido(),
-            pedido.getFechaPedido(),
-            pedido.getTotal(),
-            pedido.getEstado(),
-            toAdminPedidoUsuarioResponse(pedido.getUsuario()),
-            pedido.getDetalles() == null ? 0 : pedido.getDetalles().size(),
-            totalUnidades,
-            unidadesEntregadas,
-            Math.max(totalUnidades - unidadesEntregadas, 0)
-        );
-    }
-
     private AdminPedidoUsuarioResponse toAdminPedidoUsuarioResponse(Usuario usuario) {
         if(usuario == null) {
             return null;
