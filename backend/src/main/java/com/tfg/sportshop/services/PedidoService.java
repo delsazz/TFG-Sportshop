@@ -94,7 +94,7 @@ public class PedidoService {
         PedidoDraft draft = construirPedidoDraft(request);
         Pedido pedido = new Pedido();
         pedido.setUsuario(usuarioPersistido);
-        pedido.setFecha(LocalDateTime.now());
+        pedido.setFechaPedido(LocalDateTime.now());
         pedido.setTotal(draft.total());
         pedido.setEstadoEnum(EstadoPedido.PENDIENTE);
         Pedido pedidoGuardado = pedidoRepository.save(pedido);

@@ -15,8 +15,8 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_pedido")
     private Integer idPedido;
-    @Column(name = "fecha", nullable = false)
-    private LocalDateTime fecha;
+    @Column(name = "fecha_pedido", nullable = false)
+    private LocalDateTime fechaPedido;
     @Column(name = "total", nullable = false)
     private BigDecimal total;
     @Column(name = "estado", nullable = false, length = 50)

@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     contentContainer.classList.remove('hidden');
 
     document.getElementById('order-title').textContent = `Pedido #${pedido.idPedido}`;
-    document.getElementById('order-date').textContent = `Realizado el ${new Date(pedido.fecha).toLocaleDateString('es-ES')}`;
+    document.getElementById('order-date').textContent = `Realizado el ${new Date(pedido.fechaPedido).toLocaleDateString('es-ES')}`;
     document.getElementById('order-status').textContent = pedido.estado || 'Desconocido';
     document.getElementById('order-total').textContent = `${(pedido.total || 0).toFixed(2)} €`;
 

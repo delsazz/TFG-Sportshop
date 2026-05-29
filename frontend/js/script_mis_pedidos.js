@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       a.href = `detalle_pedido.html?id=${pedido.idPedido}`;
       a.className = 'block bg-white border border-slate-200 rounded-3xl p-5 hover:shadow-md transition sm:p-6';
 
-      const dateStr = new Date(pedido.fecha).toLocaleDateString('es-ES');
+      const dateStr = new Date(pedido.fechaPedido).toLocaleDateString('es-ES');
       const totalStr = (pedido.total || 0).toFixed(2);
       const estadoClass = getEstadoClass(pedido.estado);
 

@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 public record AdminPedidoResponse(
     Integer idPedido,
-    LocalDateTime fecha,
+    LocalDateTime fechaPedido
     BigDecimal total,
     String estado,
     AdminPedidoUsuarioResponse usuario,
