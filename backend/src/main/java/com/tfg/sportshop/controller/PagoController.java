@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.tfg.sportshop.dto.pagos.PagoConfiguracionResponse;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.tfg.sportshop.dto.pagos.ConfirmarPagoTarjetaRequest;
@@ -46,7 +45,7 @@ public class PagoController {
     @PostMapping
     public ResponseEntity<CrearPagoResponse> crearSesionPago(@Valid @RequestBody CrearPagoRequest request) {
         Usuario usuario = requireUsuario();
-        return ResponseEntity.ok(pagoService.crearSesionStripe(request, usuario));
+        return ResponseEntity.ok(pagoService.crearPago(request, usuario));
     }
 
     @PostMapping("/{idPago}/confirmar-mock")
@@ -62,14 +61,7 @@ public class PagoController {
         Usuario usuario = requireUsuario();
         Pago pago = pagoService.confirmarPagoTarjeta(idPago, request.paymentIntentId(), usuario);
         return ResponseEntity.ok(Map.of("idPago", pago.getIdPago(), "estado", pago.getEstado(), 
-            "fechaConfirmacion", pago.getFechaConfirmacion()));
-    }
-
-    @PostMapping("/webhook")
-    public ResponseEntity<Map<String, String>> stripeWebhook(@RequestBody String payload, 
-        @RequestHeader("Stripe-Signature") String stripeSignature) {
-        pagoService.procesarWebhookStripe(payload, stripeSignature);
-        return ResponseEntity.ok(Map.of("received", "true"));
+            "fechaConfirmacion", pago.getFechaPago()));
     }
 
     @PostMapping("/{idPago}/comprobante")
@@ -77,7 +69,7 @@ public class PagoController {
         Usuario usuario = requireUsuario();
         Pago pago = pagoService.subirComprobante(idPago, usuario, file);
         return ResponseEntity.ok(Map.of("idPago", pago.getIdPago(), "estado", pago.getEstado(), 
-            "comprobanteUrl", pago.getComprobanteUrl(), "comprobanteNombreArchivo", pago.getComprobanteNombreArchivo()));
+            "comprobanteUrl", "", "comprobanteNombreArchivo", ""));
     }
 
     @GetMapping("/{idPago}/comprobante")
@@ -94,7 +86,7 @@ public class PagoController {
         requireAdmin();
         Pago pago = pagoService.actualizarEstadoPago(idPago, request.estado(), request.notasAdmin());
         return ResponseEntity.ok(Map.of("idPago", pago.getIdPago(), "estado", pago.getEstado(), 
-            "fechaConfirmacion", pago.getFechaConfirmacion(), "notasAdmin", pago.getNotasAdmin()));
+            "fechaConfirmacion", pago.getFechaPago(), "notasAdmin", ""));
     }
 
     private Usuario requireUsuario() {

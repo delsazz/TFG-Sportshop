@@ -40,10 +40,6 @@ public class ProductoService {
         return productoRepository.findByCategoriaIdCategoria(idCategoria);
     }
 
-    public List<Producto> buscarProductosPorTipo(String tipoPrenda) {
-        return productoRepository.findProductosByTipoPrenda(tipoPrenda);
-    }
-
     public Producto buscarProductoPorId(Long id) {
         Optional<Producto> producto = productoRepository.findById(id.intValue());
         return producto.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
@@ -60,14 +56,9 @@ public class ProductoService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoria no encontrada"));
         Producto producto = new Producto();
         producto.setNombre(request.nombre());
-        producto.setTipoPrenda(request.tipoPrenda());
-        producto.setColor(request.color());
         producto.setPrecio(request.precio());
         producto.setCategoria(categoria);
         producto.setDescripcion(request.descripcion());
-        producto.setComposicion(request.composicion());
-        producto.setNormativa(request.normativa());
-        producto.setInstruccionesLavado(request.instruccionesLavado());
         producto.setConsejos(request.consejos());
         int totalStock = 0;
         if(request.tallas() != null && !request.tallas().isEmpty()) {
@@ -105,14 +96,9 @@ public class ProductoService {
         Categoria categoria = categoriaService.buscarCategoriaPorId(request.categoriaId())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoria no encontrada"));
         producto.setNombre(request.nombre());
-        producto.setTipoPrenda(request.tipoPrenda());
-        producto.setColor(request.color());
         producto.setPrecio(request.precio());
         producto.setCategoria(categoria);
         producto.setDescripcion(request.descripcion());
-        producto.setComposicion(request.composicion());
-        producto.setNormativa(request.normativa());
-        producto.setInstruccionesLavado(request.instruccionesLavado());
         producto.setConsejos(request.consejos());
         producto.setStockMinimo(request.stockMinimo() != null ? request.stockMinimo() : 0);
         if(producto.getLoteCompra() == null) {

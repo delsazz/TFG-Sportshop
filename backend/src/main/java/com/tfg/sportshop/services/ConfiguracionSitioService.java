@@ -61,9 +61,6 @@ public class ConfiguracionSitioService {
     @Value("${app.payments.transfer.notes:Envia el justificante desde la pantalla de confirmacion del pedido.}")
     private String defaultTransferenciaNotas;
 
-    @Value("${stripe.secret.key:}")
-    private String stripeSecretKey;
-
     public ConfiguracionSitioService(ConfiguracionSitioRepository configuracionSitioRepository) {
         this.configuracionSitioRepository = configuracionSitioRepository;
     }
@@ -107,7 +104,7 @@ public class ConfiguracionSitioService {
         String normalizado = normalizarMetodoPago(metodoPago);
         ConfiguracionSitio configuracion = obtenerOCrearConfiguracion();
         return switch(normalizado) {
-            case "tarjeta", "stripe", "credit_card" -> configuracion.isTarjetaHabilitada();
+            case "tarjeta", "credit_card" -> configuracion.isTarjetaHabilitada();
             case "bizum" -> configuracion.isBizumHabilitado();
             case "transferencia", "transferencia bancaria", "bank_transfer" -> configuracion.isTransferenciaHabilitada();
             case "mostrador", "pago en mostrador", "presencial", "cash" -> configuracion.isMostradorHabilitado();
@@ -162,7 +159,7 @@ public class ConfiguracionSitioService {
         configuracion.setTransferenciaIban(defaultTransferenciaIban);
         configuracion.setTransferenciaConcepto(defaultTransferenciaConcepto);
         configuracion.setTransferenciaNotas(defaultTransferenciaNotas);
-        configuracion.setTarjetaHabilitada(stripeSecretKey != null && !stripeSecretKey.isBlank());
+        configuracion.setTarjetaHabilitada(true);
         configuracion.setBizumHabilitado(true);
         configuracion.setTransferenciaHabilitada(true);
         configuracion.setMostradorHabilitado(true);

@@ -42,10 +42,6 @@ public class CarritoItem {
     @Column(name = "actualizado_en", nullable = false)
     private LocalDateTime actualizadoEn;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_kit")
-    private Kit kit;
-
     @PrePersist
     void onCreate() {
         LocalDateTime now = LocalDateTime.now();

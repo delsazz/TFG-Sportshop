@@ -328,7 +328,7 @@ public class InformeService {
 
     private Predicate<Pago> pagoEnRango(LocalDate fechaDesde, LocalDate fechaHasta) {
         return pago -> {
-            LocalDate fechaPago = pago.getFechaPago();
+            LocalDate fechaPago = pago.getFechaPago() == null ? null : pago.getFechaPago().toLocalDate();
             if(fechaPago == null) {
                 return false;
             }
@@ -363,8 +363,8 @@ public class InformeService {
         return new InformeStockProductoResponse(
             producto.getIdProducto(),
             producto.getNombre(),
-            producto.getTipoPrenda(),
-            producto.getColor(),
+            null,
+            null,
             producto.getCategoria() == null ? null : producto.getCategoria().getNombreCategoria(),
             producto.getPrecio(),
             stock,
@@ -413,8 +413,8 @@ public class InformeService {
         return new InformeProveedorLineaResponse(
             idProducto,
             producto == null ? "" : producto.getNombre(),
-            producto == null ? null : producto.getTipoPrenda(),
-            producto == null ? null : producto.getColor(),
+            null,
+            null,
             idTalla,
             productoTalla.getTalla() == null ? null : productoTalla.getTalla().getNombre(),
             producto == null ? "Proveedor pendiente" : normalizarProveedor(producto.getProveedor()),
@@ -443,8 +443,8 @@ public class InformeService {
         return new InformeProveedorLineaResponse(
             producto.getIdProducto(),
             producto.getNombre(),
-            producto.getTipoPrenda(),
-            producto.getColor(),
+            null,
+            null,
             null,
             null,
             normalizarProveedor(producto.getProveedor()),
@@ -581,8 +581,8 @@ public class InformeService {
             usuario == null ? null : usuario.getIdUsuario(),
             usuario == null ? null : (usuario.getNombre() + " " + usuario.getApellidos()).trim(),
             usuario == null ? null : usuario.getEmail(),
-            pago.getMetodoPago(),
-            pago.getFechaPago(),
+            null,
+            pago.getFechaPago() == null ? null : pago.getFechaPago().toLocalDate(),
             pago.getMonto(),
             pago.getEstado()
         );

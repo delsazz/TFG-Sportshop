@@ -15,10 +15,6 @@ public class Producto {
     private Integer idProducto;
     @Column(name = "nombre", nullable = false, length = 150)
     private String nombre;
-    @Column(name = "tipo_prenda", length = 50)
-    private String tipoPrenda;   
-    @Column(name = "color", length = 50)
-    private String color;
     @Column(name = "precio", nullable = false, precision = 10, scale = 2)
     private BigDecimal precio;
     @Column(name = "stock")
@@ -39,20 +35,10 @@ public class Producto {
     @OneToMany(mappedBy = "producto", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<DetallePedido> detalles;
-    @Column(name = "imagen", length = 255)
-    private String imagen;
     @Column(length = 500)
     private String descripcion;
     @Column(columnDefinition = "TEXT")
     private String consejos;
-    @Column(length = 255)
-    private String composicion;
-    @Column(length = 255)
-    private String normativa;
-    @Column(name = "instrucciones_lavado", length = 255)
-    private String instruccionesLavado;
     @OneToMany(mappedBy = "producto", fetch = FetchType.LAZY)
     private List<ProductoImagen> imagenes;
-    @OneToMany(mappedBy = "producto", fetch = FetchType.LAZY)
-    private List<ProductoDocumento> documentos;
 }

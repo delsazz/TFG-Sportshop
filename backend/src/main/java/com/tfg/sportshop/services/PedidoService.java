@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.List;
 import java.util.HashMap;
 import java.util.ArrayList;
-import java.time.LocalDate;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import org.hibernate.Hibernate;
@@ -550,16 +549,7 @@ public class PedidoService {
         Pago pago = new Pago();
         pago.setPedido(pedido);
         
-        // Normalizar nombre del método de pago para el registro
-        String metodoNormalizado = switch (metodoPago.trim().toLowerCase()) {
-            case "tarjeta", "stripe" -> "tarjeta";
-            case "bizum" -> "bizum";
-            case "transferencia bancaria", "transferencia" -> "transferencia bancaria";
-            case "pago en mostrador", "mostrador", "presencial" -> "pago en mostrador";
-            default -> metodoPago.trim();
-        };
-        pago.setMetodoPago(metodoNormalizado);
-        pago.setFechaPago(LocalDate.now());
+        pago.setFechaPago(LocalDateTime.now());
         pago.setMonto(pedido.getTotal());
         pago.setEstado("pendiente");
         pagoRepository.save(pago);

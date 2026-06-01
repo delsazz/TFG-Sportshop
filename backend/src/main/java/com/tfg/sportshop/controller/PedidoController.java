@@ -135,7 +135,7 @@ public class PedidoController {
                 detalle.getProducto() == null ? null : (detalle.getProducto().getNombre() != null ? 
                 detalle.getProducto().getNombre() : "Producto " + detalle.getProducto().getIdProducto()),
                 detalle.getTalla() == null ? null : detalle.getTalla().getNombre(), detalle.getCantidad(), detalle.getPrecioUnitario(),
-                detalle.getProducto() == null ? null : detalle.getProducto().getImagen() );
+                null);
     }
 
     private AdminPedidoResponse toPedidoAdminResponse(Pedido pedido) {
@@ -190,13 +190,12 @@ public class PedidoController {
                 : "Producto " + detalle.getProducto().getIdProducto()), detalle.getIdTalla(),
                 detalle.getTalla() == null ? null : detalle.getTalla().getNombre(),
                 estadosEntrega.getOrDefault(detalle.getIdDetalle(), "SIN_ENTREGAR"),
-                detalle.getProducto() == null ? null : detalle.getProducto().getImagen());
+                null);
     }
 
     private AdminPagoResponse toPagoResponse(Pago pago) {
-        return new AdminPagoResponse(pago.getIdPago(), pago.getMetodoPago(), pago.getFechaPago(),
-                pago.getMonto(), pago.getEstado(), pago.getComprobanteUrl(), pago.getComprobanteNombreArchivo(),
-                pago.getFechaConfirmacion(), pago.getNotasAdmin());
+        return new AdminPagoResponse(pago.getIdPago(), null, pago.getFechaPago(),
+                pago.getMonto(), pago.getEstado(), null, null, null, null);
     }
 
     private AdminPedidoHistorialResponse toPedidoHistorialResponse(PedidoHistorial historial) {
