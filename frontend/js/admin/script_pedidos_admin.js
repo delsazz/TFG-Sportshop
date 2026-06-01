@@ -37,12 +37,9 @@ async function initAdminOrders() {
     container.innerHTML = `
       <div class="space-y-6">
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <input type="text" id="filter-id" placeholder="ID exacto (ej: 5)" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500" />
           <input type="text" id="filter-user" placeholder="Nombre o email cliente..." class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500" />
-          <select id="filter-status" class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
-            <option value="">Todos los estados</option>
-            ${statusOptions.map(s => `<option value="${s.value}">${s.label}</option>`).join('')}
-          </select>
+          <input type="date" id="filter-date-from" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500" />
+          <input type="date" id="filter-date-to" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500" />
         </div>
         
         <div id="orders-error" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 hidden"></div>
@@ -84,9 +81,9 @@ async function initAdminOrders() {
     `;
     container.dataset.initialized = "true";
 
-    document.getElementById('filter-id').addEventListener('input', renderOrders);
     document.getElementById('filter-user').addEventListener('input', renderOrders);
-    document.getElementById('filter-status').addEventListener('change', renderOrders);
+    document.getElementById('filter-date-from').addEventListener('change', renderOrders);
+    document.getElementById('filter-date-to').addEventListener('change', renderOrders);
   }
 
   await fetchOrders();
@@ -118,16 +115,17 @@ async function fetchOrders() {
 function renderOrders() {
   const tbody = document.getElementById('orders-table-body');
   
-  const filterId = document.getElementById('filter-id').value.trim();
   const filterUser = document.getElementById('filter-user').value.toLowerCase().trim();
-  const filterStatus = document.getElementById('filter-status').value;
+  const dateFrom = document.getElementById('filter-date-from').value;
+  const dateTo = document.getElementById('filter-date-to').value;
 
   const filtered = ordersData.filter(p => {
-    const matchId = !filterId || String(p.idPedido).includes(filterId);
-    const matchStatus = !filterStatus || (p.estado.toLowerCase() === filterStatus.toLowerCase() || (p.estado === 'ENTREGADO' && filterStatus === 'entregado_completo'));
     const userStr = p.usuario ? `${p.usuario.nombre} ${p.usuario.apellidos} ${p.usuario.email}`.toLowerCase() : '';
     const matchUser = !filterUser || userStr.includes(filterUser);
-    return matchId && matchStatus && matchUser;
+    const orderDate = new Date(p.fechaPedido);
+    const matchFrom = !dateFrom || orderDate >= new Date(dateFrom);
+    const matchTo = !dateTo || orderDate <= new Date(`${dateTo}T23:59:59`);
+    return matchUser && matchFrom && matchTo;
   }).sort((a, b) => b.idPedido - a.idPedido);
 
   if (filtered.length === 0) {

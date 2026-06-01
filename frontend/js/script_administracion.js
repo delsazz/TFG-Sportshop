@@ -53,5 +53,5 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log(`Loading data for ${tabId}`);
     window.dispatchEvent(new CustomEvent('admin-tab-loaded', { detail: { tabId } }));
   }
-  loadTabData('dashboard');
+  loadTabData('analisis');
 });
