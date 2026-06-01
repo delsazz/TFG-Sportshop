@@ -1,3 +1,5 @@
+version: '3.9'
+
 services:
   mysql:
     image: mysql:8.4
@@ -38,6 +40,71 @@ services:
         condition: service_healthy
     networks:
       - bbdd_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend_sportshop
+    expose:
+      - "3000"
+    environment:
+      - VITE_API_URL=/api
+    restart: unless-stopped
+    networks:
+      - bbdd_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    container_name: admin_sportshop
+    expose:
+      - "3001"
+    environment:
+      - VITE_API_URL=/api
+    restart: unless-stopped
+    networks:
+      - bbdd_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend_sportshop
+    expose:
+      - "8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_URL: jdbc:mysql://mysql:3306/sportshop?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Madrid
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-curso}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-prod}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - bbdd_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
 
 volumes:
   mysql_data:
