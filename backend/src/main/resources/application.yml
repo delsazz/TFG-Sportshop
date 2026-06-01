@@ -3,10 +3,6 @@ spring:
     name: Dotex
   profiles:
     default: dev
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
   mail:
     host: ${MAIL_HOST:}
     port: ${MAIL_PORT:587}
@@ -85,11 +81,6 @@ spring:
     show-sql: true
   thymeleaf:
     cache: false
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
-    repair-on-migrate: true
 
 jwt:
   secret: ${JWT_SECRET}
@@ -111,8 +102,4 @@ spring:
     show-sql: false
   thymeleaf:
     cache: true
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
-    repair-on-migrate: true
+
