@@ -27,6 +27,12 @@ public class Usuario {
     private String password;
     @Column(length = 20)
     private String telefono;
+    @Column(length = 20)
+    private String nif;
+    @Column(length = 100)
+    private String ciudad;
+    @Column(length = 100)
+    private String pais;
     @Column(length = 255)
     private String direccion;
     @Column(name = "direccion_calle", length = 150)
@@ -43,6 +49,8 @@ public class Usuario {
     private String codigoPostal;
     @Column(name = "avatar_url", length = 255)
     private String avatarUrl;
+    @Column(length = 50)
+    private String rol;
     @Transient
     private Boolean captchaVerified;
     @ManyToMany(fetch = FetchType.LAZY)

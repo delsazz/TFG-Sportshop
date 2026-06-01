@@ -17,6 +17,8 @@ public class Pedido {
     private Integer idPedido;
     @Column(name = "fecha_pedido", nullable = false)
     private LocalDateTime fechaPedido;
+    @Column(name = "fecha_entrega")
+    private LocalDate fechaEntrega;
     @Column(name = "total", nullable = false)
     private BigDecimal total;
     @Column(name = "estado", nullable = false, length = 50)

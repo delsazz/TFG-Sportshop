@@ -67,7 +67,7 @@ public class DevolucionController {
                         item.getDetallePedido().getIdDetalle(),
                         item.getDetallePedido().getProducto().getNombre(),
                         item.getDetallePedido().getTalla() != null ? item.getDetallePedido().getTalla().getNombre() : null,
-                        item.getCantidad(), item.getDetallePedido().getPrecioUnitario(),item.getDetallePedido().getProducto().getImagen()))
+                        item.getCantidad(), item.getDetallePedido().getPrecioUnitario(), null))
                 .toList();
         return new DevolucionResponse(devolucion.getIdDevolucion(), devolucion.getPedido().getIdPedido(),
                 devolucion.getUsuario().getIdUsuario(),  devolucion.getUsuario().getNombre() + " " + devolucion.getUsuario().getApellidos(),

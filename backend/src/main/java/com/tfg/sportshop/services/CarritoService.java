@@ -116,9 +116,6 @@ public class CarritoService {
     }
 
     private String resolveProductImage(Producto producto) {
-        if(producto.getImagen() != null && !producto.getImagen().isBlank()) {
-            return producto.getImagen();
-        }
         ProductoImagen principal = productoImagenRepository.findByProductoIdProductoAndEsPrincipal(
                 producto.getIdProducto(),
                 true

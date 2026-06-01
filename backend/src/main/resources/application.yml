@@ -24,15 +24,6 @@ spring:
             enable: ${MAIL_SMTP_STARTTLS_ENABLE:true}
             required: ${MAIL_SMTP_STARTTLS_REQUIRED:true}
 
-stripe:
-  secret:
-    key: ${STRIPE_SECRET_KEY:}
-  webhook:
-    secret: ${STRIPE_WEBHOOK_SECRET:}
-  checkout:
-    success-url: ${STRIPE_SUCCESS_URL:http://localhost:5173/pagos/exito?session_id={CHECKOUT_SESSION_ID}}
-    cancel-url: ${STRIPE_CANCEL_URL:http://localhost:5173/pagos/cancelado}
-
 server:
   port: 8080
 

@@ -1,7 +1,7 @@
 package com.tfg.sportshop.repository;
 import java.util.List;
 import java.util.Optional;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import com.tfg.sportshop.model.Pago;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.stereotype.Repository;
@@ -18,22 +18,8 @@ public interface PagoRepository extends JpaRepository<Pago, Integer> {
     // Buscar pagos por estado
     List<Pago> findByEstado(String estado);
 
-    // Buscar pagos por metodo de pago
-    List<Pago> findByMetodoPago(String metodoPago);
-
     // Buscar pagos entre fechas
-    List<Pago> findByFechaPagoBetween(LocalDate inicio, LocalDate fin);
-
-    Optional<Pago> findByStripeSessionId(String stripeSessionId);
-    Optional<Pago> findByStripePaymentIntentId(String stripePaymentIntentId);
-
-    Optional<Pago> findByStripeEventId(String stripeEventId);
-
-    Optional<Pago> findFirstByPedidoIdPedidoAndMetodoPagoAndEstadoOrderByIdPagoDesc(
-        Integer idPedido,
-        String metodoPago,
-        String estado
-    );
+    List<Pago> findByFechaPagoBetween(LocalDateTime inicio, LocalDateTime fin);
 
     Optional<Pago> findFirstByPedidoIdPedidoAndEstadoOrderByIdPagoDesc(
         Integer idPedido,

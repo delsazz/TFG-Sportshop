@@ -3,8 +3,8 @@ public record CrearPagoResponse(
     Integer idPago,
     Integer idPedido,
     String estado,
-    String stripeSessionId,
-    String checkoutUrl,
-    String clientSecret
+    String referenciaPago,
+    String redireccionUrl,
+    String tokenCliente
 ) {
 }
