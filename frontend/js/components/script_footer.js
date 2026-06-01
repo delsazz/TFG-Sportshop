@@ -134,12 +134,12 @@
         </section>
 
         <section>
-          <h4>Información</h4>
+          <h4>Tienda</h4>
           <ul>
-            <li><a href="${pageHref('preguntas_frecuentes.html')}">Preguntas frecuentes</a></li>
-            <li><a href="${pageHref('envios_devoluciones.html')}">Envíos y devoluciones</a></li>
-            <li><a href="${pageHref('terminos_condiciones.html')}">Términos y condiciones</a></li>
-            <li><a href="${pageHref('politica_privacidad.html')}">Política de privacidad</a></li>
+            <li><a href="${pageHref('catalogo.html')}">Productos</a></li>
+            <li><a href="${pageHref('carrito.html')}">Carrito</a></li>
+            <li><a href="${pageHref('perfil.html')}">Perfil</a></li>
+            <li><a href="${pageHref('administracion.html')}">Panel admin</a></li>
           </ul>
         </section>
       </div>

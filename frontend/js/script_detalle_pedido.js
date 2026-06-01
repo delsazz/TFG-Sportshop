@@ -1,15 +1,12 @@
 document.addEventListener('DOMContentLoaded', async () => {
   lucide.createIcons();
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const orderIdStr = urlParams.get('id');
-  const orderId = parseInt(orderIdStr, 10);
-
+  const orderId = Number(new URLSearchParams(window.location.search).get('id'));
   const loadingContainer = document.getElementById('loading-container');
   const errorContainer = document.getElementById('error-container');
   const contentContainer = document.getElementById('content-container');
-  
-  if (!orderId || isNaN(orderId)) {
+
+  if (!orderId) {
     showError('Pedido no válido');
     return;
   }
@@ -22,17 +19,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
 
-      const res = await fetch(`/api/pedidos/${orderId}`, {
+      const response = await fetch(`/api/pedidos/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        renderPedido(data);
-      } else {
+      if (!response.ok) {
         showError('Pedido no encontrado o no tienes permiso.');
+        return;
       }
-    } catch (err) {
+
+      renderPedido(await response.json());
+    } catch {
       showError('Error de conexión');
     }
   }
@@ -44,213 +41,162 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('order-title').textContent = `Pedido #${pedido.idPedido}`;
     document.getElementById('order-date').textContent = `Realizado el ${new Date(pedido.fechaPedido).toLocaleDateString('es-ES')}`;
     document.getElementById('order-status').textContent = pedido.estado || 'Desconocido';
-    document.getElementById('order-total').textContent = `${(pedido.total || 0).toFixed(2)} €`;
+    document.getElementById('order-total').textContent = `${Number(pedido.total || 0).toFixed(2)} €`;
 
     const itemsContainer = document.getElementById('order-items');
-    itemsContainer.innerHTML = '';
+    itemsContainer.innerHTML = pedido.detalles?.length
+      ? pedido.detalles.map((item) => {
+          const subtotal = Number(item.cantidad || 0) * Number(item.precioUnitario || 0);
+          return `
+            <div class="py-5 flex flex-col gap-3 sm:flex-row sm:justify-between">
+              <div>
+                <p class="font-medium text-slate-900">${item.nombreProducto}</p>
+                <p class="text-sm text-slate-500">Talla: ${item.talla || '-'}</p>
+              </div>
+              <div class="sm:text-right text-slate-700">
+                <p>${item.cantidad} uds x ${Number(item.precioUnitario || 0).toFixed(2)} €</p>
+                <p class="font-medium mt-1 text-slate-900">${subtotal.toFixed(2)} €</p>
+              </div>
+            </div>
+          `;
+        }).join('')
+      : '<p class="py-5 text-slate-500">No hay productos en este pedido.</p>';
 
-    if (pedido.detalles && pedido.detalles.length > 0) {
-      pedido.detalles.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'py-5 flex flex-col gap-3 sm:flex-row sm:justify-between';
-        
-        const subtotal = item.cantidad * item.precioUnitario;
-        
-        div.innerHTML = `
-          <div>
-            <p class="font-medium text-slate-900">${item.nombreProducto}</p>
-            <p class="text-sm text-slate-500">Talla: ${item.talla}</p>
-          </div>
-          <div class="sm:text-right text-slate-700">
-            <p>${item.cantidad} uds × ${item.precioUnitario.toFixed(2)} €</p>
-            <p class="font-medium mt-1 text-slate-900">
-              ${subtotal.toFixed(2)} €
-            </p>
-          </div>
-        `;
-        itemsContainer.appendChild(div);
-      });
-    } else {
-      itemsContainer.innerHTML = '<p class="py-5 text-slate-500">No hay productos en este pedido.</p>';
-    }
-    renderDeliverySection(pedido);
+    renderDeliveryConfirmation(pedido);
+    renderReturnRequest(pedido);
   }
 
-  function renderDeliverySection(pedido) {
+  function renderDeliveryConfirmation(pedido) {
     document.getElementById('delivery-section')?.remove();
+    const delivered = String(pedido.estado || '').toUpperCase().includes('ENTREGADO');
+    if (!delivered) return;
+
+    const alreadyConfirmed = pedido.entregas?.some((entrega) => entrega.firmaRecepcion);
     const section = document.createElement('section');
     section.id = 'delivery-section';
     section.className = 'mt-6 rounded-3xl border border-slate-200 bg-white p-5 sm:p-8 shadow-sm';
-    const entregas = pedido.entregas || [];
-    const ultima = entregas[0];
-    const entregado = String(pedido.estado || '').toLowerCase().includes('entregado');
     section.innerHTML = `
       <h2 class="text-xl font-semibold mb-4">Entrega</h2>
-      ${ultima ? `
-        <div class="grid gap-3 text-sm sm:grid-cols-2">
-          <p><strong>Persona que recibe:</strong> ${ultima.nombreRecibe || '-'}</p>
-          <p><strong>DNI/NIE o referencia:</strong> ${ultima.documentoRecibe || '-'}</p>
-          <p><strong>Tipo:</strong> ${ultima.tipoReceptor === 'otra_persona' ? 'Otra persona' : 'Titular del pedido'}</p>
-          <p><strong>Fecha:</strong> ${new Date(ultima.fechaEntrega).toLocaleDateString('es-ES')}</p>
-          ${ultima.textoAutorizacion ? `<p class="sm:col-span-2"><strong>Autorización:</strong> ${ultima.textoAutorizacion}</p>` : ''}
-        </div>
-        ${ultima.firmaRecepcion ? `<img src="${ultima.firmaRecepcion}" alt="Firma de entrega" class="mt-4 max-h-48 rounded-2xl border border-slate-200 bg-white p-3">` : ''}
-      ` : `
-        <p class="text-slate-600">Este pedido aún no tiene firma de entrega registrada.</p>
-      `}
-      ${!entregado ? `<button id="btn-open-signature" class="mt-5 rounded-full bg-blue-700 px-5 py-3 font-semibold text-white hover:bg-blue-800">Firmar entrega</button>` : ''}
+      <label class="flex items-center gap-3 text-slate-700">
+        <input id="confirm-delivery-check" type="checkbox" ${alreadyConfirmed ? 'checked disabled' : ''} class="h-5 w-5 rounded border-slate-300" />
+        Marcar pedido como entregado
+        <span id="delivery-green-tick" class="${alreadyConfirmed ? '' : 'hidden'} text-2xl font-bold text-green-600">✓</span>
+      </label>
+      <p id="delivery-message" class="mt-3 text-sm text-slate-500">${alreadyConfirmed ? 'Entrega confirmada.' : 'Al marcarlo se confirmará la recepción del pedido.'}</p>
     `;
     contentContainer.appendChild(section);
-    document.getElementById('btn-open-signature')?.addEventListener('click', () => openSignatureModal(pedido));
-  }
 
-  function openSignatureModal(pedido) {
-    const fullName = `${pedido.usuario?.nombre || ''} ${pedido.usuario?.apellidos || ''}`.trim();
-    const modal = document.createElement('div');
-    modal.id = 'signature-modal';
-    modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4';
-    modal.innerHTML = `
-      <div class="max-h-[92vh] w-full max-w-2xl overflow-auto rounded-3xl bg-white p-6 shadow-xl">
-        <div class="flex items-center justify-between gap-4">
-          <h2 class="text-2xl font-bold">Firmar entrega</h2>
-          <button id="close-signature-modal" class="rounded-full border px-3 py-1">Cerrar</button>
-        </div>
-        <form id="signature-form" class="mt-5 space-y-4">
-          <div class="flex flex-wrap gap-4">
-            <label class="flex items-center gap-2"><input type="radio" name="tipoReceptor" value="yo" checked> Firmar yo</label>
-            <label class="flex items-center gap-2"><input type="radio" name="tipoReceptor" value="otra_persona"> Otra persona</label>
-          </div>
-          <div id="receiver-fields" class="grid gap-4 sm:grid-cols-2">
-            <input name="nombreRecibe" placeholder="Nombre y apellidos de quien recibe" class="rounded-xl border px-3 py-2" required>
-            <input name="documentoRecibe" placeholder="DNI/NIE o referencia" class="rounded-xl border px-3 py-2" required>
-          </div>
-          <div id="authorization-fields" class="hidden rounded-2xl bg-slate-50 p-4">
-            <div class="grid gap-4 sm:grid-cols-2">
-              <input name="autorizanteNombre" placeholder="Tu nombre y apellidos" value="${fullName}" class="rounded-xl border px-3 py-2">
-              <input name="autorizanteDocumento" placeholder="Tu DNI/NIE" class="rounded-xl border px-3 py-2">
-            </div>
-            <label class="mt-4 flex gap-3 text-sm">
-              <input id="authorization-check" type="checkbox" class="mt-1">
-              <span id="authorization-text">Yo, ${fullName || '[nombre apellidos]'}, con DNI [DNI], autorizo que [nombre_apellidos_persona] con DNI [DNI_persona] recoja este pedido y firme la entrega por mí.</span>
-            </label>
-          </div>
-          <div>
-            <p class="mb-2 text-sm font-semibold text-slate-700">Firma</p>
-            <canvas id="signature-canvas" width="620" height="220" class="h-56 w-full rounded-2xl border border-slate-300 bg-white"></canvas>
-            <button id="clear-signature" type="button" class="mt-2 rounded-xl border px-3 py-2 text-sm">Borrar firma</button>
-          </div>
-          <p id="signature-error" class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700"></p>
-          <button type="submit" class="w-full rounded-2xl bg-blue-700 px-5 py-3 font-semibold text-white">Enviar firma</button>
-        </form>
-      </div>
-    `;
-    document.body.appendChild(modal);
-    setupSignatureForm(pedido);
-  }
-
-  function setupSignatureForm(pedido) {
-    const modal = document.getElementById('signature-modal');
-    const form = document.getElementById('signature-form');
-    const authorizationFields = document.getElementById('authorization-fields');
-    const authorizationText = document.getElementById('authorization-text');
-    const canvas = document.getElementById('signature-canvas');
-    const ctx = canvas.getContext('2d');
-    let drawing = false;
-    let hasSignature = false;
-
-    document.getElementById('close-signature-modal').onclick = () => modal.remove();
-    form.tipoReceptor.forEach(radio => radio.addEventListener('change', () => {
-      authorizationFields.classList.toggle('hidden', form.tipoReceptor.value !== 'otra_persona');
-      updateAuthorizationText();
-    }));
-    ['nombreRecibe', 'documentoRecibe', 'autorizanteNombre', 'autorizanteDocumento'].forEach(name => {
-      form.elements[name]?.addEventListener('input', updateAuthorizationText);
+    document.getElementById('confirm-delivery-check')?.addEventListener('change', async (event) => {
+      if (!event.target.checked) return;
+      await confirmDelivery(pedido);
     });
-    function updateAuthorizationText() {
-      const receptor = form.nombreRecibe.value || '[nombre_apellidos_persona]';
-      const receptorDni = form.documentoRecibe.value || '[DNI_persona]';
-      const autorizante = form.autorizanteNombre.value || '[nombre apellidos]';
-      const autorizanteDni = form.autorizanteDocumento.value || '[DNI]';
-      authorizationText.textContent = `Yo, ${autorizante}, con DNI ${autorizanteDni}, autorizo que ${receptor} con DNI ${receptorDni} recoja este pedido y firme la entrega por mí.`;
-    }
-    function position(event) {
-      const rect = canvas.getBoundingClientRect();
-      const touch = event.touches?.[0];
-      return {
-        x: ((touch?.clientX ?? event.clientX) - rect.left) * (canvas.width / rect.width),
-        y: ((touch?.clientY ?? event.clientY) - rect.top) * (canvas.height / rect.height)
-      };
-    }
-    function start(event) {
-      event.preventDefault();
-      drawing = true;
-      const p = position(event);
-      ctx.beginPath();
-      ctx.moveTo(p.x, p.y);
-    }
-    function draw(event) {
-      if(!drawing) return;
-      event.preventDefault();
-      const p = position(event);
-      ctx.lineWidth = 2;
-      ctx.lineCap = 'round';
-      ctx.lineTo(p.x, p.y);
-      ctx.stroke();
-      hasSignature = true;
-    }
-    function stop() { drawing = false; }
-    canvas.addEventListener('mousedown', start);
-    canvas.addEventListener('mousemove', draw);
-    window.addEventListener('mouseup', stop);
-    canvas.addEventListener('touchstart', start, { passive: false });
-    canvas.addEventListener('touchmove', draw, { passive: false });
-    canvas.addEventListener('touchend', stop);
-    document.getElementById('clear-signature').onclick = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      hasSignature = false;
-    };
-    form.addEventListener('submit', async event => {
-      event.preventDefault();
-      const error = document.getElementById('signature-error');
-      error.classList.add('hidden');
-      if(form.tipoReceptor.value === 'otra_persona' && !document.getElementById('authorization-check').checked) {
-        error.textContent = 'Debes aceptar la autorización.';
-        error.classList.remove('hidden');
-        return;
-      }
-      if(!hasSignature) {
-        error.textContent = 'Debes firmar la entrega.';
-        error.classList.remove('hidden');
-        return;
-      }
-      const payload = Object.fromEntries(new FormData(form));
-      payload.textoAutorizacion = form.tipoReceptor.value === 'otra_persona' ? authorizationText.textContent : '';
-      payload.firmaRecepcion = canvas.toDataURL('image/png');
+  }
+
+  async function confirmDelivery(pedido) {
+    const message = document.getElementById('delivery-message');
+    try {
       const response = await fetch(`/api/pedidos/${pedido.idPedido}/firmar-entrega`, {
         method: 'POST',
         headers: {
+          Authorization: `Bearer ${getToken()}`,
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${getToken()}`
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          tipoReceptor: 'cliente',
+          nombreRecibe: sessionStorage.getItem('userName') || 'Cliente',
+          documentoRecibe: 'Confirmado por cliente',
+          firmaRecepcion: 'confirmado',
+        }),
       });
-      if(!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        error.textContent = data.message || data.error || 'No se pudo registrar la entrega.';
-        error.classList.remove('hidden');
-        return;
-      }
-      modal.remove();
-      fetchPedidoDetalle();
+
+      if (!response.ok) throw new Error('No se pudo confirmar la entrega');
+      document.getElementById('delivery-green-tick').classList.remove('hidden');
+      document.getElementById('confirm-delivery-check').disabled = true;
+      message.textContent = 'Entrega confirmada.';
+    } catch (error) {
+      message.textContent = error.message;
+      document.getElementById('confirm-delivery-check').checked = false;
+    }
+  }
+
+  function renderReturnRequest(pedido) {
+    document.getElementById('return-section')?.remove();
+    const delivered = String(pedido.estado || '').toUpperCase().includes('ENTREGADO');
+    if (!delivered || !pedido.detalles?.length) return;
+
+    const section = document.createElement('section');
+    section.id = 'return-section';
+    section.className = 'mt-6 rounded-3xl border border-slate-200 bg-white p-5 sm:p-8 shadow-sm';
+    section.innerHTML = `
+      <h2 class="text-xl font-semibold mb-4">Solicitar devolución</h2>
+      <form id="return-form" class="space-y-4">
+        <div class="space-y-3">
+          ${pedido.detalles.map((item) => `
+            <label class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 px-4 py-3">
+              <span>
+                <span class="block font-medium text-slate-900">${item.nombreProducto}</span>
+                <span class="text-sm text-slate-500">Cantidad comprada: ${item.cantidad}</span>
+              </span>
+              <input type="number" name="item-${item.idDetalle}" min="0" max="${item.cantidad}" value="0" class="w-20 rounded-lg border border-slate-300 px-2 py-1" />
+            </label>
+          `).join('')}
+        </div>
+        <textarea id="return-reason" required class="min-h-24 w-full rounded-2xl border border-slate-300 px-4 py-3" placeholder="Comentario indicando por qué solicitas la devolución"></textarea>
+        <p id="return-message" class="hidden rounded-xl px-3 py-2 text-sm font-semibold"></p>
+        <button type="submit" class="rounded-2xl bg-blue-700 px-5 py-3 font-semibold text-white hover:bg-blue-800">Enviar solicitud</button>
+      </form>
+    `;
+    contentContainer.appendChild(section);
+
+    document.getElementById('return-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      await submitReturnRequest(pedido);
     });
   }
 
-  function showError(msg) {
+  async function submitReturnRequest(pedido) {
+    const message = document.getElementById('return-message');
+    const items = pedido.detalles
+      .map((item) => ({
+        idDetallePedido: item.idDetalle,
+        cantidad: Number(document.querySelector(`[name="item-${item.idDetalle}"]`).value || 0),
+      }))
+      .filter((item) => item.cantidad > 0);
+
+    if (!items.length) {
+      message.textContent = 'Selecciona al menos un producto para devolver.';
+      message.className = 'rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700';
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/devoluciones', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          idPedido: pedido.idPedido,
+          motivo: document.getElementById('return-reason').value.trim(),
+          items,
+        }),
+      });
+      if (!response.ok) throw new Error('No se pudo solicitar la devolución');
+      message.textContent = 'Solicitud de devolución enviada.';
+      message.className = 'rounded-xl bg-green-50 px-3 py-2 text-sm font-semibold text-green-700';
+      document.getElementById('return-form').reset();
+    } catch (error) {
+      message.textContent = error.message;
+      message.className = 'rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700';
+    }
+  }
+
+  function showError(message) {
     loadingContainer.classList.add('hidden');
     errorContainer.classList.remove('hidden');
-    errorContainer.textContent = msg;
+    errorContainer.textContent = message;
   }
 
   fetchPedidoDetalle();
 });
-

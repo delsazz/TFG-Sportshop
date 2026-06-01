@@ -39,24 +39,6 @@ export async function getCategoriaPorSlug(slug) {
         throw new Error('Categoria no encontrada');
     return response.json();
 }
-export async function getKits() {
-    const response = await fetch(`${API_URL}/kits`);
-    if (!response.ok)
-        throw new Error('Error al cargar kits');
-    return response.json();
-}
-export async function getKitPorId(id) {
-    const response = await fetch(`${API_URL}/kits/${id}`);
-    if (!response.ok)
-        throw new Error('Kit no encontrado');
-    return response.json();
-}
-export async function getKitsPorCategoria(categoriaId) {
-    const response = await fetch(`${API_URL}/categorias/${categoriaId}/kits`);
-    if (!response.ok)
-        throw new Error('Error al cargar kits de la categoria');
-    return response.json();
-}
 export async function getDocumentosProducto(id) {
     const response = await fetch(`${API_URL}/catalogo/${id}/documentos`);
     if (!response.ok)
