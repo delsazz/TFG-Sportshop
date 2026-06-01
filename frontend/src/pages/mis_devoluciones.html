@@ -2,22 +2,32 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <link rel="icon" href="/img/sportshop.jpg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mis devoluciones - Sportshop</title>
-  <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/style.css" />
+  <title>Mis devoluciones - SportShop</title>
+  <link rel="stylesheet" href="/css/my-orders.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-  <main id="app" class="page-shell" data-page-title="MyReturns">
-    <section class="page-header">
-      <h1>Mis devoluciones</h1>
+  <div id="layout-container"></div>
+
+  <main class="orders-page">
+    <section class="orders-shell">
+      <header class="orders-header">
+        <div>
+          <p>Cuenta</p>
+          <h1>Mis devoluciones</h1>
+        </div>
+        <a href="mis_pedidos.html" class="orders-link">Ver pedidos</a>
+      </header>
+
+      <section id="page-content"></section>
     </section>
-    <section id="page-content" class="page-content"></section>
   </main>
+
+  <script src="/js/components/script_estructura.js"></script>
   <script src="/js/script_almacenamiento_autenticacion.js"></script>
-  <script type="module" src="/js/script_mis_devoluciones.js"></script>
+  <script src="/js/script_mis_devoluciones.js"></script>
   <script src="/js/components/script_footer.js"></script>
 </body>
 </html>
-
-

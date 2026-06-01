@@ -77,8 +77,8 @@ public class AuthController {
         try {
             usuario = usuarioService.autenticar(email, password);
         } catch(IllegalStateException e) {
-            if("LOGIN_BLOQUEADO".equals(e.getMessage())) {
-                model.addAttribute("error", "Login bloqueado");
+            if(e.getMessage() != null && e.getMessage().startsWith("LOGIN_COOLDOWN:")) {
+                model.addAttribute("error", "Demasiados intentos. Espera " + segundosCooldown(e) + " segundos.");
                 return "login";
             }
             throw e;
@@ -101,8 +101,11 @@ public class AuthController {
         try {
             usuario = usuarioService.autenticar(request.getEmail(), request.getPassword());
         } catch(IllegalStateException e) {
-            if("LOGIN_BLOQUEADO".equals(e.getMessage())) {
-                return ResponseEntity.status(423).body(Map.of("message", "Login bloqueado"));
+            if(e.getMessage() != null && e.getMessage().startsWith("LOGIN_COOLDOWN:")) {
+                int segundos = segundosCooldown(e);
+                return ResponseEntity.status(429).body(Map.of(
+                        "message", "Demasiados intentos fallidos. Espera " + segundos + " segundos.",
+                        "retryAfterSeconds", segundos));
             }
             throw e;
         }
@@ -124,8 +127,11 @@ public class AuthController {
         try {
             usuario = usuarioService.autenticar(request.getEmail(), request.getPassword());
         } catch(IllegalStateException e) {
-            if("LOGIN_BLOQUEADO".equals(e.getMessage())) {
-                return ResponseEntity.status(423).body(Map.of("error", "Login bloqueado"));
+            if(e.getMessage() != null && e.getMessage().startsWith("LOGIN_COOLDOWN:")) {
+                int segundos = segundosCooldown(e);
+                return ResponseEntity.status(429).body(Map.of(
+                        "error", "Demasiados intentos fallidos. Espera " + segundos + " segundos.",
+                        "retryAfterSeconds", segundos));
             }
             throw e;
         }
@@ -149,15 +155,6 @@ public class AuthController {
         SecurityContextHolder.clearContext();
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, clearAuthCookie(request).toString())
                 .body(Map.of("mensaje", "Sesion cerrada correctamente"));
-    }
-
-    @GetMapping("/api/auth/unlock-login")
-    @ResponseBody
-    public ResponseEntity<?> desbloquearLogin(@RequestParam String token) {
-        if(usuarioService.desbloquearLogin(token)) {
-            return ResponseEntity.ok(Map.of("message", "Login desbloqueado"));
-        }
-        return ResponseEntity.badRequest().body(Map.of("message", "El enlace de desbloqueo no es valido"));
     }
 
     @PostMapping("/api/auth/forgot-password")
@@ -205,20 +202,9 @@ public class AuthController {
     @ResponseBody
     public ResponseEntity<?> actualizarPerfil(@RequestBody ActualizarPerfilRequest request, HttpServletRequest httpRequest) {
         Usuario usuario = getUsuarioDesdeToken(httpRequest);
-        if(request.nombre() != null) {
-            usuario.setNombre(request.nombre().trim());
-        } 
-        if(request.apellidos() != null) {
-            usuario.setApellidos(request.apellidos().trim());
-        } 
-        if(request.telefono() != null) {
-            usuario.setTelefono(request.telefono().trim());
-        } 
         if(request.avatarUrl() != null) {
             usuario.setAvatarUrl(request.avatarUrl().trim());
         }
-        aplicarDireccion(usuario, request.direccion(), request.direccionCalle(), request.direccionNumero(),   
-                request.direccionPiso(), request.direccionCiudad(), request.direccionProvincia(), request.codigoPostal());
         if(request.email() != null) {
             String nuevoEmail = request.email().trim();
             usuarioService.buscarUsuarioPorEmail(nuevoEmail)
@@ -357,6 +343,14 @@ public class AuthController {
 
     private boolean esAdmin(Usuario usuario) {
         return usuario.getRoles() != null && usuario.getRoles().stream().anyMatch(rol -> "ADMIN".equalsIgnoreCase(rol.getNombreRol()));      
+    }
+
+    private int segundosCooldown(IllegalStateException e) {
+        try {
+            return Math.max(1, Integer.parseInt(e.getMessage().substring("LOGIN_COOLDOWN:".length())));
+        } catch(Exception ex) {
+            return 20;
+        }
     }
 
     private Usuario getUsuarioDesdeToken(HttpServletRequest request) {

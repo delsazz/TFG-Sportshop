@@ -4,42 +4,37 @@
   <meta charset="UTF-8" />
   <link rel="icon" href="/img/sportshop.jpg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mis Pedidos — SportShop</title>
-<link rel="stylesheet" href="/css/my-orders.css" />
+  <title>Mis Pedidos - SportShop</title>
+  <link rel="stylesheet" href="/css/my-orders.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-50">
-  <div id="layout-container">
-    <!-- Navbar placeholder (if needed) -->
-  </div>
+<body>
+  <div id="layout-container"></div>
 
-  <div id="loading-container" class="text-center py-12 text-slate-600">
-    Cargando tus pedidos...
-  </div>
+  <main class="orders-page">
+    <section class="orders-shell">
+      <header class="orders-header">
+        <div>
+          <p>Cuenta</p>
+          <h1>Mis pedidos</h1>
+        </div>
+        <a href="catalogo.html" class="orders-link">Ir al catalogo</a>
+      </header>
 
-  <div id="error-container" class="text-center py-12 text-red-600 hidden">
-    Error al cargar tus pedidos.
-  </div>
+      <div id="loading-container" class="orders-state">Cargando tus pedidos...</div>
+      <div id="error-container" class="orders-state orders-error hidden">Error al cargar tus pedidos.</div>
 
-  <div id="content-container" class="mx-auto max-w-5xl px-4 py-8 sm:py-10 hidden">
-    <h1 class="text-2xl font-bold mb-6 sm:mb-8 sm:text-3xl">Mis Pedidos</h1>
+      <section id="content-container" class="hidden">
+        <div id="empty-state" class="orders-empty hidden">
+          <h2>Aun no has realizado ningun pedido</h2>
+          <p>Cuando completes una compra, veras aqui el detalle de productos, unidades, precio y estado.</p>
+          <a href="catalogo.html" class="orders-link">Ver productos</a>
+        </div>
 
-    <div id="empty-state" class="text-center py-16 bg-slate-50 rounded-3xl hidden ring-1 ring-slate-200 shadow-sm">
-      <p class="text-xl text-slate-600">Aún no has realizado ningún pedido</p>
-      <a href="/catalogo.html" class="mt-4 inline-block text-blue-600 font-medium hover:underline">
-        Ir al catálogo →
-      </a>
-    </div>
-
-    <div id="orders-list" class="space-y-4">
-      <!-- Orders loaded by JS -->
-    </div>
-
-    <h2 class="mt-10 text-xl font-bold">Pedidos entregados</h2>
-    <div id="delivered-orders-list" class="mt-4 space-y-4">
-      <!-- Delivered orders loaded by JS -->
-    </div>
-  </div>
+        <div id="orders-list" class="orders-list"></div>
+      </section>
+    </section>
+  </main>
 
   <script src="/js/components/script_estructura.js"></script>
   <script src="/js/script_almacenamiento_autenticacion.js"></script>
@@ -47,6 +42,3 @@
   <script src="/js/components/script_footer.js"></script>
 </body>
 </html>
-
-
-

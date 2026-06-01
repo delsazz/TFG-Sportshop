@@ -4,24 +4,48 @@ document.addEventListener('DOMContentLoaded', async () => {
   const contentContainer = document.getElementById('content-container');
   const emptyState = document.getElementById('empty-state');
   const ordersList = document.getElementById('orders-list');
-  const deliveredOrdersList = document.getElementById('delivered-orders-list');
 
-  function getEstadoClass(estado) {
-    const estadoLower = (estado || '').toLowerCase();
-    const clases = {
-      'pendiente': 'bg-yellow-100 text-yellow-800',
-      'pagado': 'bg-blue-100 text-blue-800',
-      'en preparación': 'bg-purple-100 text-purple-800',
-      'entregado': 'bg-green-100 text-green-800',
-    };
-    return clases[estadoLower] || 'bg-gray-100 text-gray-700';
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[char]));
+  }
+
+  function imageUrl(path) {
+    const value = String(path || '').trim();
+    if (!value) return '/img/sportshop.jpg';
+    if (/^(https?:|data:)/i.test(value)) return value;
+    return value.startsWith('/') ? value : `/${value}`;
+  }
+
+  function formatDate(value) {
+    if (!value) return 'Fecha no disponible';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? 'Fecha no disponible' : date.toLocaleDateString('es-ES');
+  }
+
+  function money(value) {
+    return `${Number(value || 0).toFixed(2)} EUR`;
+  }
+
+  function statusClass(estado) {
+    const value = String(estado || '').toLowerCase();
+    if (value.includes('entregado')) return 'status-delivered';
+    if (value.includes('pagado')) return 'status-paid';
+    if (value.includes('pendiente')) return 'status-pending';
+    return 'status-default';
+  }
+
+  function canRequestReturn(pedido) {
+    const estado = String(pedido.estado || '').toLowerCase();
+    return estado.includes('entregado') && Array.isArray(pedido.detalles) && pedido.detalles.length > 0;
   }
 
   async function fetchMisPedidos() {
     try {
       const token = getToken();
       if (!token) {
-        window.location.href = 'iniciar_sesion.html';
+        window.location.href = 'iniciar_sesion.html?from=mis_pedidos.html';
         return;
       }
 
@@ -29,58 +53,101 @@ document.addEventListener('DOMContentLoaded', async () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        renderPedidos(data);
-      } else {
-        showError('No se pudieron cargar tus pedidos');
+      if (!res.ok) {
+        throw new Error('No se pudieron cargar tus pedidos');
       }
+
+      const data = await res.json();
+      renderPedidos(Array.isArray(data) ? data : []);
     } catch (err) {
-      showError('Error de conexión');
+      showError(err.message || 'Error de conexion');
     }
   }
 
   function renderPedidos(pedidos) {
     loadingContainer.classList.add('hidden');
     contentContainer.classList.remove('hidden');
+    ordersList.innerHTML = '';
 
-    if (!pedidos || pedidos.length === 0) {
+    if (!pedidos.length) {
       emptyState.classList.remove('hidden');
       return;
     }
 
-    ordersList.innerHTML = '';
-    deliveredOrdersList.innerHTML = '';
-    pedidos.forEach(pedido => {
-      const a = document.createElement('a');
-      a.href = `detalle_pedido.html?id=${pedido.idPedido}`;
-      a.className = 'block bg-white border border-slate-200 rounded-3xl p-5 hover:shadow-md transition sm:p-6';
-
-      const dateStr = new Date(pedido.fechaPedido).toLocaleDateString('es-ES');
-      const totalStr = (pedido.total || 0).toFixed(2);
-      const estadoClass = getEstadoClass(pedido.estado);
-
-      a.innerHTML = `
-        <div class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start">
-          <div>
-            <p class="text-sm text-slate-500">
-              Pedido #${pedido.idPedido} • ${dateStr}
-            </p>
-            <p class="text-2xl font-bold mt-1">${totalStr} €</p>
-          </div>
-          <span class="w-fit px-4 py-1.5 rounded-full text-sm font-medium ${estadoClass}">
-            ${pedido.estado || 'Desconocido'}
-          </span>
-        </div>
-      `;
-      ordersList.appendChild(a);
-      if (String(pedido.estado || '').toLowerCase().includes('entregado')) {
-        const delivered = a.cloneNode(true);
-        deliveredOrdersList.appendChild(delivered);
-      }
+    emptyState.classList.add('hidden');
+    ordersList.innerHTML = pedidos.map(renderPedido).join('');
+    ordersList.querySelectorAll('[data-return-order]').forEach(button => {
+      button.addEventListener('click', () => solicitarDevolucion(pedidos.find(p => String(p.idPedido) === button.dataset.returnOrder)));
     });
-    if (!deliveredOrdersList.children.length) {
-      deliveredOrdersList.innerHTML = '<p class="rounded-3xl bg-white p-5 text-slate-500 ring-1 ring-slate-200">Todavía no tienes pedidos entregados.</p>';
+  }
+
+  function renderPedido(pedido) {
+    const lineas = Array.isArray(pedido.detalles) ? pedido.detalles : [];
+    const totalUnidades = lineas.reduce((sum, item) => sum + Number(item.cantidad || 0), 0);
+    return `
+      <article class="order-card">
+        <div class="order-summary">
+          <div>
+            <h2>Pedido #${escapeHtml(pedido.idPedido)}</h2>
+            <p class="order-meta">${formatDate(pedido.fecha)} · ${totalUnidades} unidades · ${money(pedido.total)}</p>
+          </div>
+          <span class="status-badge ${statusClass(pedido.estado)}">${escapeHtml(pedido.estado || 'Sin estado')}</span>
+        </div>
+        <div class="order-lines">
+          ${lineas.length ? lineas.map(renderLinea).join('') : '<p class="line-detail">Este pedido no tiene lineas asociadas.</p>'}
+        </div>
+        <div class="order-footer">
+          <a class="orders-link" href="detalle_pedido.html?id=${encodeURIComponent(pedido.idPedido)}">Ver detalle completo</a>
+          <button type="button" class="return-button" data-return-order="${escapeHtml(pedido.idPedido)}" ${canRequestReturn(pedido) ? '' : 'disabled'}>
+            Solicitar devolucion
+          </button>
+        </div>
+      </article>
+    `;
+  }
+
+  function renderLinea(item) {
+    const subtotal = Number(item.precioUnitario || 0) * Number(item.cantidad || 0);
+    return `
+      <div class="order-line">
+        <img src="${imageUrl(item.imagen)}" alt="${escapeHtml(item.nombreProducto || 'Producto')}" />
+        <div>
+          <p class="line-title">${escapeHtml(item.nombreProducto || 'Producto')}</p>
+          <p class="line-detail">${item.talla ? `Talla ${escapeHtml(item.talla)} · ` : ''}${escapeHtml(item.cantidad || 0)} unidades · ${money(item.precioUnitario)} / ud.</p>
+        </div>
+        <strong class="line-price">${money(subtotal)}</strong>
+      </div>
+    `;
+  }
+
+  async function solicitarDevolucion(pedido) {
+    if (!pedido || !canRequestReturn(pedido)) return;
+    const motivo = window.prompt('Motivo de la devolucion');
+    if (motivo === null) return;
+
+    try {
+      const response = await fetch('/api/devoluciones', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getToken()}`,
+        },
+        body: JSON.stringify({
+          idPedido: pedido.idPedido,
+          motivo: motivo.trim() || 'Solicitud de devolucion',
+          items: pedido.detalles.map(item => ({
+            idDetallePedido: item.idDetalle,
+            cantidad: item.cantidad,
+          })),
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.message || data.error || 'No se pudo solicitar la devolucion');
+      }
+      window.location.href = 'mis_devoluciones.html';
+    } catch (error) {
+      showError(error.message);
     }
   }
 
@@ -89,5 +156,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     errorContainer.classList.remove('hidden');
     errorContainer.textContent = msg;
   }
+
+  if (window.lucide) lucide.createIcons();
   fetchMisPedidos();
 });

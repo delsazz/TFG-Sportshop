@@ -43,12 +43,6 @@ public class Usuario {
     private String codigoPostal;
     @Column(name = "avatar_url", length = 255)
     private String avatarUrl;
-    @Column(name = "login_intentos_fallidos", nullable = false)
-    private Integer loginIntentosFallidos = 0;
-    @Column(name = "login_bloqueado", nullable = false)
-    private Boolean loginBloqueado = false;
-    @Column(name = "login_desbloqueo_token", length = 80)
-    private String loginDesbloqueoToken;
     @Transient
     private Boolean captchaVerified;
     @ManyToMany(fetch = FetchType.LAZY)

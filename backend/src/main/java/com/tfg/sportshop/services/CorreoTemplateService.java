@@ -26,7 +26,6 @@ public class CorreoTemplateService {
     private final boolean emailEnabled;
     private final String mailHost;
     private final String emailFrom;
-    private final String frontendUrl;
 
     public CorreoTemplateService(
             ConfiguracionSitioService configuracionSitioService,
@@ -40,7 +39,6 @@ public class CorreoTemplateService {
         this.emailEnabled = emailEnabled;
         this.mailHost = mailHost;
         this.emailFrom = emailFrom;
-        this.frontendUrl = frontendUrl;
     }
 
     public void enviarBienvenida(Usuario usuario) {
@@ -86,23 +84,6 @@ public class CorreoTemplateService {
         ConfiguracionSitioResponse config = configuracionSitioService.obtenerConfiguracion();
         enviarCorreo(usuario.getEmail(), renderizar(config.emailCambioPasswordAsunto(), valoresUsuario(usuario)),
             renderizar(config.emailCambioPasswordCuerpo(), valoresUsuario(usuario))
-        );
-    }
-
-    public void enviarLoginBloqueado(Usuario usuario) {
-        if(usuario == null || usuario.getEmail() == null || usuario.getEmail().isBlank()
-                || usuario.getLoginDesbloqueoToken() == null || usuario.getLoginDesbloqueoToken().isBlank()) {
-            return;
-        }
-        String enlace = frontendUrl.replaceAll("/+$", "") + "/iniciar_sesion.html?unlock="
-                + usuario.getLoginDesbloqueoToken();
-        enviarCorreo(
-                usuario.getEmail(),
-                "Login bloqueado",
-                "Se ha introducido la contraseña 5 veces incorrectamente y se ha bloqueado su cuenta. "
-                        + "Haga clic aqui para desbloquearla y redirigir al login de la pagina:\n"
-                        + enlace + "\n\n"
-                        + "Si no has sido tu y crees que se trata de un intento de hackeo, ignora este mensaje"
         );
     }
 

@@ -1,7 +1,9 @@
 package com.tfg.sportshop.services;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.time.Instant;
 import com.tfg.sportshop.model.Usuario;
 import org.springframework.stereotype.Service;
 import com.tfg.sportshop.repository.PedidoRepository;
@@ -24,9 +26,10 @@ public class UsuarioService {
     private NotificacionRepository notificacionRepository;
     @Autowired
     private PasswordResetTokenRepository passwordResetTokenRepository;
-    @Autowired
-    private CorreoTemplateService correoTemplateService;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private static final int MAX_INTENTOS_LOGIN = 5;
+    private static final int COOLDOWN_SEGUNDOS = 20;
+    private final ConcurrentMap<String, IntentosLogin> intentosLogin = new ConcurrentHashMap<>();
     public Usuario registrarUsuario(Usuario usuario) {
         return usuarioRepository.save(usuario);
     }
@@ -64,35 +67,41 @@ public class UsuarioService {
     }
 
     public Optional<Usuario> autenticar(String email, String password) {
+        String emailNormalizado = email == null ? "" : email.trim().toLowerCase();
+        validarCooldown(emailNormalizado);
         Optional<Usuario> usuariobuscado = usuarioRepository.findUsuarioByEmail(email);
         if(usuariobuscado.isPresent()) {
             Usuario usuario = usuariobuscado.get();
-            if(Boolean.TRUE.equals(usuario.getLoginBloqueado())) {
-                throw new IllegalStateException("LOGIN_BLOQUEADO");
-            }
             if(passwordMatches(password, usuario.getPassword())) {
                 if(!isBcryptHash(usuario.getPassword())) {
                     usuario.setPassword(passwordEncoder.encode(password));
                 }
-                usuario.setLoginIntentosFallidos(0);
-                usuario.setLoginBloqueado(false);
-                usuario.setLoginDesbloqueoToken(null);
+                intentosLogin.remove(emailNormalizado);
                 usuarioRepository.save(usuario);
                 return Optional.of(usuario);
             }
-            int intentos = usuario.getLoginIntentosFallidos() == null ? 0 : usuario.getLoginIntentosFallidos();
-            intentos++;
-            usuario.setLoginIntentosFallidos(intentos);
-            if(intentos >= 5) {
-                usuario.setLoginBloqueado(true);
-                usuario.setLoginDesbloqueoToken(UUID.randomUUID().toString());
-                usuarioRepository.save(usuario);
-                correoTemplateService.enviarLoginBloqueado(usuario);
-                throw new IllegalStateException("LOGIN_BLOQUEADO");
+            IntentosLogin intentos = intentosLogin.compute(emailNormalizado, (clave, actual) -> {
+                int total = actual == null ? 1 : actual.intentos() + 1;
+                Instant bloqueadoHasta = total >= MAX_INTENTOS_LOGIN ? Instant.now().plusSeconds(COOLDOWN_SEGUNDOS) : null;
+                return new IntentosLogin(total, bloqueadoHasta);
+            });
+            if(intentos.bloqueadoHasta() != null) {
+                throw new IllegalStateException("LOGIN_COOLDOWN:" + COOLDOWN_SEGUNDOS);
             }
-            usuarioRepository.save(usuario);
         }
         return Optional.empty();
+    }
+
+    private void validarCooldown(String email) {
+        IntentosLogin intentos = intentosLogin.get(email);
+        if(intentos == null || intentos.bloqueadoHasta() == null) {
+            return;
+        }
+        long segundosRestantes = intentos.bloqueadoHasta().getEpochSecond() - Instant.now().getEpochSecond();
+        if(segundosRestantes > 0) {
+            throw new IllegalStateException("LOGIN_COOLDOWN:" + segundosRestantes);
+        }
+        intentosLogin.remove(email);
     }
 
     private boolean passwordMatches(String rawPassword, String storedPassword) {
@@ -109,20 +118,6 @@ public class UsuarioService {
         return password != null && password.matches("^\\$2[aby]\\$\\d{2}\\$.*");
     }
 
-    @Transactional
-    public boolean desbloquearLogin(String token) {
-        if(token == null || token.isBlank()) {
-            return false;
-        }
-        Optional<Usuario> usuario = usuarioRepository.findByLoginDesbloqueoToken(token.trim());
-        if(usuario.isEmpty()) {
-            return false;
-        }
-        Usuario u = usuario.get();
-        u.setLoginBloqueado(false);
-        u.setLoginIntentosFallidos(0);
-        u.setLoginDesbloqueoToken(null);
-        usuarioRepository.save(u);
-        return true;
+    private record IntentosLogin(int intentos, Instant bloqueadoHasta) {
     }
 }

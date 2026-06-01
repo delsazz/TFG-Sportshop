@@ -22,8 +22,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     @Query("SELECT usuario FROM Usuario usuario WHERE usuario.idUsuario = :id")
     Optional<Usuario> findByIdWithRelations(@Param("id") Integer id);
 
-    Optional<Usuario> findByLoginDesbloqueoToken(String loginDesbloqueoToken);
-
     @Modifying
     @Query(value = "DELETE FROM roles_usuario WHERE id_usuario = :idUsuario", nativeQuery = true)
     void deleteRolesByUsuarioId(@Param("idUsuario") Integer idUsuario);
