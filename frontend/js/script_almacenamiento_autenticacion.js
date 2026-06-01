@@ -12,6 +12,10 @@ function clearAuthStorage() {
   sessionStorage.removeItem('userRoles');
   sessionStorage.removeItem('userId');
   sessionStorage.removeItem('userEmail');
+  sessionStorage.removeItem('checkoutDraft');
+  sessionStorage.removeItem('checkoutOrder');
+  sessionStorage.removeItem('cartDraft');
+  window.dispatchEvent(new Event('cart-changed'));
 }
 
 function getToken() {

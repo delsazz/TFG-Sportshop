@@ -15,18 +15,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const apiBaseUrl = '/api'; // Adjust if needed
 
-  if (urlParams.get('unlock')) {
-    fetch(`${apiBaseUrl}/auth/unlock-login?token=${encodeURIComponent(urlParams.get('unlock'))}`)
-      .then(res => res.json().then(data => ({ ok: res.ok, data })))
-      .then(({ ok, data }) => {
-        errorGeneral.textContent = data.message || (ok ? 'Login desbloqueado' : 'No se pudo desbloquear el login');
-        errorGeneral.classList.remove('hidden');
-        errorGeneral.classList.toggle('text-green-600', ok);
-      })
-      .catch(() => {
-        errorGeneral.textContent = 'No se pudo desbloquear el login';
-        errorGeneral.classList.remove('hidden');
-      });
+  let cooldownTimer = null;
+
+  function showCooldown(seconds) {
+    let remaining = Math.max(1, Number(seconds) || 20);
+    passwordInput.disabled = true;
+    loginForm.querySelector('button[type="submit"]').disabled = true;
+    errorGeneral.classList.remove('hidden');
+
+    const tick = () => {
+      errorGeneral.textContent = `Has fallado la contraseña 5 veces. Espera ${remaining} segundos para volver a intentarlo.`;
+      remaining -= 1;
+      if (remaining < 0) {
+        clearInterval(cooldownTimer);
+        cooldownTimer = null;
+        passwordInput.disabled = false;
+        loginForm.querySelector('button[type="submit"]').disabled = false;
+        passwordInput.value = '';
+        errorGeneral.textContent = 'Ya puedes volver a introducir la contraseña.';
+      }
+    };
+
+    clearInterval(cooldownTimer);
+    tick();
+    cooldownTimer = setInterval(tick, 1000);
   }
 
   function hideErrors() {
@@ -102,9 +114,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      if (response.status === 423) {
-        errorGeneral.textContent = 'Login bloqueado';
-        errorGeneral.classList.remove('hidden');
+      if (response.status === 429) {
+        const errorData = await response.json().catch(() => ({}));
+        showCooldown(errorData.retryAfterSeconds || 20);
         return;
       }
 

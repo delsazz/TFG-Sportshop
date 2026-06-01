@@ -4,279 +4,164 @@
   <meta charset="UTF-8" />
   <link rel="icon" href="/img/sportshop.jpg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mi Perfil — SportShop</title>
-<link rel="stylesheet" href="/css/profile.css" />
-  <!-- Íconos usando Lucide como SVG o fuente, para simplificar usaremos FontAwesome o similar si no hay, o SVGs inline -->
+  <title>Mi Perfil - SportShop</title>
+  <link rel="stylesheet" href="/css/profile.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-50">
-  <div id="layout-container">
-    <!-- Navbar placeholder (if needed) -->
-  </div>
+<body>
+  <div id="layout-container"></div>
 
-  <div id="loading-container" class="px-4 py-16 text-center text-lg text-slate-600">
-    Cargando perfil...
-  </div>
+  <main class="account-page">
+    <section id="loading-container" class="account-state">Cargando perfil...</section>
 
-  <div id="profile-container" class="mx-auto max-w-6xl px-4 py-8 sm:py-10 hidden">
-    <div class="overflow-hidden rounded-[1.5rem] bg-white shadow-sm ring-1 ring-slate-200 sm:rounded-[2rem]">
-      <div class="bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.28),_transparent_42%),linear-gradient(135deg,_#0f172a,_#1d4ed8)] px-5 py-8 text-white sm:px-8 sm:py-10">
-        <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div class="flex flex-col gap-4 min-[420px]:flex-row min-[420px]:items-center sm:gap-5">
-            <div id="profile-initial" class="flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.25rem] bg-white/15 text-2xl font-bold backdrop-blur sm:h-20 sm:w-20 sm:rounded-[1.75rem] sm:text-3xl">
-              U
+    <section id="profile-container" class="account-shell hidden">
+      <div id="message-container" class="account-message hidden"></div>
+
+      <header class="account-hero">
+        <div class="profile-avatar" id="profile-initial">U</div>
+        <div class="account-hero-copy">
+          <p>Mi perfil</p>
+          <h1 id="profile-name-title">-</h1>
+          <span id="profile-email-subtitle">-</span>
+        </div>
+        <div class="account-actions">
+          <span id="profile-role-badge" class="account-pill">Cliente</span>
+          <span id="profile-orders-badge" class="account-pill">0 pedidos</span>
+          <button type="button" id="btn-edit-profile" class="account-button account-button-light">
+            <i data-lucide="mail"></i>
+            Editar email
+          </button>
+          <button type="button" id="btn-change-password" class="account-button account-button-primary">
+            <i data-lucide="key-round"></i>
+            Cambiar contraseña
+          </button>
+        </div>
+      </header>
+
+      <div class="account-grid">
+        <article class="account-block">
+          <div class="account-block-title">
+            <i data-lucide="user"></i>
+            <h2>Datos personales</h2>
+          </div>
+          <div class="info-grid">
+            <div>
+              <span>Nombre</span>
+              <strong id="display-nombre">-</strong>
             </div>
             <div>
-              <p class="text-sm font-semibold uppercase tracking-[0.25em] text-blue-100">
-                Mi perfil
-              </p>
-              <h1 id="profile-name-title" class="mt-2 text-3xl font-bold sm:text-4xl">
-                -
-              </h1>
-              <p id="profile-email-subtitle" class="mt-2 text-blue-100">-</p>
+              <span>Apellidos</span>
+              <strong id="display-apellidos">-</strong>
             </div>
           </div>
+        </article>
 
-          <div class="flex flex-wrap gap-3">
-            <span id="profile-role-badge" class="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold">
-              Cliente
-            </span>
-            <span id="profile-orders-badge" class="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold">
-              0 pedidos
-            </span>
-            <button
-              type="button"
-              id="btn-edit-profile"
-              class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-blue-50 cursor-pointer"
-            >
-              <i data-lucide="edit-3" class="h-4 w-4"></i>
-              Editar perfil
-            </button>
-            <button
-              type="button"
-              id="btn-change-password"
-              class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/25 transition hover:bg-white/20 cursor-pointer"
-            >
-              <i data-lucide="key-round" class="h-4 w-4"></i>
-              Cambiar contraseña
-            </button>
+        <article class="account-block">
+          <div class="account-block-title">
+            <i data-lucide="mail"></i>
+            <h2>Contacto</h2>
           </div>
-        </div>
-      </div>
-
-      <div class="px-5 py-6 sm:px-8 sm:py-8">
-        <div id="message-container" class="hidden mb-6 rounded-2xl px-5 py-4 text-sm font-semibold"></div>
-
-        <div class="mb-6 flex items-end justify-between gap-4">
-          <div>
-            <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Todos tus datos</h2>
-            <p class="mt-2 text-slate-600">Se muestran los datos actuales guardados en base de datos.</p>
+          <div class="info-grid">
+            <div>
+              <span>Email</span>
+              <strong id="display-email">-</strong>
+            </div>
+            <div>
+              <span>Telefono</span>
+              <strong id="display-telefono">No indicado</strong>
+            </div>
           </div>
-        </div>
+        </article>
 
-        <div class="mb-6 rounded-3xl border border-slate-200 bg-slate-50 p-5">
-          <label for="avatar-input" id="avatar-drop-zone" class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-300 bg-white p-6 text-center transition hover:border-blue-500">
-            <i data-lucide="image-plus" class="h-7 w-7 text-blue-700"></i>
-            <span class="font-semibold text-slate-900">Subir foto de perfil</span>
-            <span class="text-sm text-slate-500">Arrastra una imagen JPG o PNG o abre la carpeta de archivos</span>
-            <input id="avatar-input" type="file" accept="image/png,image/jpeg" class="hidden" />
+        <article class="account-block">
+          <div class="account-block-title">
+            <i data-lucide="map-pin"></i>
+            <h2>Direccion</h2>
+          </div>
+          <p id="display-direccion" class="account-text">No indicada</p>
+        </article>
+
+        <article class="account-block">
+          <div class="account-block-title">
+            <i data-lucide="shield-check"></i>
+            <h2>Seguridad</h2>
+          </div>
+          <p class="account-text">Tu contraseña esta guardada de forma cifrada y solo se puede cambiar desde esta pantalla.</p>
+          <button type="button" id="btn-change-password-block" class="account-button account-button-primary">
+            <i data-lucide="key-round"></i>
+            Cambiar contraseña
+          </button>
+        </article>
+
+        <article class="account-block account-block-wide">
+          <div class="account-block-title">
+            <i data-lucide="image-plus"></i>
+            <h2>Foto de perfil</h2>
+          </div>
+          <label for="avatar-input" id="avatar-drop-zone" class="avatar-drop">
+            <span>Seleccionar imagen JPG o PNG</span>
+            <small>Tambien puedes arrastrarla aqui</small>
+            <input id="avatar-input" type="file" accept="image/png,image/jpeg" />
           </label>
-        </div>
-
-        <div class="grid gap-6 lg:grid-cols-2" id="profile-blocks-container">
-          <!-- Bloque Datos del usuario -->
-          <div class="rounded-3xl bg-slate-50 p-6 ring-1 ring-slate-200">
-            <div class="mb-6 flex items-center gap-3 text-slate-900">
-              <i data-lucide="user" class="h-6 w-6 text-blue-700"></i>
-              <h3 class="text-lg font-bold uppercase tracking-wide">Datos del usuario</h3>
-            </div>
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div>
-                <p class="text-sm font-semibold uppercase tracking-wider text-slate-500">Nombre</p>
-                <p id="display-nombre" class="mt-1 text-lg font-semibold text-slate-900">-</p>
-              </div>
-              <div>
-                <p class="text-sm font-semibold uppercase tracking-wider text-slate-500">Apellidos</p>
-                <p id="display-apellidos" class="mt-1 text-lg font-semibold text-slate-900">-</p>
-              </div>
-              <div class="sm:col-span-2">
-                <p class="text-sm font-semibold uppercase tracking-wider text-slate-500">Email</p>
-                <p id="display-email" class="mt-1 text-lg font-semibold text-slate-900">-</p>
-              </div>
-              <div class="sm:col-span-2">
-                <p class="text-sm font-semibold uppercase tracking-wider text-slate-500">Teléfono</p>
-                <p id="display-telefono" class="mt-1 text-lg font-semibold text-slate-900">-</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bloque Dirección -->
-          <div class="rounded-3xl bg-slate-50 p-6 ring-1 ring-slate-200">
-            <div class="mb-6 flex items-center gap-3 text-slate-900">
-              <i data-lucide="map-pin" class="h-6 w-6 text-blue-700"></i>
-              <h3 class="text-lg font-bold uppercase tracking-wide">Dirección</h3>
-            </div>
-            <div class="space-y-4">
-              <div>
-                <p class="text-sm font-semibold uppercase tracking-wider text-slate-500">Dirección completa</p>
-                <p id="display-direccion" class="mt-1 text-lg font-semibold text-slate-900">-</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bloque Contraseña -->
-          <div class="rounded-3xl bg-slate-50 p-6 ring-1 ring-slate-200 lg:col-span-2">
-            <div class="mb-6 flex items-center gap-3 text-slate-900">
-              <i data-lucide="lock" class="h-6 w-6 text-blue-700"></i>
-              <h3 class="text-lg font-bold uppercase tracking-wide">Opciones de Contraseña</h3>
-            </div>
-            <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p class="text-sm font-semibold uppercase tracking-wider text-slate-500">Contraseña actual</p>
-                <p id="display-password" class="mt-1 text-2xl font-bold tracking-[0.25em] text-slate-900">••••••••••••</p>
-              </div>
-              <div class="flex flex-col gap-3 sm:flex-row">
-                <button type="button" id="btn-show-password" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-                  <i data-lucide="eye" class="h-4 w-4"></i> Ver contraseña
-                </button>
-                <button type="button" id="btn-change-password-block" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-800">
-                  <i data-lucide="key-round" class="h-4 w-4"></i> Cambiar contraseña
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        </article>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
-  <!-- Modal Edición -->
-  <div id="edit-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 hidden">
-    <div class="max-h-[90vh] w-full max-w-2xl overflow-auto rounded-[1.5rem] bg-white p-5 shadow-2xl ring-1 ring-slate-200 sm:rounded-[2rem] sm:p-8">
-      <div class="flex items-start justify-between gap-4">
+  <div id="edit-modal" class="account-modal hidden">
+    <div class="account-modal-panel">
+      <div class="modal-header">
         <div>
-          <p class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
-            Editar perfil
-          </p>
-          <h2 class="mt-2 text-2xl font-bold text-slate-900 sm:text-3xl">Actualizar datos</h2>
-          <p class="mt-2 text-slate-600">
-            Puedes cambiar todos los datos excepto la contraseña.
-          </p>
+          <p>Editar perfil</p>
+          <h2>Actualizar email</h2>
         </div>
-
-        <button
-          type="button"
-          id="btn-close-modal"
-          class="rounded-2xl border border-slate-200 p-3 text-slate-500 transition hover:bg-slate-50 cursor-pointer"
-          aria-label="Cerrar edicion"
-        >
-          <i data-lucide="x" class="h-4 w-4"></i>
+        <button type="button" id="btn-close-modal" class="icon-button" aria-label="Cerrar">
+          <i data-lucide="x"></i>
         </button>
       </div>
 
-      <form id="edit-profile-form" class="mt-8 space-y-5">
-        <div class="grid gap-5 md:grid-cols-2">
-          <div>
-            <label class="mb-2 block text-sm font-semibold text-slate-700">Nombre</label>
-            <input type="text" name="nombre" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500" required />
-          </div>
-          <div>
-            <label class="mb-2 block text-sm font-semibold text-slate-700">Apellidos</label>
-            <input type="text" name="apellidos" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500" required />
-          </div>
-        </div>
-
-        <div>
-          <label class="mb-2 block text-sm font-semibold text-slate-700">Email</label>
-          <input type="email" name="email" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500" required />
-        </div>
-
-        <div class="grid gap-5 md:grid-cols-2">
-          <div>
-            <label class="mb-2 block text-sm font-semibold text-slate-700">Teléfono</label>
-            <input type="tel" name="telefono" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500" />
-          </div>
-          <div>
-            <label class="mb-2 block text-sm font-semibold text-slate-700">Contraseña</label>
-            <input type="text" value="No editable desde aquí" disabled class="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-slate-500" />
-          </div>
-        </div>
-
-        <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-          <div class="flex items-center gap-3 text-slate-900">
-            <i data-lucide="map-pin" class="h-5 w-5 text-blue-700"></i>
-            <h3 class="text-base font-bold">Dirección</h3>
-          </div>
-
-          <div class="mt-5 grid gap-5 md:grid-cols-6">
-            <div class="md:col-span-4">
-              <label class="mb-2 block text-sm font-semibold text-slate-700">Calle</label>
-              <input type="text" name="direccionCalle" placeholder="Calle Principal" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500" />
-            </div>
-            <div class="md:col-span-2">
-              <label class="mb-2 block text-sm font-semibold text-slate-700">Portal / número</label>
-              <input type="text" name="direccionNumero" placeholder="12B" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500" />
-            </div>
-            <div class="md:col-span-2">
-              <label class="mb-2 block text-sm font-semibold text-slate-700">Piso (opcional)</label>
-              <input type="text" name="direccionPiso" placeholder="2º A" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500" />
-            </div>
-            <div class="md:col-span-2">
-              <label class="mb-2 block text-sm font-semibold text-slate-700">Ciudad</label>
-              <input type="text" name="direccionCiudad" placeholder="Madrid" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500" />
-            </div>
-            <div class="md:col-span-2">
-              <label class="mb-2 block text-sm font-semibold text-slate-700">Provincia</label>
-              <input type="text" name="direccionProvincia" placeholder="Madrid" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500" />
-            </div>
-            <div class="md:col-span-2">
-              <label class="mb-2 block text-sm font-semibold text-slate-700">Código postal</label>
-              <input type="text" name="codigoPostal" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" placeholder="28001" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500" />
-            </div>
-          </div>
-        </div>
-
-        <div class="flex flex-col gap-3 pt-2 sm:flex-row">
-          <button type="submit" id="btn-save" class="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-blue-700 px-5 py-4 font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-blue-300 cursor-pointer">
-            <i data-lucide="save" class="h-4 w-4"></i>
+      <form id="edit-profile-form" class="account-form">
+        <label>
+          Email
+          <input type="email" name="email" required />
+        </label>
+        <div class="form-actions">
+          <button type="submit" id="btn-save" class="account-button account-button-primary">
+            <i data-lucide="save"></i>
             Guardar cambios
           </button>
-          <button type="button" id="btn-cancel" class="flex-1 rounded-2xl border border-slate-200 px-5 py-4 font-semibold text-slate-700 transition hover:bg-slate-50 cursor-pointer">
-            Cancelar
-          </button>
+          <button type="button" id="btn-cancel" class="account-button account-button-muted">Cancelar</button>
         </div>
       </form>
     </div>
   </div>
 
-  <div id="password-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 hidden">
-    <div class="w-full max-w-lg rounded-[1.5rem] bg-white p-5 shadow-2xl ring-1 ring-slate-200 sm:p-8">
-      <div class="flex items-start justify-between gap-4">
+  <div id="password-modal" class="account-modal hidden">
+    <div class="account-modal-panel account-modal-small">
+      <div class="modal-header">
         <div>
-          <p class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">Contraseña</p>
-          <h2 class="mt-2 text-2xl font-bold text-slate-900">Cambiar contraseña</h2>
+          <p>Seguridad</p>
+          <h2>Cambiar contraseña</h2>
         </div>
-        <button type="button" id="btn-close-password-modal" class="rounded-2xl border border-slate-200 p-3 text-slate-500 transition hover:bg-slate-50 cursor-pointer" aria-label="Cerrar cambio de contraseña">
-          <i data-lucide="x" class="h-4 w-4"></i>
+        <button type="button" id="btn-close-password-modal" class="icon-button" aria-label="Cerrar">
+          <i data-lucide="x"></i>
         </button>
       </div>
-      <form id="password-form" class="mt-6 space-y-4">
-        <div>
-          <label class="mb-2 block text-sm font-semibold text-slate-700">Contraseña actual</label>
-          <input type="password" name="currentPassword" autocomplete="current-password" class="w-full rounded-2xl border border-slate-300 px-4 py-3" required />
-        </div>
-        <div>
-          <label class="mb-2 block text-sm font-semibold text-slate-700">Nueva contraseña</label>
-          <input type="password" name="newPassword" autocomplete="new-password" class="no-paste-password w-full rounded-2xl border border-slate-300 px-4 py-3" required />
-        </div>
-        <div>
-          <label class="mb-2 block text-sm font-semibold text-slate-700">Repetir nueva contraseña</label>
-          <input type="password" name="confirmPassword" autocomplete="new-password" class="no-paste-password w-full rounded-2xl border border-slate-300 px-4 py-3" required />
-        </div>
-        <p id="password-message" class="hidden rounded-2xl px-4 py-3 text-sm font-semibold"></p>
-        <button type="submit" id="btn-save-password" class="w-full rounded-2xl bg-blue-700 px-5 py-4 font-semibold text-white transition hover:bg-blue-800 cursor-pointer">
-          Guardar contraseña
-        </button>
+      <form id="password-form" class="account-form">
+        <label>
+          Contraseña actual
+          <input type="password" name="currentPassword" autocomplete="current-password" required />
+        </label>
+        <label>
+          Nueva contraseña
+          <input type="password" name="newPassword" autocomplete="new-password" class="no-paste-password" required />
+        </label>
+        <label>
+          Repetir nueva contraseña
+          <input type="password" name="confirmPassword" autocomplete="new-password" class="no-paste-password" required />
+        </label>
+        <p id="password-message" class="account-message hidden"></p>
+        <button type="submit" id="btn-save-password" class="account-button account-button-primary">Guardar contraseña</button>
       </form>
     </div>
   </div>
@@ -287,5 +172,3 @@
   <script src="/js/components/script_footer.js"></script>
 </body>
 </html>
-
-

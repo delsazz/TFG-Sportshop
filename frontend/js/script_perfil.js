@@ -99,27 +99,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('display-direccion').textContent = getAddressDisplay(user);
 
     lucide.createIcons();
-
-    const showPasswordButton = document.getElementById('btn-show-password');
-    if (showPasswordButton) {
-      const newBtn = showPasswordButton.cloneNode(true);
-      showPasswordButton.parentNode.replaceChild(newBtn, showPasswordButton);
-
-      newBtn.addEventListener('click', () => {
-        const passwordDisplay = document.getElementById('display-password');
-        passwordDisplay.textContent = 'No se puede mostrar: se guarda cifrada';
-        passwordDisplay.classList.remove('tracking-[0.25em]', 'text-2xl', 'font-bold');
-        passwordDisplay.classList.add('text-lg', 'font-semibold');
-        newBtn.disabled = true;
-        setTimeout(() => {
-          passwordDisplay.textContent = '••••••••••••';
-          passwordDisplay.classList.add('tracking-[0.25em]', 'text-2xl', 'font-bold');
-          passwordDisplay.classList.remove('text-lg', 'font-semibold');
-          newBtn.disabled = false;
-        }, 20000);
-      });
-      lucide.createIcons();
-    }
   }
 
   function escapeHtml(value) {
@@ -130,28 +109,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function populateForm(user) {
     if (!user) return;
-    form.nombre.value = user.nombre || '';
-    form.apellidos.value = user.apellidos || '';
     form.email.value = user.email || '';
-    form.telefono.value = user.telefono || '';
-    form.direccionCalle.value = user.direccionCalle || user.direccion || '';
-    form.direccionNumero.value = user.direccionNumero || '';
-    form.direccionPiso.value = user.direccionPiso || '';
-    form.direccionCiudad.value = user.direccionCiudad || '';
-    form.direccionProvincia.value = user.direccionProvincia || '';
-    form.codigoPostal.value = user.codigoPostal || '';
   }
 
   function showMessage(msg, type) {
     messageContainer.textContent = msg;
-    messageContainer.className = `mb-6 rounded-2xl px-5 py-4 text-sm font-semibold block ${type === 'success'
-        ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200'
-        : 'bg-red-50 text-red-700 ring-1 ring-red-200'
-      }`;
+    messageContainer.className = `account-message ${type === 'success' ? 'success' : 'error'}`;
   }
 
   function hideMessage() {
-    messageContainer.className = 'hidden mb-6 rounded-2xl px-5 py-4 text-sm font-semibold';
+    messageContainer.className = 'account-message hidden';
   }
 
   btnEditProfile.addEventListener('click', () => {
@@ -169,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function openPasswordModal() {
     passwordForm.reset();
-    passwordMessage.className = 'hidden rounded-2xl px-4 py-3 text-sm font-semibold';
+    passwordMessage.className = 'account-message hidden';
     passwordModal.classList.remove('hidden');
   }
 
@@ -235,8 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function showPasswordMessage(message, type) {
     passwordMessage.textContent = message;
-    passwordMessage.className = `rounded-2xl px-4 py-3 text-sm font-semibold ${type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
-      }`;
+    passwordMessage.className = `account-message ${type === 'success' ? 'success' : 'error'}`;
   }
 
   avatarInput.addEventListener('change', () => {
@@ -295,8 +261,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const formData = new FormData(form);
     const data = Object.fromEntries(formData);
-    // Include id and other empty fields to match ProfileForm type if needed
-    data.direccion = '';
 
     try {
       const token = getToken();
@@ -343,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
     inputs.forEach(input => {
       input.disabled = disabled;
     });
-    btnSave.innerHTML = disabled ? '<i data-lucide="save" class="h-4 w-4"></i> Guardando...' : '<i data-lucide="save" class="h-4 w-4"></i> Guardar cambios';
+    btnSave.innerHTML = disabled ? '<i data-lucide="save"></i> Guardando...' : '<i data-lucide="save"></i> Guardar cambios';
     lucide.createIcons();
   }
 
