@@ -1,8 +1,11 @@
+version: '3.9'
+
 services:
   nginx:
     build:
       context: ./nginx
       dockerfile: Dockerfile
+    container_name: nginx_sportshop_prod
     ports:
       - "80:80"
       - "443:443"
@@ -16,7 +19,10 @@ services:
     restart: always
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend_sportshop_prod
     expose:
       - "3000"
     environment:
@@ -24,7 +30,10 @@ services:
     restart: always
 
   admin:
-    build: ./admin
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    container_name: admin_sportshop_prod
     expose:
       - "3001"
     environment:
@@ -34,7 +43,8 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
+    container_name: backend_sportshop_prod
     expose:
       - "8080"
     environment:
@@ -42,6 +52,8 @@ services:
       DB_URL: jdbc:mysql://database:3306/sportshop?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Madrid
       DB_USERNAME: root
       DB_PASSWORD: ${DB_PASSWORD:-curso}
+      JWT_SECRET: ${JWT_SECRET:-change-in-production}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
     depends_on:
       database:
         condition: service_healthy
@@ -49,6 +61,7 @@ services:
 
   database:
     image: mysql:8.4
+    container_name: database_sportshop_prod
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-curso}
       MYSQL_DATABASE: sportshop
@@ -65,4 +78,8 @@ services:
 
 volumes:
   mysql_data:
+    name: mysql_sportshop_prod_data
+    driver: local
   certbot_certs:
+    name: certbot_sportshop_certs
+    driver: local

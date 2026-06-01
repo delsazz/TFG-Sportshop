@@ -1,13 +1,12 @@
-# Sportshop - Docker Compose para el servidor
-# Uso: docker compose -f docker-compose.server.yml --env-file .env.production up -d --build
-#
-# Levanta: Frontend (React) + Admin (React) + Backend (Spring Boot) + Nginx (proxy) + MySQL
+version: '3.9'
 
 services:
   nginx:
     image: nginx:alpine
+    container_name: nginx_sportshop_server
     ports:
       - "${NGINX_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
     volumes:
       - ./nginx/nginx.server.conf:/etc/nginx/conf.d/default.conf:ro
       - ./nginx/html:/usr/share/nginx/html:ro
@@ -25,8 +24,12 @@ services:
       context: ./frontend
       args:
         VITE_BASE: ${VITE_BASE:-/}
+      dockerfile: Dockerfile
+    container_name: frontend_sportshop_server
     expose:
       - "3000"
+    environment:
+      - VITE_API_URL=/api
     networks:
       - sportshop-net
     restart: always
@@ -36,8 +39,12 @@ services:
       context: ./admin
       args:
         VITE_BASE: ${VITE_BASE_ADMIN:-/admin/}
+      dockerfile: Dockerfile
+    container_name: admin_sportshop_server
     expose:
       - "3001"
+    environment:
+      - VITE_API_URL=/api
     networks:
       - sportshop-net
     restart: always
@@ -45,7 +52,8 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
+    container_name: backend_sportshop_server
     expose:
       - "8080"
     environment:
@@ -53,17 +61,8 @@ services:
       DB_URL: jdbc:mysql://database:3306/sportshop?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Madrid
       DB_USERNAME: root
       DB_PASSWORD: ${DB_PASSWORD:-curso}
-      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      JWT_SECRET: ${JWT_SECRET:-change-in-production}
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
-      MAIL_HOST: ${MAIL_HOST:-}
-      MAIL_PORT: ${MAIL_PORT:-587}
-      MAIL_USERNAME: ${MAIL_USERNAME:-}
-      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
-      MAIL_SMTP_AUTH: ${MAIL_SMTP_AUTH:-true}
-      MAIL_SMTP_STARTTLS_ENABLE: ${MAIL_SMTP_STARTTLS_ENABLE:-true}
-      MAIL_SMTP_STARTTLS_REQUIRED: ${MAIL_SMTP_STARTTLS_REQUIRED:-true}
-      NOTIFICATIONS_EMAIL_ENABLED: ${NOTIFICATIONS_EMAIL_ENABLED:-true}
-      NOTIFICATIONS_EMAIL_FROM: ${NOTIFICATIONS_EMAIL_FROM:-}
     depends_on:
       database:
         condition: service_healthy
@@ -73,6 +72,7 @@ services:
 
   database:
     image: mysql:8.4
+    container_name: database_sportshop_server
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-curso}
       MYSQL_DATABASE: sportshop
@@ -91,7 +91,10 @@ services:
 
 volumes:
   mysql_data:
+    name: mysql_sportshop_server_data
+    driver: local
 
 networks:
   sportshop-net:
+    name: sportshop_server_network
     driver: bridge
