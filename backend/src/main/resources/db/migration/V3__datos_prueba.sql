@@ -6,11 +6,11 @@ INSERT INTO categoria (categoria) VALUES
 ('Suplementos');
 
 INSERT INTO usuario (nombre, apellidos, email, password, telefono, nif, ciudad, pais, direccion, rol) VALUES
-('Juan', 'Perez', 'juan@sportshop.com', '1234', '600111222', '12345678A', 'Madrid', 'España', 'Calle A 1', 'cliente'),
-('Ana', 'Lopez', 'ana@sportshop.com', '1234', '600222333', '23456789B', 'Barcelona', 'España', 'Calle B 2', 'cliente'),
-('Carlos', 'Gomez', 'admin@sportshop.com', '1234', '600333444', '34567890C', 'Valencia', 'España', 'Calle C 3', 'admin'),
-('Lucia', 'Martin', 'lucia@sportshop.com', '1234', '600444555', '45678901D', 'Sevilla', 'España', 'Calle D 4', 'cliente'),
-('Pedro', 'Sanchez', 'pedro@sportshop.com', '1234', '600555666', '56789012E', 'Bilbao', 'España', 'Calle E 5', 'cliente');
+('Juan', 'Perez', 'juan@sportshop.com', '1234', '600111222', '12345678A', 'Madrid', 'España', 'Calle Aragón 1', 'cliente'),
+('Ana', 'Lopez', 'ana@sportshop.com', '1234', '600222333', '23456789B', 'Barcelona', 'España', 'Calle Barcelona 2', 'cliente'),
+('Carlos', 'Gomez', 'admin@sportshop.com', '1234', '600333444', '34567890C', 'Valencia', 'España', 'Calle Castellón 3', 'admin'),
+('Lucia', 'Martin', 'lucia@sportshop.com', '1234', '600444555', '45678901D', 'Sevilla', 'España', 'Calle Doñana 4', 'cliente'),
+('Pedro', 'Sanchez', 'pedro@sportshop.com', '1234', '600555666', '56789012E', 'Bilbao', 'España', 'Calle Estepona 5', 'cliente');
 
 INSERT INTO producto (nombre, id_categoria, precio, stock, descripcion) VALUES
 ('Camiseta Nike', 1, 25, 50, 'Camiseta deportiva Nike de manga corta, fabricada con tejido transpirable Dri-FIT que ayuda a mantener la piel seca y cómoda durante el entrenamiento. Ideal para running, gimnasio o uso diario.'),
