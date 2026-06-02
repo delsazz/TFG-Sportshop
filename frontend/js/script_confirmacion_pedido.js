@@ -1,116 +1,192 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  lucide.createIcons();
+
   const notFoundContainer = document.getElementById('not-found-container');
   const confirmationContainer = document.getElementById('confirmation-container');
   const orderSubtitle = document.getElementById('order-subtitle');
-  const receiptUploadSection = document.getElementById('receipt-upload-section');
-  const summaryItems = document.getElementById('order-summary-items');
-  
-  const receiptFile = document.getElementById('receipt-file');
-  const btnUploadReceipt = document.getElementById('btn-upload-receipt');
-  const uploadMessage = document.getElementById('upload-message');
+  const orderNumber = document.getElementById('order-number');
+  const orderStatus = document.getElementById('order-status');
+  const orderDate = document.getElementById('order-date');
+  const orderTotal = document.getElementById('order-total');
+  const paymentMethodName = document.getElementById('payment-method-name');
+  const paymentMethodStatus = document.getElementById('payment-method-status');
+  const orderItems = document.getElementById('order-items');
+  const orderItemsCount = document.getElementById('order-items-count');
 
-  const orderRaw = sessionStorage.getItem('lastOrder');
-  let order = null;
+  const order = getStoredOrder();
+  const urlOrderId = new URLSearchParams(window.location.search).get('idPedido');
+  const idPedido = order?.idPedido || urlOrderId;
 
-  try {
-    if (orderRaw) order = JSON.parse(orderRaw);
-  } catch(e) {}
-
-  if (!order || !order.idPedido) {
-    notFoundContainer.classList.remove('hidden');
+  if (!idPedido) {
+    showNotFound();
     return;
   }
 
-  confirmationContainer.classList.remove('hidden');
+  const initialOrder = {
+    idPedido,
+    paymentMethod: 'tarjeta',
+    paymentStatus: 'confirmado',
+    ...order,
+  };
 
-  const paymentMethod = order.paymentMethod || 'pendiente';
-  const status = order.paymentStatus || 'pendiente';
-  orderSubtitle.textContent = `Pedido #${order.idPedido}. Pago ${paymentMethod}. Estado ${status}.`;
+  renderOrder(initialOrder);
+  await refreshOrderFromApi(idPedido, initialOrder);
 
-  const requiresReceipt = paymentMethod === 'bizum' || paymentMethod === 'transferencia bancaria';
-  if (requiresReceipt) {
-    receiptUploadSection.classList.remove('hidden');
+  function getStoredOrder() {
+    try {
+      return JSON.parse(sessionStorage.getItem('lastOrder') || 'null');
+    } catch {
+      return null;
+    }
   }
 
-  if (order.items && order.items.length) {
-    order.items.forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'flex flex-col gap-3 rounded-2xl bg-slate-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between';
-      
-      div.innerHTML = `
-        <div>
-          <p class="font-semibold text-slate-900">${item.nombre}</p>
-          <p class="mt-1 text-sm text-slate-500">Talla ${item.talla}</p>
-        </div>
-        <div class="sm:text-right">
-          <p class="font-semibold text-slate-900">x${item.cantidad}</p>
-          <p class="mt-1 text-sm text-slate-500">${(item.precioUnitario * item.cantidad).toFixed(2)} EUR</p>
-        </div>
+  function renderOrder(pedido) {
+    const latestPayment = getLatestPayment(pedido);
+    const method = latestPayment?.metodoPago || pedido.paymentMethod || pedido.metodoPago || 'tarjeta';
+    const paymentStatus = latestPayment?.estado || pedido.paymentStatus || 'confirmado';
+    const status = pedido.estado || paymentStatus || 'pendiente';
+    const items = getOrderItems(pedido);
+    const total = getOrderTotal(pedido, items, latestPayment);
+
+    notFoundContainer.classList.add('hidden');
+    confirmationContainer.classList.remove('hidden');
+
+    orderSubtitle.textContent = `Hemos recibido el pedido #${pedido.idPedido}. Te avisaremos cuando avance su preparación.`;
+    orderNumber.textContent = `#${pedido.idPedido}`;
+    orderStatus.textContent = formatText(status);
+    orderDate.textContent = formatDate(pedido.fecha || pedido.fechaPedido || latestPayment?.fechaPago);
+    orderTotal.textContent = formatCurrency(total);
+    paymentMethodName.textContent = formatPaymentMethod(method);
+    paymentMethodStatus.textContent = `Estado del pago: ${formatText(paymentStatus)}`;
+
+    renderItems(items);
+    lucide.createIcons();
+  }
+
+  async function refreshOrderFromApi(idPedido, fallbackOrder) {
+    const token = typeof getToken === 'function' ? getToken() : null;
+    if (!token) return;
+
+    try {
+      const response = await fetch(`/api/pedidos/${idPedido}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) return;
+      const apiOrder = await response.json();
+      const mergedOrder = {
+        ...fallbackOrder,
+        ...apiOrder,
+        paymentMethod: fallbackOrder.paymentMethod || apiOrder.metodoPago,
+        paymentStatus: fallbackOrder.paymentStatus,
+      };
+      sessionStorage.setItem('lastOrder', JSON.stringify(mergedOrder));
+      renderOrder(mergedOrder);
+    } catch {
+      // The stored order is enough to show the confirmation after checkout.
+    }
+  }
+
+  function getLatestPayment(pedido) {
+    if (!Array.isArray(pedido?.pagos) || !pedido.pagos.length) return null;
+    return [...pedido.pagos].sort((a, b) => {
+      const dateA = new Date(a.fechaPago || a.fechaConfirmacion || 0).getTime();
+      const dateB = new Date(b.fechaPago || b.fechaConfirmacion || 0).getTime();
+      return dateB - dateA;
+    })[0];
+  }
+
+  function getOrderItems(pedido) {
+    return pedido?.detalles || pedido?.lineas || pedido?.items || [];
+  }
+
+  function getOrderTotal(pedido, items, payment) {
+    if (pedido?.total != null) return Number(pedido.total);
+    if (payment?.monto != null) return Number(payment.monto);
+    return items.reduce((acc, item) => {
+      const unitPrice = Number(item.precioUnitario || item.precio || 0);
+      const quantity = Number(item.cantidad || 1);
+      return acc + unitPrice * quantity;
+    }, 0);
+  }
+
+  function renderItems(items) {
+    const count = items.reduce((acc, item) => acc + Number(item.cantidad || 1), 0);
+    orderItemsCount.textContent = `${count} ${count === 1 ? 'producto' : 'productos'}`;
+
+    if (!items.length) {
+      orderItems.innerHTML = '<p class="confirmation-no-items">No hay productos guardados para este pedido.</p>';
+      return;
+    }
+
+    orderItems.innerHTML = items.map((item) => {
+      const name = item.nombreProducto || item.nombre || 'Producto';
+      const size = item.talla || '-';
+      const quantity = Number(item.cantidad || 1);
+      const unitPrice = Number(item.precioUnitario || item.precio || 0);
+      const subtotal = unitPrice * quantity;
+
+      return `
+        <article class="confirmation-item">
+          <div>
+            <h3>${escapeHtml(name)}</h3>
+            <p>Talla ${escapeHtml(size)}</p>
+          </div>
+          <div class="confirmation-item-values">
+            <span>${quantity} x ${formatCurrency(unitPrice)}</span>
+            <strong>${formatCurrency(subtotal)}</strong>
+          </div>
+        </article>
       `;
-      summaryItems.appendChild(div);
+    }).join('');
+  }
+
+  function formatCurrency(value) {
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency',
+      currency: 'EUR',
+    }).format(Number(value || 0));
+  }
+
+  function formatDate(value) {
+    if (!value) return 'Hoy';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return 'Hoy';
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
     });
   }
 
-  let selectedFile = null;
+  function formatPaymentMethod(value) {
+    const method = String(value || 'tarjeta').toLowerCase();
+    if (method.includes('tarjeta')) return 'Tarjeta de credito';
+    if (method.includes('transferencia')) return 'Transferencia bancaria';
+    if (method.includes('bizum')) return 'Bizum';
+    return formatText(method);
+  }
 
-  receiptFile.addEventListener('change', (e) => {
-    selectedFile = e.target.files?.[0] || null;
-    btnUploadReceipt.disabled = !selectedFile;
-  });
+  function formatText(value) {
+    return String(value || '-')
+      .replaceAll('_', ' ')
+      .toLowerCase()
+      .replace(/^\w/, (letter) => letter.toUpperCase());
+  }
 
-  btnUploadReceipt.addEventListener('click', async () => {
-    if (!order.idPedido || !selectedFile) {
-      showMessage('Selecciona comprobante.');
-      return;
-    }
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;',
+    }[char]));
+  }
 
-    const token = getToken();
-    if (!token) {
-      showMessage('Sesión requerida.');
-      return;
-    }
-
-    btnUploadReceipt.disabled = true;
-    btnUploadReceipt.textContent = 'Subiendo...';
-    showMessage('');
-
-    try {
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-
-      // Note: Endpoint from original was /api/pagos/${order.paymentId}/comprobante
-      // but payload usually gives idPedido and maybe id as paymentId. We'll use idPedido.
-      const paymentId = order.paymentId || order.idPedido;
-
-      const response = await fetch(`/api/pagos/${paymentId}/comprobante`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-        body: formData,
-      });
-
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        showMessage(payload.error || payload.message || 'Error subiendo comprobante.');
-        return;
-      }
-
-      showMessage('Comprobante subido.');
-    } catch {
-      showMessage('Error subiendo comprobante.');
-    } finally {
-      btnUploadReceipt.disabled = false;
-      btnUploadReceipt.textContent = 'Subir comprobante';
-    }
-  });
-
-  function showMessage(msg) {
-    if (msg) {
-      uploadMessage.textContent = msg;
-      uploadMessage.classList.remove('hidden');
-    } else {
-      uploadMessage.classList.add('hidden');
-    }
+  function showNotFound() {
+    confirmationContainer.classList.add('hidden');
+    notFoundContainer.classList.remove('hidden');
+    lucide.createIcons();
   }
 });

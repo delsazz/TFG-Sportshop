@@ -4,69 +4,102 @@
   <meta charset="UTF-8" />
   <link rel="icon" href="/img/sportshop.jpg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Confirmación de Pedido — SportShop</title>
-<link rel="stylesheet" href="/css/order-confirmation.css" />
+  <title>Confirmación de Pedido - SportShop</title>
+  <link rel="stylesheet" href="/css/order-confirmation.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-50">
-  <div id="layout-container">
-    <!-- Navbar placeholder (if needed) -->
-  </div>
+<body>
+  <div id="layout-container"></div>
 
-  <div id="not-found-container" class="bg-slate-50 px-4 py-12 hidden">
-    <div class="mx-auto max-w-4xl rounded-[1.5rem] bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:rounded-[2rem] sm:p-8">
-      <h1 class="text-3xl font-bold text-slate-900">Pedido no encontrado</h1>
-      <a href="/" class="mt-6 inline-flex rounded-2xl bg-blue-700 px-6 py-3 font-semibold text-white transition hover:bg-blue-800">
-        Volver
-      </a>
-    </div>
-  </div>
-
-  <div id="confirmation-container" class="bg-slate-50 px-4 py-12 hidden">
-    <div class="mx-auto max-w-4xl rounded-[1.5rem] bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:rounded-[2rem] sm:p-8">
-      <p class="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-700">Confirmación</p>
-      <h1 class="mt-4 text-3xl font-bold text-slate-900 sm:text-4xl">Pedido registrado</h1>
-      <p id="order-subtitle" class="mt-3 text-slate-600">
-        Pedido #-. Pago -. Estado -.
-      </p>
-
-      <div id="receipt-upload-section" class="mt-8 rounded-3xl border border-slate-200 p-5 sm:p-6 hidden">
-        <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Subir comprobante</h2>
-        <p class="mt-2 text-slate-600">Adjuntar justificante Bizum o transferencia.</p>
-        <input
-          type="file"
-          id="receipt-file"
-          accept=".pdf,.png,.jpg,.jpeg"
-          class="mt-4 block w-full rounded-2xl border border-slate-300 px-4 py-3"
-        />
-        <button
-          type="button"
-          id="btn-upload-receipt"
-          disabled
-          class="mt-4 inline-flex rounded-2xl bg-blue-700 px-6 py-3 font-semibold text-white disabled:bg-slate-300 transition hover:bg-blue-800 disabled:hover:bg-slate-300 cursor-pointer"
-        >
-          Subir comprobante
-        </button>
-        <p id="upload-message" class="mt-3 text-sm text-slate-600 hidden"></p>
+  <main class="confirmation-page">
+    <section id="not-found-container" class="confirmation-shell hidden">
+      <div class="confirmation-card confirmation-empty">
+        <span class="confirmation-icon confirmation-icon-alert">
+          <i data-lucide="search-x"></i>
+        </span>
+        <p class="confirmation-kicker">Pedido</p>
+        <h1>Pedido no encontrado</h1>
+        <p>No hemos podido localizar la información de este pedido. Puedes volver a tus pedidos para revisarlo.</p>
+        <a href="mis_pedidos.html" class="confirmation-button confirmation-button-primary">
+          <i data-lucide="arrow-left"></i>
+          Volver a mis pedidos
+        </a>
       </div>
+    </section>
 
-      <div class="mt-8 rounded-3xl border border-slate-200 p-5 sm:p-6">
-        <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">Resumen</h2>
-        <div id="order-summary-items" class="mt-6 space-y-4">
-          <!-- Items load via JS -->
+    <section id="confirmation-container" class="confirmation-shell hidden">
+      <div class="confirmation-card">
+        <div class="confirmation-hero">
+          <div>
+            <span class="confirmation-icon">
+              <i data-lucide="check"></i>
+            </span>
+            <p class="confirmation-kicker">Confirmación</p>
+            <h1>Pedido registrado</h1>
+            <p id="order-subtitle" class="confirmation-lead">
+              Tu pedido se ha creado correctamente.
+            </p>
+          </div>
+          <div class="confirmation-total-box">
+            <span>Total pagado</span>
+            <strong id="order-total">0.00 EUR</strong>
+          </div>
+        </div>
+
+        <div class="confirmation-grid">
+          <article class="confirmation-panel">
+            <h2>Datos del pedido</h2>
+            <dl class="confirmation-details">
+              <div>
+                <dt>Número</dt>
+                <dd id="order-number">#-</dd>
+              </div>
+              <div>
+                <dt>Estado</dt>
+                <dd id="order-status">Pendiente</dd>
+              </div>
+              <div>
+                <dt>Fecha</dt>
+                <dd id="order-date">-</dd>
+              </div>
+            </dl>
+          </article>
+
+          <article class="confirmation-panel">
+            <h2>Método de pago</h2>
+            <div class="payment-method">
+              <span class="payment-method-icon">
+                <i data-lucide="credit-card"></i>
+              </span>
+              <div>
+                <p id="payment-method-name">Tarjeta</p>
+                <span id="payment-method-status">Pago pendiente de confirmación</span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <section class="confirmation-panel confirmation-products-panel">
+          <div class="confirmation-section-header">
+            <h2>Detalle del pedido</h2>
+            <span id="order-items-count">0 productos</span>
+          </div>
+          <div id="order-items" class="confirmation-items"></div>
+        </section>
+
+        <div class="confirmation-actions">
+          <a href="catalogo.html" class="confirmation-button confirmation-button-primary">
+            <i data-lucide="shopping-bag"></i>
+            Seguir comprando
+          </a>
+          <a href="mis_pedidos.html" class="confirmation-button confirmation-button-secondary">
+            <i data-lucide="package"></i>
+            Ver mis pedidos
+          </a>
         </div>
       </div>
-
-      <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
-        <a href="/catalogo.html" class="inline-flex items-center justify-center rounded-2xl bg-blue-700 px-6 py-3 font-semibold text-white transition hover:bg-blue-800">
-          Seguir comprando
-        </a>
-        <a href="/mis_pedidos.html" class="inline-flex items-center justify-center rounded-2xl border border-slate-300 px-6 py-3 font-semibold text-slate-900 transition hover:bg-slate-50">
-          Ver pedidos
-        </a>
-      </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
   <script src="/js/components/script_estructura.js"></script>
   <script src="/js/script_almacenamiento_autenticacion.js"></script>
@@ -74,5 +107,3 @@
   <script src="/js/components/script_footer.js"></script>
 </body>
 </html>
-
-
