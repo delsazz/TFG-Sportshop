@@ -10,7 +10,7 @@ const PAGE_SIZE = 10;
 let expandedStudentId = null;
 let pedidosMap = {};
 let loadingPedidosMap = {};
-let modalMode = null; // 'create', 'edit', 'view', null
+let modalMode = null; // 'edit', 'view', null
 let editingStudent = null;
 
 async function initAdminStudents() {
@@ -18,11 +18,8 @@ async function initAdminStudents() {
   if (!container.dataset.initialized) {
     container.innerHTML = `
       <div class="space-y-6">
-        <div class="flex items-center justify-between">
+        <div>
           <p class="mt-1 text-sm text-gray-600">Gestión de clientes con sus pedidos activos y datos personales.</p>
-          <button onclick="openStudentModal('create')" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors cursor-pointer">
-            + Crear Cliente
-          </button>
         </div>
 
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -297,11 +294,9 @@ function renderStudentModal() {
 
   const isView = modalMode === 'view';
   const isEdit = modalMode === 'edit';
-  const isCreate = modalMode === 'create';
   
   let title = 'Detalles del Cliente';
   if (isEdit) title = 'Editar Cliente';
-  if (isCreate) title = 'Crear Nuevo Cliente';
 
   let html = `
     <div class="flex items-center justify-between mb-6">
@@ -348,7 +343,7 @@ function renderStudentModal() {
         </div>
       </div>
     `;
-  } else if (isEdit || isCreate) {
+  } else if (isEdit) {
     const s = editingStudent || { nombre: '', apellidos: '', email: '', telefono: '', direccion: '' };
     html += `
       <form onsubmit="submitStudentForm(event)" class="space-y-4">
@@ -377,7 +372,7 @@ function renderStudentModal() {
         <div class="flex gap-3 pt-6 border-t border-gray-200">
           <button type="button" onclick="closeStudentModal()" class="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer">Cancelar</button>
           <button type="submit" id="btn-submit-student" class="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 cursor-pointer">
-            ${isEdit ? 'Guardar Cambios' : 'Crear Cliente'}
+            Guardar Cambios
           </button>
         </div>
       </form>
@@ -403,22 +398,15 @@ window.submitStudentForm = async function(e) {
     const token = getToken();
     const payload = { nombre, apellidos, email, telefono, direccion };
     
-    if (modalMode === 'edit' && editingStudent) {
-      const res = await fetch(`/api/usuarios/${editingStudent.idUsuario}`, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw new Error('Error al actualizar usuario');
-      const updated = await res.json();
-      const idx = studentsData.findIndex(u => u.idUsuario === updated.idUsuario);
-      if (idx !== -1) studentsData[idx] = updated;
-    } else {
-      // Mock create as requested by TODO in original file
-      const newId = Math.max(...studentsData.map(u => u.idUsuario), 0) + 1;
-      const newUser = { idUsuario: newId, ...payload, roles: [], totalPedidos: 0 };
-      studentsData.push(newUser);
-    }
+    const res = await fetch(`/api/usuarios/${editingStudent.idUsuario}`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('Error al actualizar usuario');
+    const updated = await res.json();
+    const idx = studentsData.findIndex(u => u.idUsuario === updated.idUsuario);
+    if (idx !== -1) studentsData[idx] = updated;
 
     closeStudentModal();
     renderStudents();

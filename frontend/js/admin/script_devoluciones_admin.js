@@ -15,7 +15,7 @@ async function initAdminReturns() {
           <p class="text-sm text-gray-500">Solicitudes de devolución de los clientes.</p>
           <select id="returns-filter" class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
             <option value="TODAS">Todas las devoluciones</option>
-            <option value="ACEPTADA">Aceptadas</option>
+            <option value="APROBADA">Aceptadas</option>
             <option value="RECHAZADA">Rechazadas</option>
           </select>
         </div>
@@ -75,7 +75,7 @@ function renderAdminReturns() {
   tbody.innerHTML = returns.map((item) => `
     <tr class="border-t border-gray-100 align-top">
       <td class="px-4 py-3 text-sm font-mono text-gray-900">#${item.idPedido}</td>
-      <td class="px-4 py-3 text-sm text-gray-700">${item.nombreUsuario || `Usuario ${item.idUsuario}`}</td>
+      <td class="px-4 py-3 text-sm text-gray-700">${item.usuarioNombre || `Usuario ${item.idUsuario}`}</td>
       <td class="px-4 py-3 text-sm text-gray-700">${item.motivo || 'Sin comentario del cliente'}</td>
       <td class="px-4 py-3">${returnBadge(item.estado)}</td>
       <td class="px-4 py-3">
@@ -83,7 +83,7 @@ function renderAdminReturns() {
       </td>
       <td class="px-4 py-3 text-right">
         <div class="flex justify-end gap-2">
-          <button onclick="resolveReturn(${item.idDevolucion}, 'ACEPTADA')" class="rounded-md bg-green-50 px-3 py-1.5 text-sm text-green-700 hover:bg-green-100">Aceptar</button>
+          <button onclick="resolveReturn(${item.idDevolucion}, 'APROBADA')" class="rounded-md bg-green-50 px-3 py-1.5 text-sm text-green-700 hover:bg-green-100">Aceptar</button>
           <button onclick="resolveReturn(${item.idDevolucion}, 'RECHAZADA')" class="rounded-md bg-red-50 px-3 py-1.5 text-sm text-red-700 hover:bg-red-100">Rechazar</button>
         </div>
       </td>
@@ -103,7 +103,10 @@ window.resolveReturn = async function(id, estado) {
       },
       body: JSON.stringify({ estado, comentarios: comment }),
     });
-    if (!response.ok) throw new Error('No se pudo actualizar la devolución');
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.message || data.error || 'No se pudo actualizar la devolución');
+    }
     await fetchAdminReturns();
   } catch (error) {
     showReturnsError(error.message);
@@ -113,7 +116,7 @@ window.resolveReturn = async function(id, estado) {
 function returnBadge(estado) {
   const styles = {
     SOLICITADA: 'bg-yellow-100 text-yellow-800',
-    ACEPTADA: 'bg-green-100 text-green-800',
+    APROBADA: 'bg-green-100 text-green-800',
     RECHAZADA: 'bg-red-100 text-red-800',
   };
   return `<span class="rounded-full px-2.5 py-1 text-xs font-medium ${styles[estado] || 'bg-gray-100 text-gray-700'}">${estado || 'SIN ESTADO'}</span>`;

@@ -23,14 +23,16 @@ function money(value) {
   return `${Number(value || 0).toFixed(2)} EUR`;
 }
 
-async function loadMyReturns() {
+async function loadMyReturns({ showLoading = true } = {}) {
   const token = typeof getToken === 'function' ? getToken() : sessionStorage.getItem('token');
   if (!token) {
     window.location.href = 'iniciar_sesion.html?from=mis_devoluciones.html';
     return;
   }
 
-  content.innerHTML = '<div class="orders-state">Cargando devoluciones...</div>';
+  if (showLoading) {
+    content.innerHTML = '<div class="orders-state">Cargando devoluciones...</div>';
+  }
 
   try {
     const response = await fetch('/api/devoluciones/mis-devoluciones', {
@@ -109,12 +111,12 @@ function returnBadge(estado) {
   const normalized = String(estado || 'SOLICITADA').toUpperCase();
   const styles = {
     SOLICITADA: 'status-pending',
-    ACEPTADA: 'status-accepted',
+    APROBADA: 'status-accepted',
     RECHAZADA: 'status-rejected',
   };
   const labels = {
     SOLICITADA: 'Solicitada',
-    ACEPTADA: 'Aceptada',
+    APROBADA: 'Aceptada',
     RECHAZADA: 'Rechazada',
   };
   return `<span class="status-badge ${styles[normalized] || 'status-default'}">${labels[normalized] || escapeHtml(normalized)}</span>`;
@@ -122,3 +124,13 @@ function returnBadge(estado) {
 
 if (window.lucide) lucide.createIcons();
 loadMyReturns();
+
+const refreshMyReturns = () => loadMyReturns({ showLoading: false });
+
+window.addEventListener('focus', refreshMyReturns);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) refreshMyReturns();
+});
+window.setInterval(() => {
+  if (!document.hidden) refreshMyReturns();
+}, 15000);
