@@ -8,13 +8,11 @@ import java.nio.file.Path;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import jakarta.servlet.http.Cookie;
 import org.springframework.ui.Model;
 import com.tfg.sportshop.model.Roles;
 import com.tfg.sportshop.model.Usuario;
 import jakarta.servlet.http.HttpSession;
 import com.tfg.sportshop.dto.LoginRequest;
-import com.tfg.sportshop.dto.LoginResponse;
 import org.springframework.http.HttpHeaders;
 import com.tfg.sportshop.services.RolesService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,10 +23,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.beans.factory.annotation.Value;
-import com.tfg.sportshop.dto.ResetPasswordRequest;
-import com.tfg.sportshop.dto.ForgotPasswordRequest;
 import com.tfg.sportshop.security.JWTTokenProvider;
-import com.tfg.sportshop.services.PasswordResetService;
 import org.springframework.security.core.Authentication;
 import com.tfg.sportshop.dto.perfil.PerfilUsuarioResponse;
 import com.tfg.sportshop.dto.perfil.ActualizarPerfilRequest;
@@ -47,12 +42,10 @@ public class AuthController {
     private UsuarioService usuarioService;
     @Autowired
     private JWTTokenProvider jwtTokenProvider;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+
     @Autowired
     private RolesService rolesService;
-    @Autowired
-    private PasswordResetService passwordResetService;
+
     @Value("${app.upload.perfiles-dir:uploads/perfiles}")
     private String perfilesUploadDir;
     @GetMapping("/auth/login")
@@ -151,26 +144,7 @@ public class AuthController {
                 .body(Map.of("mensaje", "Sesion cerrada correctamente"));
     }
 
-    @PostMapping("/api/auth/forgot-password")
-    @ResponseBody
-    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request) {
-        if(request == null || request.email() == null || request.email().isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "El email es obligatorio"));
-        }
-        passwordResetService.solicitarRecuperacion(request.email());
-        return ResponseEntity.ok(Map.of("message", "Si el email esta registrado, recibiras un codigo de verificacion en unos minutos" ));
-    }
 
-    @PostMapping("/api/auth/reset-password")
-    @ResponseBody
-    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
-        try {
-            passwordResetService.restablecerPassword(request);
-            return ResponseEntity.ok(Map.of("message", "Contrasena actualizada correctamente"));
-        } catch(IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
-        }
-    }
 
     @GetMapping("/api/admin")
     @ResponseBody
@@ -407,6 +381,48 @@ public class AuthController {
 
     private void aplicarDireccion(Usuario usuario, String direccion, String calle, String numero, String piso, String ciudad,
             String provincia, String codigoPostal) {
+        // If all address components are null, do nothing
+        if (java.util.stream.Stream.of(direccion, calle, numero, piso, ciudad, provincia, codigoPostal)
+                .allMatch(v -> v == null)) {
+            return;
+        }
+        // Normalize and set individual fields
+        usuario.setDireccionCalle(normalizar(calle));
+        usuario.setDireccionNumero(normalizar(numero));
+        usuario.setDireccionPiso(normalizar(piso));
+        usuario.setDireccionCiudad(normalizar(ciudad));
+        usuario.setDireccionProvincia(normalizar(provincia));
+        usuario.setCodigoPostal(normalizar(codigoPostal));
+
+        // Build address string in required format: "Calle <calle>, <numero>, <piso> - <ciudad> <provincia> <codigoPostal>"
+        StringBuilder sb = new StringBuilder();
+        if (usuario.getDireccionCalle() != null) {
+            sb.append("Calle ").append(usuario.getDireccionCalle());
+        }
+        if (usuario.getDireccionNumero() != null) {
+            sb.append(", ").append(usuario.getDireccionNumero());
+        }
+        if (usuario.getDireccionPiso() != null) {
+            sb.append(", ").append(usuario.getDireccionPiso());
+        }
+        // location part
+        boolean hasLocation = false;
+        if (usuario.getDireccionCiudad() != null) {
+            sb.append(" - ").append(usuario.getDireccionCiudad());
+            hasLocation = true;
+        }
+        if (usuario.getDireccionProvincia() != null) {
+            if (hasLocation) sb.append(" ");
+            sb.append(usuario.getDireccionProvincia());
+            hasLocation = true;
+        }
+        if (usuario.getCodigoPostal() != null) {
+            if (hasLocation) sb.append(" ");
+            sb.append(usuario.getCodigoPostal());
+        }
+        String direccionCompuesta = sb.toString().trim();
+        usuario.setDireccion(direccionCompuesta.isEmpty() ? (direccion != null ? normalizar(direccion) : null) : direccionCompuesta);
+    }
         if(java.util.stream.Stream.of(direccion, calle, numero, piso, ciudad, provincia, codigoPostal).allMatch(valor -> valor == null)) {
             return;
         }
@@ -416,9 +432,36 @@ public class AuthController {
         usuario.setDireccionCiudad(normalizar(ciudad));
         usuario.setDireccionProvincia(normalizar(provincia));
         usuario.setCodigoPostal(normalizar(codigoPostal));
-        String direccionCompuesta = construirDireccion(usuario);
-        usuario.setDireccion(direccionCompuesta.isBlank() ? normalizar(direccion) : direccionCompuesta);
+        // Build address string in required format
+        StringBuilder sb = new StringBuilder();
+        if(usuario.getDireccionCalle() != null) {
+            sb.append("Calle ").append(usuario.getDireccionCalle());
+        }
+        if(usuario.getDireccionNumero() != null) {
+            sb.append(", ").append(usuario.getDireccionNumero());
+        }
+        if(usuario.getDireccionPiso() != null) {
+            sb.append(", ").append(usuario.getDireccionPiso());
+        }
+        // location part
+        boolean hasLocation = false;
+        if(usuario.getDireccionCiudad() != null) {
+            sb.append(" - ").append(usuario.getDireccionCiudad());
+            hasLocation = true;
+        }
+        if(usuario.getDireccionProvincia() != null) {
+            if(hasLocation) sb.append(" ");
+            sb.append(usuario.getDireccionProvincia());
+            hasLocation = true;
+        }
+        if(usuario.getCodigoPostal() != null) {
+            if(hasLocation) sb.append(" ");
+            sb.append(usuario.getCodigoPostal());
+        }
+        String direccionCompuesta = sb.toString().trim();
+        usuario.setDireccion(direccionCompuesta.isEmpty() ? (direccion != null ? normalizar(direccion) : null) : direccionCompuesta);
     }
+
 
     private String normalizar(String valor) {
         if(valor == null) {

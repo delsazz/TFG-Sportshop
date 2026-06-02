@@ -135,97 +135,115 @@ document.addEventListener('DOMContentLoaded', () => {
   btnCancel.addEventListener('click', closeModal);
 
   function openPasswordModal() {
-    passwordForm.reset();
-    passwordMessage.className = 'account-message hidden';
-    passwordModal.classList.remove('hidden');
+    if (passwordForm && passwordMessage && passwordModal) {
+      passwordForm.reset();
+      passwordMessage.className = 'account-message hidden';
+      passwordModal.classList.remove('hidden');
+    }
   }
 
-  btnChangePassword.addEventListener('click', openPasswordModal);
+  if (btnChangePassword) {
+    btnChangePassword.addEventListener('click', openPasswordModal);
+  }
   document.addEventListener('click', (e) => {
     if (e.target.closest('#btn-change-password-block')) {
       openPasswordModal();
     }
   });
 
-  btnClosePasswordModal.addEventListener('click', () => passwordModal.classList.add('hidden'));
-
-  passwordForm.querySelectorAll('.no-paste-password').forEach(input => {
-    input.addEventListener('paste', event => event.preventDefault());
-    input.addEventListener('copy', event => event.preventDefault());
-    input.addEventListener('cut', event => event.preventDefault());
-  });
-
-  passwordForm.addEventListener('submit', async event => {
-    event.preventDefault();
-    const formData = new FormData(passwordForm);
-    const payload = Object.fromEntries(formData);
-
-    if (payload.newPassword !== payload.confirmPassword) {
-      showPasswordMessage('❌ Las contraseñas nuevas introducidas no coinciden. Por favor, vuelve a intentarlo.', 'error');
-      return;
-    }
-
-    btnSavePassword.disabled = true;
-    btnSavePassword.textContent = 'Guardando...';
-    try {
-      const token = getToken();
-      const response = await fetch(`${apiBaseUrl}/auth/me/password`, {
-        method: 'PUT',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        const msg = data.error || data.message || '';
-        const isWrongCurrent =
-          response.status === 400 ||
-          response.status === 401 ||
-          /actual|incorrect|wrong|current|antigua/i.test(msg);
-        if (isWrongCurrent) {
-          throw new Error('❌ Contraseña actual errónea. Por favor, comprueba tu contraseña actual e inténtalo de nuevo.');
-        }
-        throw new Error(msg || 'No se pudo cambiar la contraseña');
-      }
-      showPasswordMessage('✅ ' + (data.mensaje || 'Contraseña cambiada correctamente'), 'success');
-      passwordForm.reset();
-    } catch (error) {
-      showPasswordMessage(error.message, 'error');
-    } finally {
-      btnSavePassword.disabled = false;
-      btnSavePassword.textContent = 'Guardar contraseña';
-    }
-  });
-
-  function showPasswordMessage(message, type) {
-    passwordMessage.textContent = message;
-    passwordMessage.className = `account-message ${type === 'success' ? 'success' : 'error'}`;
+  if (btnClosePasswordModal && passwordModal) {
+    btnClosePasswordModal.addEventListener('click', () => passwordModal.classList.add('hidden'));
   }
 
-  avatarInput.addEventListener('change', () => {
-    const file = avatarInput.files?.[0];
-    if (file) uploadAvatar(file);
-  });
+  if (passwordForm) {
+    passwordForm.querySelectorAll('.no-paste-password').forEach(input => {
+      input.addEventListener('paste', event => event.preventDefault());
+      input.addEventListener('copy', event => event.preventDefault());
+      input.addEventListener('cut', event => event.preventDefault());
+    });
 
-  ['dragenter', 'dragover'].forEach(eventName => {
-    avatarDropZone.addEventListener(eventName, event => {
+    passwordForm.addEventListener('submit', async event => {
       event.preventDefault();
-      avatarDropZone.classList.add('border-blue-500');
+      const formData = new FormData(passwordForm);
+      const payload = Object.fromEntries(formData);
+
+      if (payload.newPassword !== payload.confirmPassword) {
+        showPasswordMessage('❌ Las contraseñas nuevas introducidas no coinciden. Por favor, vuelve a intentarlo.', 'error');
+        return;
+      }
+
+      if (btnSavePassword) {
+        btnSavePassword.disabled = true;
+        btnSavePassword.textContent = 'Guardando...';
+      }
+      try {
+        const token = getToken();
+        const response = await fetch(`${apiBaseUrl}/auth/me/password`, {
+          method: 'PUT',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          const msg = data.error || data.message || '';
+          const isWrongCurrent =
+            response.status === 400 ||
+            response.status === 401 ||
+            /actual|incorrect|wrong|current|antigua/i.test(msg);
+          if (isWrongCurrent) {
+            throw new Error('❌ Contraseña actual errónea. Por favor, comprueba tu contraseña actual e inténtalo de nuevo.');
+          }
+          throw new Error(msg || 'No se pudo cambiar la contraseña');
+        }
+        showPasswordMessage('✅ ' + (data.mensaje || 'Contraseña cambiada correctamente'), 'success');
+        passwordForm.reset();
+      } catch (error) {
+        showPasswordMessage(error.message, 'error');
+      } finally {
+        if (btnSavePassword) {
+          btnSavePassword.disabled = false;
+          btnSavePassword.textContent = 'Guardar contraseña';
+        }
+      }
     });
-  });
-  ['dragleave', 'drop'].forEach(eventName => {
-    avatarDropZone.addEventListener(eventName, event => {
-      event.preventDefault();
-      avatarDropZone.classList.remove('border-blue-500');
+  }
+
+  function showPasswordMessage(message, type) {
+    if (passwordMessage) {
+      passwordMessage.textContent = message;
+      passwordMessage.className = `account-message ${type === 'success' ? 'success' : 'error'}`;
+    }
+  }
+
+  if (avatarInput) {
+    avatarInput.addEventListener('change', () => {
+      const file = avatarInput.files?.[0];
+      if (file) uploadAvatar(file);
     });
-  });
-  avatarDropZone.addEventListener('drop', event => {
-    const file = event.dataTransfer.files?.[0];
-    if (file) uploadAvatar(file);
-  });
+  }
+
+  if (avatarDropZone) {
+    ['dragenter', 'dragover'].forEach(eventName => {
+      avatarDropZone.addEventListener(eventName, event => {
+        event.preventDefault();
+        avatarDropZone.classList.add('border-blue-500');
+      });
+    });
+    ['dragleave', 'drop'].forEach(eventName => {
+      avatarDropZone.addEventListener(eventName, event => {
+        event.preventDefault();
+        avatarDropZone.classList.remove('border-blue-500');
+      });
+    });
+    avatarDropZone.addEventListener('drop', event => {
+      const file = event.dataTransfer.files?.[0];
+      if (file) uploadAvatar(file);
+    });
+  }
 
   async function uploadAvatar(file) {
     if (!['image/jpeg', 'image/png'].includes(file.type)) {

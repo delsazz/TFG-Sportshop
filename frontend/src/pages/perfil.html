@@ -31,10 +31,7 @@
             <i data-lucide="mail"></i>
             Editar email
           </button>
-          <button type="button" id="btn-change-password" class="account-button account-button-primary">
-            <i data-lucide="key-round"></i>
-            Cambiar contraseña
-          </button>
+
         </div>
       </header>
 
@@ -81,29 +78,9 @@
           <p id="display-direccion" class="account-text">No indicada</p>
         </article>
 
-        <article class="account-block">
-          <div class="account-block-title">
-            <i data-lucide="shield-check"></i>
-            <h2>Seguridad</h2>
-          </div>
-          <p class="account-text">Tu contraseña esta guardada de forma cifrada y solo se puede cambiar desde esta pantalla.</p>
-          <button type="button" id="btn-change-password-block" class="account-button account-button-primary">
-            <i data-lucide="key-round"></i>
-            Cambiar contraseña
-          </button>
-        </article>
 
-        <article class="account-block account-block-wide">
-          <div class="account-block-title">
-            <i data-lucide="image-plus"></i>
-            <h2>Foto de perfil</h2>
-          </div>
-          <label for="avatar-input" id="avatar-drop-zone" class="avatar-drop">
-            <span>Seleccionar imagen JPG o PNG</span>
-            <small>Tambien puedes arrastrarla aqui</small>
-            <input id="avatar-input" type="file" accept="image/png,image/jpeg" />
-          </label>
-        </article>
+
+
       </div>
     </section>
   </main>
@@ -136,35 +113,7 @@
     </div>
   </div>
 
-  <div id="password-modal" class="account-modal hidden">
-    <div class="account-modal-panel account-modal-small">
-      <div class="modal-header">
-        <div>
-          <p>Seguridad</p>
-          <h2>Cambiar contraseña</h2>
-        </div>
-        <button type="button" id="btn-close-password-modal" class="icon-button" aria-label="Cerrar">
-          <i data-lucide="x"></i>
-        </button>
-      </div>
-      <form id="password-form" class="account-form">
-        <label>
-          Contraseña actual
-          <input type="password" name="currentPassword" autocomplete="current-password" required />
-        </label>
-        <label>
-          Nueva contraseña
-          <input type="password" name="newPassword" autocomplete="new-password" class="no-paste-password" required />
-        </label>
-        <label>
-          Repetir nueva contraseña
-          <input type="password" name="confirmPassword" autocomplete="new-password" class="no-paste-password" required />
-        </label>
-        <p id="password-message" class="account-message hidden"></p>
-        <button type="submit" id="btn-save-password" class="account-button account-button-primary">Guardar contraseña</button>
-      </form>
-    </div>
-  </div>
+
 
   <script src="/js/components/script_estructura.js"></script>
   <script src="/js/script_almacenamiento_autenticacion.js"></script>

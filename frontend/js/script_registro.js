@@ -209,9 +209,7 @@ form.addEventListener('submit', async (e) => {
   if (!formState.apellidos.trim()) return setError('Los apellidos son obligatorios.');
   if (!formState.email.trim()) return setError('El email es obligatorio.');
   if (!formState.password.trim()) return setError('La contraseña es obligatoria.');
-  if (!passwordRegex.test(formState.password)) {
-    return setError('La contraseña debe tener 8 caracteres, mayúscula, minúscula, número y símbolo.');
-  }
+  
   if (!formState.aceptoTerminos) {
     return setError('Debes aceptar los términos y condiciones.');
   }

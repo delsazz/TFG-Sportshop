@@ -19,9 +19,7 @@ import org.springframework.http.HttpStatus;
 import com.tfg.sportshop.model.DetallePedido;
 import com.tfg.sportshop.model.ProductoTalla;
 import org.springframework.stereotype.Service;
-import com.tfg.sportshop.model.ProveedorPedido;
 import com.tfg.sportshop.repository.PagoRepository;
-import com.tfg.sportshop.model.ProveedorPedidoLinea;
 import com.tfg.sportshop.repository.TallaRepository;
 import com.tfg.sportshop.repository.PedidoRepository;
 import com.tfg.sportshop.dto.admin.AdminPedidoResponse;
@@ -29,23 +27,15 @@ import com.tfg.sportshop.repository.ProductoRepository;
 import com.tfg.sportshop.dto.admin.InformePagosResponse;
 import com.tfg.sportshop.dto.admin.InformeStockResponse;
 import com.tfg.sportshop.dto.admin.InformePedidosResponse;
-import com.tfg.sportshop.dto.admin.PedidoProveedorResponse;
-import com.tfg.sportshop.dto.admin.InformeProveedorResponse;
 import com.tfg.sportshop.repository.ProductoTallaRepository;
 import com.tfg.sportshop.dto.admin.InformePagoEstadoResponse;
 import com.tfg.sportshop.dto.admin.AdminPedidoUsuarioResponse;
 import com.tfg.sportshop.dto.admin.InformePagoDetalleResponse;
-import com.tfg.sportshop.repository.ProveedorPedidoRepository;
 import org.springframework.web.server.ResponseStatusException;
-import com.tfg.sportshop.dto.admin.CrearPedidoProveedorRequest;
 import com.tfg.sportshop.dto.admin.InformePedidoAlumnoResponse;
-import com.tfg.sportshop.dto.admin.PedidoProveedorLineaResponse;
 import com.tfg.sportshop.dto.admin.InformeStockProductoResponse;
 import org.springframework.transaction.annotation.Transactional;
-import com.tfg.sportshop.dto.admin.InformeProveedorLineaResponse;
 import com.tfg.sportshop.repository.PedidoEntregaLineaRepository;
-import com.tfg.sportshop.dto.admin.ActualizarProveedorProductoRequest;
-import com.tfg.sportshop.dto.admin.ActualizarEstadoPedidoProveedorRequest;
 
 @Service
 public class InformeService {
@@ -53,7 +43,6 @@ public class InformeService {
     private final PedidoRepository pedidoRepository;
     private final ProductoRepository productoRepository;
     private final ProductoTallaRepository productoTallaRepository;
-    private final ProveedorPedidoRepository proveedorPedidoRepository;
     private final TallaRepository tallaRepository;
     private final PagoRepository pagoRepository;
     private final PedidoEntregaLineaRepository pedidoEntregaLineaRepository;
@@ -62,7 +51,6 @@ public class InformeService {
         PedidoRepository pedidoRepository,
         ProductoRepository productoRepository,
         ProductoTallaRepository productoTallaRepository,
-        ProveedorPedidoRepository proveedorPedidoRepository,
         TallaRepository tallaRepository,
         PagoRepository pagoRepository,
         PedidoEntregaLineaRepository pedidoEntregaLineaRepository
@@ -70,7 +58,6 @@ public class InformeService {
         this.pedidoRepository = pedidoRepository;
         this.productoRepository = productoRepository;
         this.productoTallaRepository = productoTallaRepository;
-        this.proveedorPedidoRepository = proveedorPedidoRepository;
         this.tallaRepository = tallaRepository;
         this.pagoRepository = pagoRepository;
         this.pedidoEntregaLineaRepository = pedidoEntregaLineaRepository;
@@ -125,28 +112,6 @@ public class InformeService {
         );
     }
 
-    @Transactional(readOnly = true)
-    public InformeProveedorResponse obtenerInformeProveedor() {
-        Map<String, Integer> pendientesPorReferencia = calcularPendientesEntregaPorReferencia();
-        List<InformeProveedorLineaResponse> lineas = productoTallaRepository.findAll().stream()
-            .map(productoTalla -> toInformeProveedorLineaResponse(productoTalla, pendientesPorReferencia))
-            .sorted(Comparator.comparing(InformeProveedorLineaResponse::prioridad)
-                .thenComparing(InformeProveedorLineaResponse::proveedor, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
-                .thenComparing(InformeProveedorLineaResponse::producto, String.CASE_INSENSITIVE_ORDER)
-                .thenComparing(InformeProveedorLineaResponse::talla, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
-            .toList();
-        int unidadesPendientesEntrega = lineas.stream().mapToInt(InformeProveedorLineaResponse::pendienteEntrega).sum();
-        int unidadesSugeridasCompra = lineas.stream().mapToInt(InformeProveedorLineaResponse::cantidadSugerida).sum();
-        long criticas = lineas.stream().filter(linea -> "CRITICA".equals(linea.prioridad())).count();
-        return new InformeProveedorResponse(
-            LocalDateTime.now(),
-            (long) lineas.size(),
-            criticas,
-            unidadesPendientesEntrega,
-            unidadesSugeridasCompra,
-            lineas
-        );
-    }
 
     @Transactional
     public InformeProveedorLineaResponse actualizarProveedorProducto(Integer idProducto, ActualizarProveedorProductoRequest request) {
@@ -165,65 +130,6 @@ public class InformeService {
             .orElseGet(() -> toInformeProveedorLineaResponseSinTalla(producto, pendientes));
     }
 
-    @Transactional
-    public PedidoProveedorResponse crearPedidoProveedor(CrearPedidoProveedorRequest request) {
-        Map<String, Integer> pendientes = calcularPendientesEntregaPorReferencia();
-        ProveedorPedido pedido = new ProveedorPedido();
-        pedido.setProveedor(normalizarProveedor(request.proveedor()));
-        pedido.setFechaCreacion(LocalDateTime.now());
-        pedido.setEstado("CREADO");
-        pedido.setObservaciones(normalizarTextoNullable(request.observaciones()));
-        pedido.setDireccionEntrega(normalizarTextoNullable(request.direccionEntrega()));
-        pedido.setContactoEntrega(normalizarTextoNullable(request.contactoEntrega()));
-        pedido.setTelefonoEntrega(normalizarTextoNullable(request.telefonoEntrega()));
-        pedido.setFechaPrevistaEntrega(request.fechaPrevistaEntrega());
-        List<ProveedorPedidoLinea> lineas = request.lineas().stream().map(lineaRequest -> {
-            Producto producto = productoRepository.findById(lineaRequest.idProducto())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Producto no encontrado"));
-            var talla = lineaRequest.idTalla() == null ? null : tallaRepository.findById(lineaRequest.idTalla()) 
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Talla no encontrada"));
-            ProductoTalla productoTalla = lineaRequest.idTalla() == null
-                ? null : productoTallaRepository.findByProductoIdProductoAndTallaIdTalla(lineaRequest.idProducto(), lineaRequest.idTalla());
-            int stockDisponible = productoTalla == null ? normalizarStock(producto.getStock()) : normalizarStock(productoTalla.getStock());
-            int pendienteEntrega = pendientes.getOrDefault(referencia(lineaRequest.idProducto(), lineaRequest.idTalla()), 0);
-            int stockProyectado = stockDisponible - pendienteEntrega;
-            ProveedorPedidoLinea linea = new ProveedorPedidoLinea();
-            linea.setPedidoProveedor(pedido);
-            linea.setProducto(producto);
-            linea.setTallaEntidad(talla);
-            linea.setReferenciaProveedor(producto.getReferenciaProveedor());
-            linea.setNombreProducto(producto.getNombre());
-            linea.setTalla(talla == null ? null : talla.getNombre());
-            linea.setCantidad(lineaRequest.cantidad());
-            linea.setStockDisponible(stockDisponible);
-            linea.setPendienteEntrega(pendienteEntrega);
-            linea.setStockProyectado(stockProyectado);
-            linea.setPrioridad(calcularPrioridad(stockProyectado, pendienteEntrega, lineaRequest.cantidad()));
-            return linea;
-        }).toList();
-        pedido.setLineas(lineas);
-        return toPedidoProveedorResponse(proveedorPedidoRepository.save(pedido));
-    }
-
-    @Transactional(readOnly = true)
-    public List<PedidoProveedorResponse> listarPedidosProveedor() {
-        return proveedorPedidoRepository.findAllByOrderByFechaCreacionDesc().stream()
-            .map(this::toPedidoProveedorResponse).toList(); 
-    }
-
-    @Transactional
-    public PedidoProveedorResponse actualizarEstadoPedidoProveedor(Integer idPedidoProveedor, ActualizarEstadoPedidoProveedorRequest request) {
-        ProveedorPedido pedido = proveedorPedidoRepository.findById(idPedidoProveedor)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido a proveedor no encontrado"));
-        String estado = normalizarEstadoProveedor(request.estado());
-        pedido.setEstado(estado);
-        if("ENTREGADO".equals(estado)) {
-            pedido.setFechaRecepcion(request.fechaRecepcion() == null ? LocalDateTime.now() : request.fechaRecepcion());
-        } else if("PENDIENTE_ENTREGA".equals(estado) || "CREADO".equals(estado)) {
-            pedido.setFechaRecepcion(null);
-        }
-        return toPedidoProveedorResponse(proveedorPedidoRepository.save(pedido));
-    }
 
     @Transactional(readOnly = true)
     public InformePagosResponse obtenerInformePagos(LocalDate fechaDesde, LocalDate fechaHasta, String estado) {
