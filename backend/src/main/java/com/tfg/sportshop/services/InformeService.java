@@ -1,5 +1,4 @@
 package com.tfg.sportshop.services;
-
 import java.util.Map;
 import java.util.List;
 import java.util.Locale;
@@ -8,7 +7,7 @@ import java.util.Objects;
 import java.time.LocalDate;
 import java.math.BigDecimal;
 import java.util.Comparator;
-import java.time.LocalDateTime;
+import java.time.LocalDateTime
 import java.util.stream.Collectors;
 import com.tfg.sportshop.model.Pago;
 import java.util.function.Predicate;
@@ -111,25 +110,6 @@ public class InformeService {
             productos
         );
     }
-
-
-    @Transactional
-    public InformeProveedorLineaResponse actualizarProveedorProducto(Integer idProducto, ActualizarProveedorProductoRequest request) {
-        Producto producto = productoRepository.findById(idProducto)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
-        producto.setProveedor(normalizarProveedor(request.proveedor()));
-        producto.setReferenciaProveedor(normalizarTextoNullable(request.referenciaProveedor()));
-        producto.setStockMinimo(request.stockMinimo() == null ? LOW_STOCK_THRESHOLD : Math.max(request.stockMinimo(), 0));
-        producto.setLoteCompra(request.loteCompra() == null ? 1 : Math.max(request.loteCompra(), 1));
-        producto.setPlazoReposicionDias(request.plazoReposicionDias() == null ? 7 : Math.max(request.plazoReposicionDias(), 0));
-        productoRepository.save(producto);
-        Map<String, Integer> pendientes = calcularPendientesEntregaPorReferencia();
-        return productoTallaRepository.findByProductoIdProducto(idProducto).stream()
-            .map(productoTalla -> toInformeProveedorLineaResponse(productoTalla, pendientes))
-            .max(Comparator.comparing(InformeProveedorLineaResponse::cantidadSugerida))
-            .orElseGet(() -> toInformeProveedorLineaResponseSinTalla(producto, pendientes));
-    }
-
 
     @Transactional(readOnly = true)
     public InformePagosResponse obtenerInformePagos(LocalDate fechaDesde, LocalDate fechaHasta, String estado) {
@@ -301,72 +281,6 @@ public class InformeService {
         return pendientes;
     }
 
-    private InformeProveedorLineaResponse toInformeProveedorLineaResponse(
-        ProductoTalla productoTalla,
-        Map<String, Integer> pendientesPorReferencia
-    ) {
-        Producto producto = productoTalla.getProducto();
-        Integer idProducto = producto == null ? null : producto.getIdProducto();
-        Integer idTalla = productoTalla.getTalla() == null ? null : productoTalla.getTalla().getIdTalla();
-        int stockDisponible = normalizarStock(productoTalla.getStock());
-        int pendienteEntrega = pendientesPorReferencia.getOrDefault(referencia(idProducto, idTalla), 0);
-        int stockMinimo = normalizarStockMinimo(producto);
-        int loteCompra = normalizarLoteCompra(producto);
-        int stockProyectado = stockDisponible - pendienteEntrega;
-        int necesidad = Math.max(stockMinimo - stockProyectado, 0);
-        int cantidadSugerida = redondearALote(necesidad, loteCompra);
-        String prioridad = calcularPrioridad(stockProyectado, pendienteEntrega, cantidadSugerida);
-        return new InformeProveedorLineaResponse(
-            idProducto,
-            producto == null ? "" : producto.getNombre(),
-            null,
-            null,
-            idTalla,
-            productoTalla.getTalla() == null ? null : productoTalla.getTalla().getNombre(),
-            producto == null ? "Proveedor pendiente" : normalizarProveedor(producto.getProveedor()),
-            producto == null ? null : producto.getReferenciaProveedor(),
-            stockDisponible,
-            stockMinimo,
-            pendienteEntrega,
-            0,
-            stockProyectado,
-            cantidadSugerida,
-            loteCompra,
-            producto == null || producto.getPlazoReposicionDias() == null ? 7 : producto.getPlazoReposicionDias(),
-            prioridad
-        );
-    }
-
-    private InformeProveedorLineaResponse toInformeProveedorLineaResponseSinTalla(Producto producto, Map<String, Integer> pendientes) {
-        int stockDisponible = normalizarStock(producto.getStock());
-        int pendienteEntrega = pendientes.entrySet().stream()
-            .filter(entry -> entry.getKey().startsWith(producto.getIdProducto() + ":"))
-            .mapToInt(Map.Entry::getValue).sum();    
-        int stockMinimo = normalizarStockMinimo(producto);
-        int loteCompra = normalizarLoteCompra(producto);
-        int stockProyectado = stockDisponible - pendienteEntrega;
-        int cantidadSugerida = redondearALote(Math.max(stockMinimo - stockProyectado, 0), loteCompra);
-        return new InformeProveedorLineaResponse(
-            producto.getIdProducto(),
-            producto.getNombre(),
-            null,
-            null,
-            null,
-            null,
-            normalizarProveedor(producto.getProveedor()),
-            producto.getReferenciaProveedor(),
-            stockDisponible,
-            stockMinimo,
-            pendienteEntrega,
-            0,
-            stockProyectado,
-            cantidadSugerida,
-            loteCompra,
-            producto.getPlazoReposicionDias() == null ? 7 : producto.getPlazoReposicionDias(),
-            calcularPrioridad(stockProyectado, pendienteEntrega, cantidadSugerida)
-        );
-    }
-
     private String referencia(Integer idProducto, Integer idTalla) {
         return (idProducto == null ? 0 : idProducto) + ":" + (idTalla == null ? 0 : idTalla);
     }
@@ -418,45 +332,6 @@ public class InformeService {
             case "CANCELADO" -> "CANCELADO";
             default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado de proveedor no valido");
         };
-    }
-
-    private PedidoProveedorResponse toPedidoProveedorResponse(ProveedorPedido pedido) {
-        List<PedidoProveedorLineaResponse> lineas = pedido.getLineas() == null
-            ? List.of() : pedido.getLineas().stream()
-                .sorted(Comparator.comparing(ProveedorPedidoLinea::getNombreProducto, String.CASE_INSENSITIVE_ORDER)
-                    .thenComparing(linea -> linea.getTalla() == null ? "" : linea.getTalla(), String.CASE_INSENSITIVE_ORDER))
-                .map(this::toPedidoProveedorLineaResponse).toList();
-        int totalUnidades = lineas.stream().mapToInt(linea -> linea.cantidad() == null ? 0 : linea.cantidad()).sum();
-        return new PedidoProveedorResponse(
-            pedido.getIdPedidoProveedor(),
-            pedido.getProveedor(),
-            pedido.getFechaCreacion(),
-            pedido.getEstado(),
-            pedido.getObservaciones(),
-            pedido.getDireccionEntrega(),
-            pedido.getContactoEntrega(),
-            pedido.getTelefonoEntrega(),
-            pedido.getFechaPrevistaEntrega(),
-            pedido.getFechaRecepcion(),
-            totalUnidades,
-            lineas
-        );
-    }
-
-    private PedidoProveedorLineaResponse toPedidoProveedorLineaResponse(ProveedorPedidoLinea linea) {
-        return new PedidoProveedorLineaResponse(
-            linea.getIdLineaProveedor(),
-            linea.getProducto() == null ? null : linea.getProducto().getIdProducto(),
-            linea.getTallaEntidad() == null ? null : linea.getTallaEntidad().getIdTalla(),
-            linea.getReferenciaProveedor(),
-            linea.getNombreProducto(),
-            linea.getTalla(),
-            linea.getCantidad(),
-            linea.getStockDisponible(),
-            linea.getPendienteEntrega(),
-            linea.getStockProyectado(),
-            linea.getPrioridad()
-        );
     }
 
     private boolean coincideEstadoStock(InformeStockProductoResponse producto, String estado) {
