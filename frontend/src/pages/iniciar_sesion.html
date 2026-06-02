@@ -7,50 +7,58 @@
   <title>Iniciar sesión - SportShop</title>
 <link rel="stylesheet" href="/css/login.css" />
 </head>
-<body class="bg-gray-50">
-  <div class="auth-page">
-    <div class="login-card">
-      <h2 class="mb-6 text-center text-2xl font-bold">Iniciar sesión</h2>
+<body>
+  <div id="layout-container"></div>
 
-      <p id="msg-registered" class="text-green-600 text-center mb-4 hidden">Registro completado con éxito. Por favor inicia sesión.</p>
+  <main class="auth-page">
+    <section class="auth-shell auth-shell-login">
+      <div class="auth-intro">
+        <span class="auth-kicker">Tu equipación empieza aquí</span>
+        <h1>Vuelve al terreno de juego</h1>
+        <p>Accede a tu cuenta para revisar pedidos, gestionar devoluciones y seguir preparando tu próximo entrenamiento.</p>
+      </div>
 
-      <form id="login-form" class="space-y-4">
+      <div class="auth-card">
+        <header class="auth-card-header">
+          <span class="auth-kicker">SportShop</span>
+          <h2>Iniciar sesión</h2>
+          <p>Introduce tus credenciales para entrar en tu cuenta.</p>
+        </header>
+
+        <p id="msg-registered" class="auth-notice auth-notice-success hidden">Registro completado con éxito. Por favor inicia sesión.</p>
+
+        <form id="login-form" class="login-form">
         <div>
           <label for="email">Email</label>
           <input
             id="email"
             type="text"
-            class="w-full rounded-lg border p-3"
           />
-          <p id="error-email" class="text-red-500 hidden"></p>
+          <p id="error-email" class="login-error hidden"></p>
         </div>
 
         <div>
-          <div class="mb-1 flex items-center justify-between gap-3">
-            <label for="password">Contraseña</label>
-            <a href="/recuperar_contrasena.html" class="text-sm text-blue-600">
-              ¿Olvidaste tu contraseña?
-            </a>
-          </div>
+          <label for="password">Contraseña</label>
           <input
             id="password"
             type="password"
-            class="w-full rounded-lg border p-3"
           />
-          <p id="error-password" class="text-red-500 hidden"></p>
+          <p id="error-password" class="login-error hidden"></p>
         </div>
 
-        <p id="error-general" class="text-red-500 text-center hidden"></p>
+        <p id="error-general" class="auth-notice auth-notice-error hidden"></p>
 
-        <button type="submit" class="w-full rounded-lg bg-blue-600 py-3 text-white transition-colors hover:bg-blue-700">
+        <button type="submit" class="auth-submit">
           Ingresar
         </button>
-      </form>
+        </form>
 
-      <p class="mt-4 text-center text-sm text-gray-600">¿No tienes cuenta? <a href="registro.html" class="text-blue-600 hover:underline">Regístrate</a></p>
-    </div>
-  </div>
+        <p class="auth-bottom">¿No tienes cuenta? <a href="registro.html" class="auth-link">Regístrate</a></p>
+      </div>
+    </section>
+  </main>
 
+  <script src="/js/components/script_estructura.js"></script>
   <script src="/js/script_almacenamiento_autenticacion.js"></script>
   <script src="/js/script_iniciar_sesion.js"></script>
   <script src="/js/components/script_footer.js"></script>

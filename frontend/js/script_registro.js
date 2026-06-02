@@ -31,7 +31,6 @@ let formState = {
   codigoPostal: '',
   email: '',
   password: '',
-  ciclo: '',
   aceptoTerminos: false,
   aceptoPrivacidad: false,
   captchaVerified: false,
@@ -238,7 +237,6 @@ form.addEventListener('submit', async (e) => {
     codigoPostal: formState.codigoPostal,
     email: formState.email,
     password: formState.password,
-    ciclo: formState.ciclo,
     captchaVerified: true,
   };
 

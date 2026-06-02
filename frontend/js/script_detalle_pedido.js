@@ -39,12 +39,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const normalized = String(estado || '').toUpperCase();
     const styles = {
       SOLICITADA: 'status-pending',
-      ACEPTADA: 'status-accepted',
+      APROBADA: 'status-accepted',
       RECHAZADA: 'status-rejected',
     };
     const labels = {
       SOLICITADA: 'Solicitada',
-      ACEPTADA: 'Aceptada',
+      APROBADA: 'Aceptada',
       RECHAZADA: 'Rechazada',
     };
     return `<span class="status-badge ${styles[normalized] || 'status-default'}">${labels[normalized] || escapeHtml(normalized)}</span>`;
