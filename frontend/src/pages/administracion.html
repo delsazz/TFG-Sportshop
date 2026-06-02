@@ -5,84 +5,92 @@
   <link rel="icon" href="/img/sportshop.jpg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin SportShop</title>
-<link rel="stylesheet" href="/css/admin.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    .admin-dashboard { display: flex; min-height: 100vh; background-color: #f8fafc; }
-    .admin-sidebar { width: 256px; background-color: #1e293b; color: white; display: flex; flex-direction: column; transition: transform 0.3s; flex-shrink: 0;}
-    .admin-sidebar.closed { transform: translateX(-100%); position: absolute; height: 100%; z-index: 40; }
-    .admin-sidebar-header { padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
-    .admin-nav { flex: 1; padding: 1rem 0; overflow-y: auto; }
-    .nav-item { width: 100%; text-align: left; padding: 0.75rem 1.5rem; display: flex; align-items: center; gap: 0.75rem; color: #cbd5e1; transition: background 0.2s; cursor: pointer; }
-    .nav-item:hover, .nav-item.active { background-color: #334155; color: white; }
-    .admin-sidebar-footer { padding: 1.5rem; border-top: 1px solid #334155; }
-    .admin-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; width: 100%; }
-    .admin-header { background: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; }
-    .admin-content { flex: 1; padding: 1.5rem; overflow-y: auto; }
-    
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-  </style>
 </head>
 <body>
   <div class="admin-dashboard">
     <aside id="sidebar" class="admin-sidebar">
       <div class="admin-sidebar-header">
-        <h1 class="font-bold text-xl flex items-center gap-2">
-          <span>📦</span> SportShop Admin
-        </h1>
-        <button id="close-sidebar-mobile" class="md:hidden">✖</button>
+        <a class="admin-brand" href="inicio.html">
+          <span class="admin-brand-logo"><img src="/img/sportshop.jpg" alt="SportShop" /></span>
+          <span>SportShop <small>Admin</small></span>
+        </a>
+        <button id="close-sidebar-mobile" class="admin-icon-button md:hidden" type="button" aria-label="Cerrar menú">
+          <i data-lucide="x"></i>
+        </button>
       </div>
 
       <nav class="admin-nav" id="admin-nav-links">
-        <button class="nav-item active" data-tab="analisis">📊 Análisis</button>
-        <button class="nav-item" data-tab="pedidos">🛒 Pedidos</button>
-        <button class="nav-item" data-tab="clientes">👥 Clientes</button>
-        <button class="nav-item" data-tab="catalogo">📦 Productos</button>
-        <button class="nav-item" data-tab="categorias">📁 Categorías</button>
-        <button class="nav-item" data-tab="devoluciones">↩ Devoluciones</button>
+        <button class="nav-item active" data-tab="analisis" type="button"><i data-lucide="bar-chart-3"></i><span>Análisis</span></button>
+        <button class="nav-item" data-tab="pedidos" type="button"><i data-lucide="shopping-bag"></i><span>Pedidos</span></button>
+        <button class="nav-item" data-tab="clientes" type="button"><i data-lucide="users"></i><span>Clientes</span></button>
+        <button class="nav-item" data-tab="catalogo" type="button"><i data-lucide="package"></i><span>Productos</span></button>
+        <button class="nav-item" data-tab="categorias" type="button"><i data-lucide="folder-tree"></i><span>Categorías</span></button>
+        <button class="nav-item" data-tab="devoluciones" type="button"><i data-lucide="rotate-ccw"></i><span>Devoluciones</span></button>
       </nav>
 
       <div class="admin-sidebar-footer">
-        <button id="logout-btn" class="w-full text-left flex items-center gap-2 text-red-400 hover:text-red-300">
-          <span>🚪</span> Cerrar Sesión
+        <a class="admin-store-link" href="inicio.html"><i data-lucide="store"></i><span>Volver a tienda</span></a>
+        <button id="logout-btn" class="admin-logout" type="button">
+          <i data-lucide="log-out"></i><span>Cerrar sesión</span>
         </button>
       </div>
     </aside>
 
     <main class="admin-main">
       <div class="admin-header">
-        <button id="toggle-sidebar" class="text-gray-600 hover:text-gray-900">☰ Menú</button>
+        <button id="toggle-sidebar" class="admin-menu-button" type="button">
+          <i data-lucide="menu"></i><span>Menú</span>
+        </button>
         <div class="admin-header-right">
-          <span id="user-info" class="font-medium text-slate-800">Admin</span>
+          <span class="admin-role-pill">Administrador</span>
+          <span id="user-info" class="admin-user-name">Admin</span>
         </div>
       </div>
 
       <div class="admin-content">
         <div id="tab-analisis" class="tab-content active">
-          <h2 class="text-2xl font-bold mb-4">Panel de análisis</h2>
+          <div class="admin-section-heading">
+            <p>Operaciones</p>
+            <h2>Panel de análisis</h2>
+          </div>
           <div id="analisis-container">Cargando...</div>
         </div>
 
-        <!-- OTRAS PESTAÑAS (Estructura base, se irán rellenando) -->
         <div id="tab-pedidos" class="tab-content">
-          <h2 class="text-2xl font-bold mb-4">Gestión de Pedidos</h2>
+          <div class="admin-section-heading">
+            <p>Ventas</p>
+            <h2>Gestión de pedidos</h2>
+          </div>
           <div id="pedidos-container">Cargando...</div>
         </div>
         <div id="tab-clientes" class="tab-content">
-          <h2 class="text-2xl font-bold mb-4">Gestión de Clientes</h2>
+          <div class="admin-section-heading">
+            <p>Usuarios</p>
+            <h2>Gestión de clientes</h2>
+          </div>
           <div id="clientes-container">Cargando...</div>
         </div>
         <div id="tab-catalogo" class="tab-content">
-          <h2 class="text-2xl font-bold mb-4">Gestión de Productos</h2>
+          <div class="admin-section-heading">
+            <p>Inventario</p>
+            <h2>Gestión de productos</h2>
+          </div>
           <div id="catalogo-container">Cargando...</div>
         </div>
         <div id="tab-categorias" class="tab-content">
-          <h2 class="text-2xl font-bold mb-4">Gestión de Categorías</h2>
+          <div class="admin-section-heading">
+            <p>Catálogo</p>
+            <h2>Gestión de categorías</h2>
+          </div>
           <div id="categorias-container">Cargando...</div>
         </div>
         <div id="tab-devoluciones" class="tab-content">
-          <h2 class="text-2xl font-bold mb-4">Gestión de Devoluciones</h2>
+          <div class="admin-section-heading">
+            <p>Postventa</p>
+            <h2>Gestión de devoluciones</h2>
+          </div>
           <div id="devoluciones-container">Cargando...</div>
         </div>
       </div>

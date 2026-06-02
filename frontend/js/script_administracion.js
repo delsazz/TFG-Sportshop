@@ -1,17 +1,44 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const token = sessionStorage.getItem('token');
-  const roles = JSON.parse(sessionStorage.getItem('userRoles') || '[]');
+  const token = getToken();
+  const roles = getStoredRoles();
 
-  if (!token || !roles.includes('ADMIN')) {
-    alert('Acceso denegado. Se requiere rol de administrador.');
-    window.location.href = 'iniciar_sesion.html';
+  if (!token || !hasAdminRole(roles)) {
+    window.location.href = `iniciar_sesion.html?from=${encodeURIComponent('administracion.html')}`;
     return;
   }
   const userName = sessionStorage.getItem('userName') || 'Admin';
   document.getElementById('user-info').textContent = userName;
+  document.body.classList.add('admin-ready');
+
   const sidebar = document.getElementById('sidebar');
   const toggleBtn = document.getElementById('toggle-sidebar');
   const closeMobileBtn = document.getElementById('close-sidebar-mobile');
+
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
+
+  function getStoredRoles() {
+    try {
+      const parsed = JSON.parse(sessionStorage.getItem('userRoles') || '[]');
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function normalizeRole(role) {
+    const raw = typeof role === 'string'
+      ? role
+      : role?.nombreRol || role?.nombre || role?.authority || role?.rol || '';
+
+    return String(raw).trim().replace(/^ROLE_/i, '').toLowerCase();
+  }
+
+  function hasAdminRole(userRoles) {
+    return userRoles.some((role) => normalizeRole(role) === 'admin');
+  }
+
   function toggleSidebar() {
     sidebar.classList.toggle('closed');
   }

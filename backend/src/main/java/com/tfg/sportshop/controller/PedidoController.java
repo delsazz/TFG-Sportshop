@@ -10,14 +10,11 @@ import com.tfg.sportshop.model.DetallePedido;
 import com.tfg.sportshop.model.PedidoEntrega;
 import com.tfg.sportshop.model.PedidoHistorial;
 import com.tfg.sportshop.services.PedidoService;
-import com.tfg.sportshop.dto.pedidos.FirmarEntregaPedidoRequest;
 import org.springframework.web.bind.annotation.*;
 import com.tfg.sportshop.model.PedidoEntregaLinea;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.Map;
 import java.util.List;
 
 @RestController
@@ -96,15 +93,6 @@ public class PedidoController {
     public AdminPedidoDetalleResponse registrarEntrega(@PathVariable Long idPedido, @Valid @RequestBody RegistrarEntregaPedidoRequest request) {
         validarAdministrador();
         return toPedidoDetalleResponse(pedidoService.registrarEntrega(idPedido, request));
-    }
-
-    @PostMapping("/api/pedidos/{idPedido}/firmar-entrega")
-    public PedidoResponse firmarEntregaCliente(@PathVariable Long idPedido, @RequestBody FirmarEntregaPedidoRequest request) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if(auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof Usuario usuario)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
-        }
-        return toPedidoResponse(pedidoService.firmarEntregaCliente(idPedido, usuario, request));
     }
 
     @PutMapping("/api/pedidos/{idPedido}/entregas")
@@ -208,10 +196,7 @@ public class PedidoController {
         List<EntregaLineaResponse> lineas = entrega.getLineas() == null  ? List.of()  
                 : entrega.getLineas().stream().map(this::toEntregaLineaResponse).toList();
         boolean completo = lineas.stream().allMatch(linea -> linea.cantidadPendiente() != null && linea.cantidadPendiente() == 0);
-        return new EntregaResponse(entrega.getIdEntrega(), entrega.getFechaEntrega(), lineas, entrega.getComprobanteEntregaUrl(),
-                entrega.getComprobanteEntregaNombreArchivo(), entrega.getFirmaRecepcion(), entrega.getNombreRecibe(),
-                entrega.getDocumentoRecibe(), entrega.getTipoReceptor(), entrega.getAutorizanteNombre(),
-                entrega.getAutorizanteDocumento(), entrega.getTextoAutorizacion(), entrega.getObservaciones(), estadoPedido, completo);
+        return new EntregaResponse(entrega.getIdEntrega(), entrega.getFechaEntrega(), lineas, estadoPedido, completo);
     }
 
     private EntregaLineaResponse toEntregaLineaResponse(PedidoEntregaLinea linea) {

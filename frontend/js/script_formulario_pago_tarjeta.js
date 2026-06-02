@@ -2,27 +2,27 @@ const content = document.querySelector('#page-content');
 
 if (content) {
   content.innerHTML = `
-    <form id="card-payment-form" class="space-y-4">
-      <div id="card-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
-      <label class="block text-sm font-medium text-slate-700">
-        Número de tarjeta
-        <input id="card-number" type="text" inputmode="numeric" maxlength="19" required placeholder="4242 4242 4242 4242" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />
+    <form id="card-payment-form" class="card-form">
+      <div id="card-error" class="card-form-error hidden"></div>
+      <label class="card-field card-field-full">
+        <span>Número de tarjeta</span>
+        <input id="card-number" type="text" inputmode="numeric" maxlength="19" required placeholder="4242 4242 4242 4242" />
       </label>
-      <div class="grid gap-4 sm:grid-cols-2">
-        <label class="block text-sm font-medium text-slate-700">
-          Caducidad
-          <input id="card-expiry" type="text" maxlength="5" required placeholder="MM/AA" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />
+      <div class="card-form-grid">
+        <label class="card-field">
+          <span>Caducidad</span>
+          <input id="card-expiry" type="text" maxlength="5" required placeholder="MM/AA" />
         </label>
-        <label class="block text-sm font-medium text-slate-700">
-          CVC
-          <input id="card-cvc" type="text" inputmode="numeric" maxlength="4" required placeholder="123" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />
+        <label class="card-field">
+          <span>CVC</span>
+          <input id="card-cvc" type="text" inputmode="numeric" maxlength="4" required placeholder="123" />
         </label>
       </div>
-      <label class="block text-sm font-medium text-slate-700">
-        Titular
-        <input id="card-holder" type="text" required class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />
+      <label class="card-field card-field-full">
+        <span>Titular</span>
+        <input id="card-holder" type="text" required placeholder="Nombre y apellidos" />
       </label>
-      <button id="card-submit" type="submit" class="w-full rounded-lg bg-blue-700 px-4 py-3 font-semibold text-white hover:bg-blue-800">
+      <button id="card-submit" type="submit" class="card-submit">
         Confirmar pago con tarjeta
       </button>
     </form>

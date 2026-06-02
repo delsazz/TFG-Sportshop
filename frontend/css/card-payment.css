@@ -1,0 +1,156 @@
+@import url('base.css');
+
+.card-payment-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-payment-main {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(3rem, 7vw, 6rem) 1.5rem;
+}
+
+.card-payment-panel {
+    width: min(100%, 620px);
+    overflow: hidden;
+    color: #0f172a;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(184, 255, 0, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 28px 90px rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(16px);
+}
+
+.card-payment-header {
+    padding: clamp(1.5rem, 4vw, 2.25rem);
+    background:
+        linear-gradient(135deg, rgba(255, 77, 0, 0.16), rgba(0, 184, 217, 0.12)),
+        #ffffff;
+    border-bottom: 1px solid rgba(7, 17, 13, 0.08);
+}
+
+.card-payment-header p {
+    margin: 0 0 0.7rem;
+    color: var(--primary);
+    font-size: 0.82rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.card-payment-header h1 {
+    margin: 0;
+    color: #07110d;
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    line-height: 0.95;
+}
+
+.card-payment-header span {
+    display: block;
+    margin-top: 0.9rem;
+    color: #475569;
+    line-height: 1.6;
+}
+
+.card-payment-content {
+    padding: clamp(1.5rem, 4vw, 2.25rem);
+}
+
+.card-form {
+    display: grid;
+    gap: 1.1rem;
+}
+
+.card-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.card-field {
+    display: grid;
+    gap: 0.45rem;
+    color: #25332d;
+    font-size: 0.92rem;
+    font-weight: 800;
+}
+
+.card-field span {
+    display: block;
+}
+
+.card-field input {
+    width: 100%;
+    min-height: 52px;
+    color: #07110d;
+    background: #fff;
+    border: 1px solid rgba(7, 17, 13, 0.16);
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    font: inherit;
+}
+
+.card-field input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.16);
+}
+
+.card-submit {
+    width: 100%;
+    min-height: 54px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.35rem;
+    padding: 0.95rem 1.25rem;
+    color: #fff;
+    background: var(--grad-primary);
+    border: 0;
+    border-radius: 8px;
+    font-weight: 900;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.card-submit:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 38px rgba(255, 77, 0, 0.28);
+}
+
+.card-submit:disabled {
+    color: #64748b;
+    background: #e2e8f0;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.card-form-error {
+    padding: 0.9rem 1rem;
+    color: #991b1b;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@media (max-width: 640px) {
+    .card-payment-main {
+        align-items: flex-start;
+        padding: 2rem 1rem 3rem;
+    }
+
+    .card-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
