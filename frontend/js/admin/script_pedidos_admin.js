@@ -344,9 +344,12 @@ window.registrarEntrega = async function() {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(lineasEntrega)
+      body: JSON.stringify({ lineas: lineasEntrega })
     });
-    if (!res.ok) throw new Error('No se pudo registrar la entrega');
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.message || data.error || 'No se pudo registrar la entrega');
+    }
     
     await fetchOrders();
     await viewOrderDetail(selectedPedidoDetail.idPedido);
