@@ -29,8 +29,6 @@ import com.tfg.sportshop.dto.ResetPasswordRequest;
 import com.tfg.sportshop.dto.ForgotPasswordRequest;
 import com.tfg.sportshop.security.JWTTokenProvider;
 import com.tfg.sportshop.services.PasswordResetService;
-import com.tfg.sportshop.services.RegistroEmailService;
-import com.tfg.sportshop.services.CorreoTemplateService;
 import org.springframework.security.core.Authentication;
 import com.tfg.sportshop.dto.perfil.PerfilUsuarioResponse;
 import com.tfg.sportshop.dto.perfil.ActualizarPerfilRequest;
@@ -54,11 +52,7 @@ public class AuthController {
     @Autowired
     private RolesService rolesService;
     @Autowired
-    private RegistroEmailService registroEmailService;
-    @Autowired
     private PasswordResetService passwordResetService;
-    @Autowired
-    private CorreoTemplateService correoTemplateService;
     @Value("${app.upload.perfiles-dir:uploads/perfiles}")
     private String perfilesUploadDir;
     @GetMapping("/auth/login")
@@ -237,7 +231,6 @@ public class AuthController {
         }
         usuario.setPassword(passwordEncoder.encode(newPassword));
         usuarioService.registrarUsuario(usuario);
-        correoTemplateService.enviarCambioPassword(usuario);
         return ResponseEntity.ok(Map.of("mensaje", "Contrasena cambiada correctamente"));
     }
 
@@ -300,7 +293,6 @@ public class AuthController {
 
         // Registrar al usuario
         Usuario usuarioRegistrado = usuarioService.registrarUsuario(usuario);
-        registroEmailService.enviarConfirmacionRegistro(usuarioRegistrado);
         return "redirect:/auth/login";
     }
 
@@ -326,7 +318,6 @@ public class AuthController {
             // Asignar rol por defecto cliente
             rolesService.bucarPorNombre("cliente").ifPresent(rol -> usuario.setRoles(List.of(rol)));
             Usuario usuarioRegistrado = usuarioService.registrarUsuario(usuario);
-            registroEmailService.enviarConfirmacionRegistro(usuarioRegistrado);
             return ResponseEntity.ok(Map.of("message", "Usuario registrado correctamente"));
         } catch(Exception e) {
             return ResponseEntity.status(500).body(Map.of("message", "Error interno al registrarse."));

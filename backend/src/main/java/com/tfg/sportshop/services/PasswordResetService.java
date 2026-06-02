@@ -4,19 +4,12 @@ import java.util.List;
 import java.time.Instant;
 import java.time.Duration;
 import java.util.Optional;
-import java.net.URLEncoder;
 import java.security.SecureRandom;
 import com.tfg.sportshop.model.Usuario;
-import java.nio.charset.StandardCharsets;
-import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import com.tfg.sportshop.dto.ResetPasswordRequest;
 import com.tfg.sportshop.model.PasswordResetToken;
-import org.springframework.mail.SimpleMailMessage;
 import com.tfg.sportshop.repository.UsuarioRepository;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import com.tfg.sportshop.repository.PasswordResetTokenRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,29 +22,14 @@ public class PasswordResetService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordResetTokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ObjectProvider<JavaMailSender> mailSenderProvider;
-    private final boolean emailEnabled;
-    private final String mailHost;
-    private final String emailFrom;
-    private final String frontendUrl;
 
     public PasswordResetService(
             UsuarioRepository usuarioRepository,
             PasswordResetTokenRepository tokenRepository,
-            PasswordEncoder passwordEncoder,
-            ObjectProvider<JavaMailSender> mailSenderProvider,
-            @Value("${app.password-reset.email.enabled:true}") boolean emailEnabled,
-            @Value("${spring.mail.host:}") String mailHost,
-            @Value("${app.password-reset.email.from:${app.notifications.email.from:}}") String emailFrom,
-            @Value("${app.frontend.url:http://localhost:5173}") String frontendUrl) {
+            PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.tokenRepository = tokenRepository;
         this.passwordEncoder = passwordEncoder;
-        this.mailSenderProvider = mailSenderProvider;
-        this.emailEnabled = emailEnabled;
-        this.mailHost = mailHost;
-        this.emailFrom = emailFrom;
-        this.frontendUrl = frontendUrl;
     }
 
     @Transactional
@@ -72,7 +50,6 @@ public class PasswordResetService {
         token.setFechaCreacion(ahora);
         token.setFechaExpiracion(ahora.plus(TOKEN_TTL));
         tokenRepository.save(token);
-        enviarEmailRecuperacion(usuario.get(), codigo);
     }
 
     @Transactional
@@ -114,42 +91,5 @@ public class PasswordResetService {
 
     private String generarCodigo() {
         return String.format("%06d", SECURE_RANDOM.nextInt(1_000_000));
-    }
-
-    private void enviarEmailRecuperacion(Usuario usuario, String codigo) {
-        if(!emailEnabled || mailHost == null || mailHost.isBlank()) {
-            return;
-        }
-        JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
-        if(mailSender == null) {
-            return;
-        }
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            if(emailFrom != null && !emailFrom.isBlank()) {
-                message.setFrom(emailFrom);
-            }
-            message.setTo(usuario.getEmail());
-            message.setSubject("Codigo para recuperar tu contrasena");
-            message.setText(construirMensaje(usuario, codigo));
-            mailSender.send(message);
-        } catch (MailException ignored) {
-            // El endpoint mantiene una respuesta generica para no filtrar informacion de cuentas.
-        }
-    }
-
-    private String construirMensaje(Usuario usuario, String codigo) {
-        String nombre = usuario.getNombre() == null || usuario.getNombre().isBlank() ? "usuario"
-                : usuario.getNombre().trim();
-        String emailParam = URLEncoder.encode(usuario.getEmail(), StandardCharsets.UTF_8);
-        String enlace = frontendUrl.replaceAll("/+$", "") + "/recuperar-password?email=" + emailParam;
-        return "Hola " + nombre + ",\n\n"
-                + "Hemos recibido una solicitud para recuperar tu contrasena en Sportshop.\n\n"
-                + "Tu codigo de verificacion es: " + codigo + "\n"
-                + "Este codigo caduca en 30 minutos.\n\n"
-                + "Puedes crear una nueva contrasena desde este enlace:\n"
-                + enlace + "\n\n"
-                + "Si no has solicitado este cambio, ignora este mensaje.\n"
-                + "Equipo de CampusFP Uniformes";
     }
 }

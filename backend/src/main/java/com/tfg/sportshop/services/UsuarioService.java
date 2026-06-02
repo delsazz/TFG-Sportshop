@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import com.tfg.sportshop.repository.PedidoRepository;
 import com.tfg.sportshop.repository.UsuarioRepository;
 import com.tfg.sportshop.repository.CarritoItemRepository;
-import com.tfg.sportshop.repository.NotificacionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import com.tfg.sportshop.repository.PasswordResetTokenRepository;
@@ -22,8 +21,6 @@ public class UsuarioService {
     private PedidoRepository pedidoRepository;
     @Autowired
     private CarritoItemRepository carritoItemRepository;
-    @Autowired
-    private NotificacionRepository notificacionRepository;
     @Autowired
     private PasswordResetTokenRepository passwordResetTokenRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -59,7 +56,6 @@ public class UsuarioService {
         }
         carritoItemRepository.deleteByUsuarioIdUsuario(idUsuario);
         passwordResetTokenRepository.deleteByUsuarioIdUsuario(idUsuario);
-        notificacionRepository.deleteByUsuarioIdUsuario(idUsuario);
         pedidoRepository.desvincularUsuario(idUsuario);
         usuarioRepository.deleteRolesByUsuarioId(idUsuario);
         usuarioRepository.deleteById(idUsuario);

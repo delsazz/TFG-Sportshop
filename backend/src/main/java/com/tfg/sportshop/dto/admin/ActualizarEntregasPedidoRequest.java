@@ -1,20 +1,14 @@
 package com.tfg.sportshop.dto.admin;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Min;
 import java.util.List;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 
 public record ActualizarEntregasPedidoRequest(
     @NotEmpty(message = "Debes indicar al menos una linea")
-    List<@Valid ActualizarEntregaLineaRequest> lineas,
-    String comprobanteEntregaUrl,
-    String comprobanteEntregaNombreArchivo,
-    String firmaRecepcion,
-    String nombreRecibe,
-    String documentoRecibe,
-    String observaciones
+    List<@Valid ActualizarEntregaLineaRequest> lineas
 ) {
     public record ActualizarEntregaLineaRequest(
         @NotNull(message = "La linea es obligatoria")
