@@ -5,16 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pago con tarjeta - Sportshop</title>
   <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/card-payment.css" />
 </head>
-<body class="bg-slate-50">
-  <main id="app" class="mx-auto max-w-5xl px-4 py-12" data-page-title="CardPaymentForm">
-    <section class="rounded-[1.5rem] bg-white p-8 shadow-sm ring-1 ring-slate-200">
-      <p class="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">Pago</p>
-      <h1 class="mt-4 text-3xl font-bold text-slate-900">Pago con tarjeta</h1>
-      <p class="mt-3 text-slate-600">Introduce los datos de tu tarjeta para completar el pedido.</p>
+<body class="card-payment-page">
+  <main id="app" class="card-payment-main" data-page-title="CardPaymentForm">
+    <section class="card-payment-panel" aria-labelledby="card-payment-title">
+      <div class="card-payment-header">
+        <p>Pago seguro</p>
+        <h1 id="card-payment-title">Pago con tarjeta</h1>
+        <span>Introduce los datos de tu tarjeta para completar el pedido.</span>
+      </div>
+      <section id="page-content" class="card-payment-content" aria-label="Formulario de pago"></section>
     </section>
-    <section id="page-content" class="mt-8 rounded-[1.5rem] bg-white p-8 shadow-sm ring-1 ring-slate-200"></section>
   </main>
   <script src="/js/script_almacenamiento_autenticacion.js"></script>
   <script type="module" src="/js/script_formulario_pago_tarjeta.js"></script>

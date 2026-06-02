@@ -38,7 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.tfg.sportshop.dto.admin.RegistrarEntregaLineaRequest;
 import com.tfg.sportshop.dto.admin.RegistrarEntregaPedidoRequest;
 import com.tfg.sportshop.repository.PedidoEntregaLineaRepository;
-import com.tfg.sportshop.dto.admin.ActualizarEntregasPedidoRequest;quest;
+import com.tfg.sportshop.dto.admin.ActualizarEntregasPedidoRequest;
 
 @Service
 public class PedidoService {
@@ -143,7 +143,6 @@ public class PedidoService {
             pedidoActualizado.getEstado(),
             "Pedido editado manualmente desde el panel de administracion"
         );
-        notificarCambioEstadoSiAplica(pedidoActualizado, estadoAnterior, pedidoActualizado.getEstado());
         return buscarPedidoPorId(pedidoActualizado.getIdPedido().longValue());
     }
 
@@ -400,54 +399,6 @@ public class PedidoService {
     @Transactional(readOnly = true)
     public List<PedidoEntrega> verEntregas(Integer pedidoId) {
         return pedidoEntregaRepository.findByPedidoIdPedidoOrderByFechaEntregaDesc(pedidoId);
-    }
-
-    @Transactional
-    public Pedido firmarEntregaCliente(Long idPedido, Usuario usuario, com.tfg.sportshop.dto.pedidos.FirmarEntregaPedidoRequest request) {
-        Pedido pedido = buscarPedidoPorId(idPedido);
-        if(pedido.getUsuario() == null || usuario == null || !pedido.getUsuario().getIdUsuario().equals(usuario.getIdUsuario())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permisos para firmar este pedido");
-        }
-        if(request == null || request.firmaRecepcion() == null || request.firmaRecepcion().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La firma es obligatoria");
-        }
-        String tipo = blankToNull(request.tipoReceptor());
-        if(tipo == null || (!"yo".equalsIgnoreCase(tipo) && !"otra_persona".equalsIgnoreCase(tipo))) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selecciona quien recibe el pedido");
-        }
-        if(blankToNull(request.nombreRecibe()) == null || blankToNull(request.documentoRecibe()) == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nombre y DNI/NIE de la persona que recibe son obligatorios");
-        }
-        if("otra_persona".equalsIgnoreCase(tipo)
-                && (blankToNull(request.autorizanteNombre()) == null || blankToNull(request.autorizanteDocumento()) == null
-                || blankToNull(request.textoAutorizacion()) == null)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La autorizacion es obligatoria");
-        }
-        Map<Integer, Integer> entregadas = obtenerCantidadesEntregadas(pedido.getIdPedido());
-        List<RegistrarEntregaLineaRequest> lineas = new ArrayList<>();
-        for(DetallePedido detalle : pedido.getDetalles()) {
-            int cantidad = detalle.getCantidad() == null ? 0 : detalle.getCantidad();
-            int pendiente = Math.max(cantidad - entregadas.getOrDefault(detalle.getIdDetalle(), 0), 0);
-            if(pendiente > 0) {
-                lineas.add(new RegistrarEntregaLineaRequest(detalle.getIdDetalle(), pendiente));
-            }
-        }
-        if(lineas.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El pedido ya esta entregado");
-        }
-        return registrarEntrega(idPedido, new RegistrarEntregaPedidoRequest(
-                lineas,
-                null,
-                null,
-                request.firmaRecepcion(),
-                request.nombreRecibe(),
-                request.documentoRecibe(),
-                tipo,
-                request.autorizanteNombre(),
-                request.autorizanteDocumento(),
-                request.textoAutorizacion(),
-                null
-        ));
     }
 
     private Usuario obtenerUsuarioExistente(Integer idUsuario) {
