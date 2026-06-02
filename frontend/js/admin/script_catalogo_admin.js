@@ -291,7 +291,7 @@ window.submitCatalogForm = async function(event) {
       precio: Number(document.getElementById('product-price').value || 0),
       stock,
       categoriaId: Number(document.getElementById('product-category').value),
-      tallas: selectedSizes.map((talla) => ({ talla, stock })),
+      tallas: selectedSizes.map((talla) => ({ talla, stock: 0 })),
     };
     const token = getToken();
     const response = await fetch(editingProductId ? `/api/catalogo/${editingProductId}` : '/api/catalogo', {

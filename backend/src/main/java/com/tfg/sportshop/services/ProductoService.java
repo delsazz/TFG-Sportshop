@@ -59,12 +59,8 @@ public class ProductoService {
         producto.setPrecio(request.precio());
         producto.setCategoria(categoria);
         producto.setDescripcion(request.descripcion());
-        int totalStock = 0;
-        if(request.tallas() != null && !request.tallas().isEmpty()) {
-            totalStock = request.tallas().stream().mapToInt(AdminProductoRequest.TallaStockRequest::stock).sum();
-        } else {
-            totalStock = request.stock();
-        }
+        // Usar siempre el stock explícito del request como stock total del producto
+        int totalStock = request.stock() != null ? request.stock() : 0;
         producto.setStock(totalStock);
         producto.setStockMinimo(request.stockMinimo() != null ? request.stockMinimo() : 0);
         producto.setLoteCompra(1);
@@ -105,10 +101,11 @@ public class ProductoService {
         if(producto.getPlazoReposicionDias() == null) {
             producto.setPlazoReposicionDias(7);
         }
+        // Usar siempre el stock explícito del request como stock total del producto
+        producto.setStock(request.stock() != null ? request.stock() : 0);
         if(request.tallas() != null && !request.tallas().isEmpty()) {
-            // Eliminar tallas antiguas
+            // Eliminar tallas antiguas y guardar las nuevas
             productoTallaRepository.deleteByProductoIdProducto(producto.getIdProducto());
-            int totalStock = 0;
             for (AdminProductoRequest.TallaStockRequest ts : request.tallas()) {
                 Talla talla = tallaRepository.findByNombre(ts.talla())
                     .orElseGet(() -> {
@@ -122,11 +119,7 @@ public class ProductoService {
                 pt.setTalla(talla);
                 pt.setStock(ts.stock());
                 productoTallaRepository.save(pt);
-                totalStock += ts.stock();
             }
-            producto.setStock(totalStock);
-        } else {
-            producto.setStock(request.stock());
         }
         return productoRepository.save(producto);
     }
