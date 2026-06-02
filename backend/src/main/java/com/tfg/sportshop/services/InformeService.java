@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.time.LocalDate;
 import java.math.BigDecimal;
 import java.util.Comparator;
-import java.time.LocalDateTime
 import java.util.stream.Collectors;
 import com.tfg.sportshop.model.Pago;
 import java.util.function.Predicate;
@@ -16,7 +15,6 @@ import com.tfg.sportshop.model.Usuario;
 import com.tfg.sportshop.model.Producto;
 import org.springframework.http.HttpStatus;
 import com.tfg.sportshop.model.DetallePedido;
-import com.tfg.sportshop.model.ProductoTalla;
 import org.springframework.stereotype.Service;
 import com.tfg.sportshop.repository.PagoRepository;
 import com.tfg.sportshop.repository.TallaRepository;
