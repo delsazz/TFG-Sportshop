@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.JpaRepository;
 @Repository
 public interface ProductoRepository extends JpaRepository<Producto, Integer> {
-    @Query("SELECT producto FROM Producto producto")
+    @Query("SELECT DISTINCT producto FROM Producto producto LEFT JOIN FETCH producto.imagenes")
     List<Producto> findAll();
     List<Producto> findByCategoriaIdCategoria(Integer idCategoria);
     List<Producto> findByIdProductoIn(List<Integer> ids);

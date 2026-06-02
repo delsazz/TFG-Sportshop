@@ -37,8 +37,10 @@ async function initAdminCategories() {
           </label>
           <label class="block text-sm font-medium text-gray-700">
             Foto representativa
-            <input id="category-image" type="text" required placeholder="/img/categorias/ropa_deportiva.jpg" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" />
+            <input id="category-image-file" type="file" accept="image/*" onchange="handleCategoryImageChange(event)" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" />
+            <input id="category-image" type="hidden" required />
           </label>
+          <div id="category-image-preview" class="admin-image-preview hidden"></div>
           <div class="flex gap-3 border-t pt-4">
             <button type="submit" id="category-submit" class="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Guardar categoría</button>
             <button type="button" onclick="closeCategoryForm()" class="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancelar</button>
@@ -105,6 +107,8 @@ window.openCategoryForm = function() {
   document.getElementById('category-submit').textContent = 'Guardar categoría';
   document.getElementById('category-name').value = '';
   document.getElementById('category-image').value = '';
+  document.getElementById('category-image-file').value = '';
+  renderCategoryImagePreview('');
   document.getElementById('category-form').classList.remove('hidden');
 };
 
@@ -121,7 +125,21 @@ window.editCategory = function(id) {
   document.getElementById('category-submit').textContent = 'Actualizar categoría';
   document.getElementById('category-name').value = category.nombreCategoria || '';
   document.getElementById('category-image').value = category.imagenUrl || '';
+  document.getElementById('category-image-file').value = '';
+  renderCategoryImagePreview(category.imagenUrl || '');
   document.getElementById('category-form').classList.remove('hidden');
+};
+
+window.handleCategoryImageChange = function(event) {
+  const file = event.target.files?.[0];
+  const imageInput = document.getElementById('category-image');
+  if (!file) {
+    imageInput.value = '';
+    renderCategoryImagePreview('');
+    return;
+  }
+  imageInput.value = `/img/categorias/${file.name}`;
+  renderCategoryImagePreview(URL.createObjectURL(file), file.name);
 };
 
 window.submitCategoryForm = async function(event) {
@@ -147,6 +165,18 @@ window.submitCategoryForm = async function(event) {
       body: JSON.stringify(payload),
     });
     if (!response.ok) throw new Error('No se pudo guardar la categoría');
+    const savedCategory = await response.json();
+    const imageFile = document.getElementById('category-image-file').files[0];
+    if (imageFile && savedCategory.idCategoria) {
+      const formData = new FormData();
+      formData.append('file', imageFile);
+      const imageResponse = await fetch(`/api/categorias/${savedCategory.idCategoria}/imagen`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${getToken()}` },
+        body: formData,
+      });
+      if (!imageResponse.ok) throw new Error('Categoría guardada, pero no se pudo guardar la imagen');
+    }
     closeCategoryForm();
     await fetchCategoriesData();
   } catch (error) {
@@ -158,4 +188,29 @@ function showCategoriesError(message) {
   const error = document.getElementById('categories-error');
   error.textContent = message;
   error.classList.remove('hidden');
+}
+
+function renderCategoryImagePreview(src, fileName = '') {
+  const preview = document.getElementById('category-image-preview');
+  if (!preview) return;
+  if (!src) {
+    preview.innerHTML = '';
+    preview.classList.add('hidden');
+    return;
+  }
+  preview.innerHTML = `
+    <img src="${escapeHtml(src)}" alt="${escapeHtml(fileName || 'Foto de categoría')}" class="admin-form-image-preview rounded-lg border border-gray-200 object-cover" />
+    <span class="text-sm text-gray-500">${escapeHtml(fileName || document.getElementById('category-image').value)}</span>
+  `;
+  preview.classList.remove('hidden');
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+  })[char]);
 }

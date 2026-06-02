@@ -37,7 +37,8 @@ app:
   frontend:
     url: ${APP_FRONTEND_URL:http://localhost:5173}
   upload:
-    dir: uploads/productos
+    productos-dir: ../frontend/public/img/productos
+    categorias-dir: ../frontend/public/img/categorias
     max-size: 5242880
   notifications:
     email:

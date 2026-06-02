@@ -47,7 +47,7 @@ public class ProductoService {
 
     @Transactional
     public Producto crearProducto(String nombre, String tipoPrenda, String color, BigDecimal precio, Integer stock, Integer categoriaId) {
-        return crearProductoConTallas(new AdminProductoRequest(nombre, tipoPrenda, color, precio, stock, categoriaId, null, null, null, null, null, null, 0));
+        return crearProductoConTallas(new AdminProductoRequest(nombre, tipoPrenda, color, precio, stock, categoriaId, null, null, 0));
     }
 
     @Transactional
@@ -59,7 +59,6 @@ public class ProductoService {
         producto.setPrecio(request.precio());
         producto.setCategoria(categoria);
         producto.setDescripcion(request.descripcion());
-        producto.setConsejos(request.consejos());
         int totalStock = 0;
         if(request.tallas() != null && !request.tallas().isEmpty()) {
             totalStock = request.tallas().stream().mapToInt(AdminProductoRequest.TallaStockRequest::stock).sum();
@@ -99,7 +98,6 @@ public class ProductoService {
         producto.setPrecio(request.precio());
         producto.setCategoria(categoria);
         producto.setDescripcion(request.descripcion());
-        producto.setConsejos(request.consejos());
         producto.setStockMinimo(request.stockMinimo() != null ? request.stockMinimo() : 0);
         if(producto.getLoteCompra() == null) {
             producto.setLoteCompra(1);

@@ -22,10 +22,6 @@ public record AdminProductoRequest(
     Integer categoriaId,
     List<TallaStockRequest> tallas,
     String descripcion,
-    String composicion,
-    String normativa,
-    String instruccionesLavado,
-    String consejos,
     @Min(value = 0, message = "El stock minimo no puede ser negativo")
     Integer stockMinimo
 ) {

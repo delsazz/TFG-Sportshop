@@ -63,8 +63,9 @@ async function initAdminCatalog() {
 
           <label class="block text-sm font-medium text-gray-700">
             Foto del producto
-            <input id="product-photo" type="file" accept="image/*" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" />
+            <input id="product-photo" type="file" accept="image/*" onchange="handleProductPhotoChange(event)" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" />
           </label>
+          <div id="product-photo-preview" class="admin-image-preview hidden"></div>
 
           <div class="flex gap-3 border-t pt-4">
             <button type="submit" id="product-submit" class="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Guardar producto</button>
@@ -84,19 +85,30 @@ async function initAdminCatalog() {
           </select>
         </div>
 
-        <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-          <table class="min-w-full text-left">
+        <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+          <table class="admin-products-table text-left">
+            <colgroup>
+              <col class="admin-products-col-image" />
+              <col class="admin-products-col-product" />
+              <col class="admin-products-col-category" />
+              <col class="admin-products-col-description" />
+              <col class="admin-products-col-price" />
+              <col class="admin-products-col-stock" />
+              <col class="admin-products-col-actions" />
+            </colgroup>
             <thead class="bg-gray-50">
               <tr>
+                <th class="px-4 py-3 text-sm font-medium text-gray-500">Imagen</th>
                 <th class="px-4 py-3 text-sm font-medium text-gray-500">Producto</th>
                 <th class="px-4 py-3 text-sm font-medium text-gray-500">Categoría</th>
+                <th class="px-4 py-3 text-sm font-medium text-gray-500">Descripción</th>
                 <th class="px-4 py-3 text-sm font-medium text-gray-500">Precio</th>
                 <th class="px-4 py-3 text-sm font-medium text-gray-500">Stock</th>
                 <th class="px-4 py-3 text-sm font-medium text-gray-500">Acciones</th>
               </tr>
             </thead>
             <tbody id="products-table-body">
-              <tr><td colspan="5" class="px-4 py-8 text-center text-gray-500">Cargando productos...</td></tr>
+              <tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">Cargando productos...</td></tr>
             </tbody>
           </table>
         </div>
@@ -152,19 +164,32 @@ function renderCatalog() {
   });
 
   if (!products.length) {
-    tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-gray-500">No hay productos.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">No hay productos.</td></tr>';
     return;
   }
 
   tbody.innerHTML = products.map((product) => {
     const stock = Number(product.stock || 0);
+    const imageUrl = getProductImageUrl(product);
+    const productName = escapeHtml(product.nombre || 'Sin nombre');
+    const productDescription = escapeHtml(product.descripcion || 'Sin descripción');
+    const categoryName = escapeHtml(product.categoria?.nombreCategoria || 'Sin categoría');
     return `
       <tr class="border-t border-gray-100 align-top hover:bg-gray-50">
         <td class="px-4 py-3">
-          <div class="font-medium text-gray-900">${product.nombre}</div>
-          <div class="max-w-xl text-sm text-gray-500">${product.descripcion || 'Sin descripción'}</div>
+          ${imageUrl ? `
+            <img src="${escapeHtml(imageUrl)}" alt="${productName}" class="admin-product-thumb rounded-lg border border-gray-200 object-cover" loading="lazy" />
+          ` : `
+            <div class="admin-product-thumb flex items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-400">
+              <i data-lucide="image" class="h-5 w-5"></i>
+            </div>
+          `}
         </td>
-        <td class="px-4 py-3 text-sm text-gray-700">${product.categoria?.nombreCategoria || 'Sin categoría'}</td>
+        <td class="px-4 py-3 font-medium text-gray-900">${productName}</td>
+        <td class="px-4 py-3 text-sm text-gray-700">${categoryName}</td>
+        <td class="px-4 py-3">
+          <div class="admin-product-description text-sm leading-6 text-gray-500">${productDescription}</div>
+        </td>
         <td class="px-4 py-3 text-sm text-gray-700">${Number(product.precio || 0).toFixed(2)} EUR</td>
         <td class="px-4 py-3 text-sm text-gray-700">${stock}</td>
         <td class="px-4 py-3">
@@ -176,6 +201,24 @@ function renderCatalog() {
       </tr>
     `;
   }).join('');
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function getProductImageUrl(product) {
+  const url = product.imagen || product.imagenUrl || product.urlImagen;
+  if (!url) return '';
+  if (/^(https?:)?\/\//.test(url) || url.startsWith('/')) return url;
+  return `/${url}`;
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+  })[char]);
 }
 
 window.openCatalogForm = function() {
@@ -188,6 +231,7 @@ window.openCatalogForm = function() {
   document.getElementById('product-stock').value = 0;
   document.getElementById('product-description').value = '';
   document.getElementById('product-photo').value = '';
+  renderProductPhotoPreview('');
   document.querySelectorAll('#product-sizes input').forEach((input) => { input.checked = false; });
   if (catalogCategories.length) document.getElementById('product-category').value = catalogCategories[0].idCategoria;
   document.getElementById('catalog-form').classList.remove('hidden');
@@ -217,6 +261,7 @@ window.editCatalogProduct = async function(id) {
   document.getElementById('product-description').value = product.descripcion || '';
   document.getElementById('product-category').value = product.categoria?.idCategoria || '';
   document.getElementById('product-photo').value = '';
+  renderProductPhotoPreview(getProductImageUrl(product));
 
   try {
     const response = await fetch(`/api/catalogo/${id}/tallas`);
@@ -283,6 +328,15 @@ window.submitCatalogForm = async function(event) {
   }
 };
 
+window.handleProductPhotoChange = function(event) {
+  const file = event.target.files?.[0];
+  if (!file) {
+    renderProductPhotoPreview('');
+    return;
+  }
+  renderProductPhotoPreview(URL.createObjectURL(file), file.name);
+};
+
 window.deleteCatalogProduct = async function(id) {
   const product = catalogProducts.find((item) => item.idProducto === id);
   if (!product || Number(product.stock || 0) !== 0) {
@@ -308,4 +362,19 @@ function showCatalogError(message) {
   const error = document.getElementById('catalog-error');
   error.textContent = message;
   error.classList.remove('hidden');
+}
+
+function renderProductPhotoPreview(src, fileName = '') {
+  const preview = document.getElementById('product-photo-preview');
+  if (!preview) return;
+  if (!src) {
+    preview.innerHTML = '';
+    preview.classList.add('hidden');
+    return;
+  }
+  preview.innerHTML = `
+    <img src="${escapeHtml(src)}" alt="${escapeHtml(fileName || 'Foto del producto')}" class="admin-form-image-preview rounded-lg border border-gray-200 object-cover" />
+    <span class="text-sm text-gray-500">${escapeHtml(fileName || 'Imagen actual')}</span>
+  `;
+  preview.classList.remove('hidden');
 }

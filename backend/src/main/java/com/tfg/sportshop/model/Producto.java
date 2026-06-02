@@ -37,8 +37,6 @@ public class Producto {
     private List<DetallePedido> detalles;
     @Column(length = 500)
     private String descripcion;
-    @Column(columnDefinition = "TEXT")
-    private String consejos;
     @OneToMany(mappedBy = "producto", fetch = FetchType.LAZY)
     private List<ProductoImagen> imagenes;
 }

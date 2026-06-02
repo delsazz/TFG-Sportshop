@@ -27,7 +27,7 @@ public class ProductoImagenService {
     @Autowired
     private ProductoRepository productoRepository;
     
-    @Value("${app.upload.dir:uploads/productos}")
+    @Value("${app.upload.productos-dir:../frontend/public/img/productos}")
     private String uploadDir;
     
     @Value("${app.upload.max-size:5242880}")
@@ -55,7 +55,7 @@ public class ProductoImagenService {
             extension = originalFilename.substring(originalFilename.lastIndexOf("."));
         }
         String filename = UUID.randomUUID() + extension;
-        Path uploadPath = Paths.get(uploadDir);
+        Path uploadPath = resolveUploadPath(uploadDir, "frontend/public/img/productos");
         Files.createDirectories(uploadPath);
         Path filePath = uploadPath.resolve(filename);
         Files.write(filePath, file.getBytes());
@@ -72,7 +72,7 @@ public class ProductoImagenService {
         int nuevoOrden = imagenesExistentes.size();
         ProductoImagen imagen = new ProductoImagen();
         imagen.setProducto(producto);
-        imagen.setUrlImagen("/uploads/productos/" + filename);
+        imagen.setUrlImagen("/img/productos/" + filename);
         imagen.setAltText(producto.getNombre());
         imagen.setOrden(nuevoOrden);
         imagen.setEsPrincipal(esPrincipal != null && esPrincipal);
@@ -90,11 +90,23 @@ public class ProductoImagenService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Imagen no encontrada"));
         try {
             String filename = imagen.getUrlImagen().substring(imagen.getUrlImagen().lastIndexOf("/") + 1);
-            Path filePath = Paths.get(uploadDir).resolve(filename);
+            Path filePath = resolveUploadPath(uploadDir, "frontend/public/img/productos").resolve(filename);
             Files.deleteIfExists(filePath);
         } catch(IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al eliminar la imagen");
         }
         productoImagenRepository.deleteById(idImagen);
+    }
+
+    private Path resolveUploadPath(String configuredPath, String rootRelativeFallback) {
+        Path configured = Paths.get(configuredPath);
+        if(configured.isAbsolute()) {
+            return configured;
+        }
+        Path relativeToBackend = configured.toAbsolutePath().normalize();
+        if(Files.exists(relativeToBackend.getParent()) || Files.exists(relativeToBackend)) {
+            return relativeToBackend;
+        }
+        return Paths.get(rootRelativeFallback).toAbsolutePath().normalize();
     }
 }

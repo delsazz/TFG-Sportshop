@@ -11,10 +11,6 @@ public record AdminProductoResponse(
     Integer stock,
     String imagen,
     String descripcion,
-    String composicion,
-    String normativa,
-    String instruccionesLavado,
-    String consejos,
     AdminCategoriaResponse categoria
 ) {
 }
