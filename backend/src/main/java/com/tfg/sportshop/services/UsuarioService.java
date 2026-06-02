@@ -11,7 +11,7 @@ import com.tfg.sportshop.repository.UsuarioRepository;
 import com.tfg.sportshop.repository.CarritoItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import com.tfg.sportshop.repository.PasswordResetTokenRepository;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Service
 public class UsuarioService {
@@ -21,8 +21,6 @@ public class UsuarioService {
     private PedidoRepository pedidoRepository;
     @Autowired
     private CarritoItemRepository carritoItemRepository;
-    @Autowired
-    private PasswordResetTokenRepository passwordResetTokenRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private static final int MAX_INTENTOS_LOGIN = 5;
     private static final int COOLDOWN_SEGUNDOS = 20;
@@ -55,7 +53,6 @@ public class UsuarioService {
             return false;
         }
         carritoItemRepository.deleteByUsuarioIdUsuario(idUsuario);
-        passwordResetTokenRepository.deleteByUsuarioIdUsuario(idUsuario);
         pedidoRepository.desvincularUsuario(idUsuario);
         usuarioRepository.deleteRolesByUsuarioId(idUsuario);
         usuarioRepository.deleteById(idUsuario);

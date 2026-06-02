@@ -213,3 +213,34 @@
     font-weight: 800;
     text-transform: uppercase;
 }
+
+/* Custom legal checkbox cards styling to match captcha-check */
+.legal-check-container {
+    margin-bottom: 1rem;
+}
+
+.legal-checkbox-card {
+    user-select: none;
+    max-width: 360px;
+}
+
+.legal-checkbox-card .captcha-text {
+    font-size: 0.95rem;
+    color: #374151;
+}
+
+.hidden-real-checkbox {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    margin: 0;
+}
+
+.custom-tick {
+    display: none !important;
+}
+
+.hidden-real-checkbox:checked + .captcha-box .custom-tick {
+    display: inline-flex !important;
+}

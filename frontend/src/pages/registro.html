@@ -125,19 +125,27 @@
             required />
         </div>
 
-        <div class="flex items-start gap-2">
-          <input id="aceptoTerminos" name="aceptoTerminos" type="checkbox" class="mt-1 h-4 w-4" required />
-          <label class="text-sm text-gray-700">
-            Acepto los
-            <a href="terminos_condiciones.html" class="legal-link">términos y condiciones</a>
+        <div class="legal-check-container">
+          <label for="aceptoTerminos" class="captcha-check legal-checkbox-card">
+            <input id="aceptoTerminos" name="aceptoTerminos" type="checkbox" class="hidden-real-checkbox" required />
+            <span class="captcha-box">
+              <span class="captcha-tick custom-tick">✓</span>
+            </span>
+            <span class="captcha-text">
+              Acepto los <a href="terminos_condiciones.html" target="_blank" class="legal-link" onclick="event.stopPropagation()">términos y condiciones</a>
+            </span>
           </label>
         </div>
 
-        <div class="flex items-start gap-2">
-          <input id="aceptoPrivacidad" name="aceptoPrivacidad" type="checkbox" class="mt-1 h-4 w-4" required />
-          <label class="text-sm text-gray-700">
-            Acepto la
-            <a href="politica_privacidad.html" class="legal-link">política de privacidad</a>
+        <div class="legal-check-container">
+          <label for="aceptoPrivacidad" class="captcha-check legal-checkbox-card">
+            <input id="aceptoPrivacidad" name="aceptoPrivacidad" type="checkbox" class="hidden-real-checkbox" required />
+            <span class="captcha-box">
+              <span class="captcha-tick custom-tick">✓</span>
+            </span>
+            <span class="captcha-text">
+              Acepto la <a href="politica_privacidad.html" target="_blank" class="legal-link" onclick="event.stopPropagation()">política de privacidad</a>
+            </span>
           </label>
         </div>
 
