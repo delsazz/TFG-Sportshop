@@ -5,53 +5,68 @@
   <link rel="icon" href="/img/sportshop.jpg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Detalle del Pedido — SportShop</title>
-<link rel="stylesheet" href="/css/order-detail.css" />
+  <link rel="stylesheet" href="/css/order-detail.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-50">
-  <div id="layout-container">
-    <!-- Navbar placeholder (if needed) -->
-  </div>
+<body>
+  <div id="layout-container"></div>
 
-  <div id="loading-container" class="text-center py-12 text-slate-600">
-    Cargando detalle del pedido...
-  </div>
-
-  <div id="error-container" class="text-center py-12 text-red-600 hidden">
-    Pedido no encontrado.
-  </div>
-
-  <div id="content-container" class="mx-auto max-w-5xl px-4 py-8 sm:py-10 hidden">
-    <div class="flex flex-col gap-4 mb-8 sm:flex-row sm:justify-between sm:items-center">
-      <div>
-        <h1 id="order-title" class="text-3xl font-bold">Pedido #</h1>
-        <p id="order-date" class="text-slate-500 mt-1">
-          Realizado el -
-        </p>
-      </div>
-      <a href="/mis_pedidos.html" class="text-blue-600 hover:underline inline-flex items-center gap-1">
-        <i data-lucide="arrow-left" class="h-4 w-4"></i> Volver a mis pedidos
-      </a>
-    </div>
-
-    <div class="bg-white border border-slate-200 rounded-3xl p-5 sm:p-8 shadow-sm">
-      <div class="flex flex-col gap-5 mb-8 sm:flex-row sm:justify-between">
+  <main class="orders-page order-detail-page">
+    <section class="orders-shell">
+      <header class="orders-header">
         <div>
-          <p class="text-sm text-slate-500">Estado</p>
-          <p id="order-status" class="text-xl font-semibold capitalize">-</p>
+          <p>Cuenta</p>
+          <h1 id="order-title">Pedido #</h1>
+          <span id="order-date" class="order-meta">Realizado el -</span>
         </div>
-        <div class="sm:text-right">
-          <p class="text-sm text-slate-500">Total</p>
-          <p id="order-total" class="text-3xl font-bold">0.00 €</p>
-        </div>
-      </div>
+        <a href="mis_pedidos.html" class="orders-link">
+          <i data-lucide="arrow-left"></i>
+          Volver a mis pedidos
+        </a>
+      </header>
 
-      <h2 class="text-xl font-semibold mb-4">Productos</h2>
-      <div id="order-items" class="divide-y border-t border-slate-200">
-        <!-- Products loaded by JS -->
-      </div>
-    </div>
-  </div>
+      <div id="loading-container" class="orders-state">Cargando detalle del pedido...</div>
+      <div id="error-container" class="orders-state orders-error hidden">Pedido no encontrado.</div>
+
+      <section id="content-container" class="hidden">
+        <article class="order-card order-detail-card">
+          <div class="order-detail-summary">
+            <div>
+              <span class="detail-label">Estado</span>
+              <strong id="order-status" class="status-badge status-default">-</strong>
+            </div>
+            <div>
+              <span class="detail-label">Total</span>
+              <strong id="order-total" class="order-total">0.00 EUR</strong>
+            </div>
+          </div>
+
+          <div class="order-table-heading">
+            <div>
+              <p>Detalle</p>
+              <h2>Productos</h2>
+            </div>
+          </div>
+
+          <div class="order-table-wrap">
+            <table class="order-detail-table">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Talla</th>
+                  <th>Cantidad</th>
+                  <th>Precio ud.</th>
+                  <th>Subtotal</th>
+                  <th>Devolucion</th>
+                </tr>
+              </thead>
+              <tbody id="order-items"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </section>
+  </main>
 
   <script src="/js/components/script_estructura.js"></script>
   <script src="/js/script_almacenamiento_autenticacion.js"></script>
