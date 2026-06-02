@@ -42,9 +42,6 @@ const fallbackProductos = [
     nombre: 'Camiseta Nike Dri-FIT',
     tipoPrenda: 'Ropa deportiva',
     descripcion: 'Camiseta transpirable para entrenamiento diario.',
-    composicion: 'Poliéster técnico transpirable',
-    instruccionesLavado: 'Lavar a 30 grados, no usar lejía y secar al aire.',
-    consejos: 'Evitar plancha directa sobre estampados.',
     color: 'Negro',
     precio: 24.99,
     stock: 40,
@@ -56,9 +53,6 @@ const fallbackProductos = [
     nombre: 'Zapatillas Adidas Run',
     tipoPrenda: 'Calzado',
     descripcion: 'Zapatillas ligeras para running y gimnasio.',
-    composicion: 'Malla textil, goma y espuma EVA',
-    instruccionesLavado: 'Limpiar con paño húmedo y no meter en lavadora.',
-    consejos: 'Airear después de entrenar.',
     color: 'Blanco',
     precio: 69.99,
     stock: 25,
@@ -70,9 +64,6 @@ const fallbackProductos = [
     nombre: 'Mochila Puma Training',
     tipoPrenda: 'Accesorios',
     descripcion: 'Mochila deportiva con compartimentos amplios.',
-    composicion: 'Poliéster resistente',
-    instruccionesLavado: 'Limpiar a mano con agua fría.',
-    consejos: 'No sobrecargar las cremalleras.',
     color: 'Azul',
     precio: 34.99,
     stock: 18,
@@ -84,9 +75,6 @@ const fallbackProductos = [
     nombre: 'Set de pesas 10 kg',
     tipoPrenda: 'Equipamiento',
     descripcion: 'Kit de mancuernas para fuerza y tonificación.',
-    composicion: 'Hierro y recubrimiento protector',
-    instruccionesLavado: 'Limpiar con paño seco tras cada uso.',
-    consejos: 'Guardar en una superficie estable.',
     color: 'Negro',
     precio: 44.99,
     stock: 12,
@@ -98,9 +86,6 @@ const fallbackProductos = [
     nombre: 'Proteína Whey Sport',
     tipoPrenda: 'Suplementos',
     descripcion: 'Suplemento proteico para recuperación muscular.',
-    composicion: 'Proteína de suero, aromas y edulcorante',
-    instruccionesLavado: 'Cerrar bien el envase y mantener seco.',
-    consejos: 'Conservar alejado del calor y la humedad.',
     color: 'Vainilla',
     precio: 29.99,
     stock: 30,
@@ -260,13 +245,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const imgSrc = resolveImage(product.imagen || product.imagenUrl, fallbackImage);
     const stock = Number(product.stock || 0);
     const description = product.descripcion || `${product.tipoPrenda || 'Producto deportivo'} de ${product.categoria?.nombreCategoria || 'SportShop'}.`;
-    const composicion = product.composicion || 'Composición no indicada';
-    const lavado = product.instruccionesLavado || 'Consultar etiqueta del producto';
-    const consejos = product.consejos || 'Guardar en un lugar seco y aireado despues de cada uso.';
+    const color = product.color ? `<span class="catalog-color">${product.color}</span>` : '';
 
     const html = `
       <article class="catalog-product-card">
-        <a href="${pageHref('detalle_producto.html')}?id=${product.idProducto}" class="catalog-product-link">
+        <div class="catalog-product-content">
           <div class="catalog-product-image">
             <img src="${imgSrc}" alt="${product.nombre}" />
           </div>
@@ -279,26 +262,12 @@ document.addEventListener('DOMContentLoaded', async () => {
               <span class="catalog-stock">Stock ${stock}</span>
             </div>
             <p class="catalog-product-description">${description}</p>
-            <dl class="catalog-product-details">
-              <div>
-                <dt>Composición</dt>
-                <dd>${composicion}</dd>
-              </div>
-              <div>
-                <dt>Cuidado y lavado</dt>
-                <dd>${lavado}</dd>
-              </div>
-              <div>
-                <dt>Consejos</dt>
-                <dd>${consejos}</dd>
-              </div>
-            </dl>
             <div class="catalog-product-meta">
               <span class="catalog-price">${formatPrice(product.precio)}</span>
-              <span class="catalog-color">${product.color || ''}</span>
+              ${color}
             </div>
           </div>
-        </a>
+        </div>
         <div class="catalog-product-actions">
           <button class="add-btn catalog-add-button"
             data-id="${product.idProducto}"

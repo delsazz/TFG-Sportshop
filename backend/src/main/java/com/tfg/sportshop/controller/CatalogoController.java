@@ -180,6 +180,13 @@ public class CatalogoController {
         return toCategoriaResponse(categoria);
     }
 
+    @PostMapping("/categorias/{idCategoria}/imagen")
+    public AdminCategoriaResponse subirImagenCategoria(@PathVariable Integer idCategoria, @RequestParam("file") MultipartFile file)
+            throws IOException {
+        validarAdministrador();
+        return toCategoriaResponse(categoriaService.guardarImagenCategoria(idCategoria, file));
+    }
+
     @DeleteMapping("/categorias/{idCategoria}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eliminarCategoria(@PathVariable Integer idCategoria) {
@@ -230,10 +237,27 @@ public class CatalogoController {
 
     private AdminProductoResponse toProductoResponse(Producto producto) {
         return new AdminProductoResponse(producto.getIdProducto(), producto.getNombre(), null,
-                null, producto.getPrecio(), producto.getStock(), null,
-                producto.getDescripcion(), null, null,
-                null, producto.getConsejos(),
-                producto.getCategoria() == null ? null : toCategoriaResponse(producto.getCategoria()));
+                null, producto.getPrecio(), producto.getStock(), imagenPrincipal(producto),
+                producto.getDescripcion(), producto.getCategoria() == null ? null : toCategoriaResponse(producto.getCategoria()));
+    }
+
+    private String imagenPrincipal(Producto producto) {
+        if(producto.getImagenes() == null || producto.getImagenes().isEmpty()) {
+            return null;
+        }
+        return producto.getImagenes().stream()
+                .sorted((primera, segunda) -> {
+                    boolean primeraPrincipal = Boolean.TRUE.equals(primera.getEsPrincipal());
+                    boolean segundaPrincipal = Boolean.TRUE.equals(segunda.getEsPrincipal());
+                    if(primeraPrincipal != segundaPrincipal) {
+                        return primeraPrincipal ? -1 : 1;
+                    }
+                    return Integer.compare(primera.getOrden(), segunda.getOrden());
+                })
+                .map(ProductoImagen::getUrlImagen)
+                .filter(url -> url != null && !url.isBlank())
+                .findFirst()
+                .orElse(null);
     }
 
     private ProductoImagenResponse toImagenResponse(ProductoImagen imagen) {
