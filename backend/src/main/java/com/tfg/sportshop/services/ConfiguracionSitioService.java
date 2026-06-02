@@ -1,6 +1,5 @@
 package com.tfg.sportshop.services;
 import java.util.UUID;
-import java.util.Locale;
 import java.nio.file.Path;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,24 +42,6 @@ public class ConfiguracionSitioService {
     @Value("${app.upload.max-size:5242880}")
     private long maxFileSize;
 
-    @Value("${app.payments.bizum.phone:+34 600 000 000}")
-    private String defaultBizumTelefono;
-
-    @Value("${app.payments.bizum.bank-url:https://www.bizum.es/bancos-bizum/}")
-    private String defaultBizumBancoUrl;
-
-    @Value("${app.payments.transfer.account-holder:Sportshop}")
-    private String defaultTransferenciaTitular;
-
-    @Value("${app.payments.transfer.iban:ES00 0000 0000 0000 0000 0000}")
-    private String defaultTransferenciaIban;
-
-    @Value("${app.payments.transfer.concept:Pedido {pedidoId} - Sportshop}")
-    private String defaultTransferenciaConcepto;
-
-    @Value("${app.payments.transfer.notes:Envia el justificante desde la pantalla de confirmacion del pedido.}")
-    private String defaultTransferenciaNotas;
-
     public ConfiguracionSitioService(ConfiguracionSitioRepository configuracionSitioRepository) {
         this.configuracionSitioRepository = configuracionSitioRepository;
     }
@@ -80,16 +61,7 @@ public class ConfiguracionSitioService {
             MultipartFile logoAdmin
     ) {
         ConfiguracionSitio configuracion = obtenerOCrearConfiguracion();
-        actualizarTexto(request.bizumTelefono(), configuracion::setBizumTelefono, configuracion.getBizumTelefono(), defaultBizumTelefono);
-        actualizarTexto(request.bizumBancoUrl(), configuracion::setBizumBancoUrl, configuracion.getBizumBancoUrl(), defaultBizumBancoUrl);
-        actualizarTexto(request.transferenciaTitular(), configuracion::setTransferenciaTitular, configuracion.getTransferenciaTitular(), defaultTransferenciaTitular);
-        actualizarTexto(request.transferenciaIban(), configuracion::setTransferenciaIban, configuracion.getTransferenciaIban(), defaultTransferenciaIban);
-        actualizarTexto(request.transferenciaConcepto(), configuracion::setTransferenciaConcepto, configuracion.getTransferenciaConcepto(), defaultTransferenciaConcepto);
-        actualizarTexto(request.transferenciaNotas(), configuracion::setTransferenciaNotas, configuracion.getTransferenciaNotas(), defaultTransferenciaNotas);
         configuracion.setTarjetaHabilitada(request.tarjetaHabilitada() != null ? request.tarjetaHabilitada() : configuracion.isTarjetaHabilitada());
-        configuracion.setBizumHabilitado(request.bizumHabilitado() != null ? request.bizumHabilitado() : configuracion.isBizumHabilitado());
-        configuracion.setTransferenciaHabilitada(request.transferenciaHabilitada() != null ? request.transferenciaHabilitada() : configuracion.isTransferenciaHabilitada());
-        configuracion.setMostradorHabilitado(request.mostradorHabilitado() != null ? request.mostradorHabilitado() : configuracion.isMostradorHabilitado());
         configuracion.setLogoHeaderUrl(guardarLogoSiCorresponde(logoHeader, configuracion.getLogoHeaderUrl(), "header"));
         configuracion.setLogoFooterUrl(guardarLogoSiCorresponde(logoFooter, configuracion.getLogoFooterUrl(), "footer"));
         configuracion.setLogoLoginUrl(guardarLogoSiCorresponde(logoLogin, configuracion.getLogoLoginUrl(), "login"));
@@ -105,9 +77,6 @@ public class ConfiguracionSitioService {
         ConfiguracionSitio configuracion = obtenerOCrearConfiguracion();
         return switch(normalizado) {
             case "tarjeta", "credit_card" -> configuracion.isTarjetaHabilitada();
-            case "bizum" -> configuracion.isBizumHabilitado();
-            case "transferencia", "transferencia bancaria", "bank_transfer" -> configuracion.isTransferenciaHabilitada();
-            case "mostrador", "pago en mostrador", "presencial", "cash" -> configuracion.isMostradorHabilitado();
             default -> false;
         };
     }
@@ -122,22 +91,16 @@ public class ConfiguracionSitioService {
 
     @Transactional
     public ConfiguracionSitioResponse obtenerConfiguracionPago() {
-        ConfiguracionSitioResponse configuracion = obtenerConfiguracion();
+        ConfiguracionSitio configuracion = obtenerOCrearConfiguracion();
         return new ConfiguracionSitioResponse(
-                configuracion.idConfiguracion(),
-                null, null, null, null, null,
-                configuracion.bizumTelefono(),
-                configuracion.bizumBancoUrl(),
-                configuracion.transferenciaTitular(),
-                configuracion.transferenciaIban(),
-                configuracion.transferenciaConcepto(),
-                configuracion.transferenciaNotas(),
-                null, null, null, null, null, null, null, null,
-                configuracion.tarjetaHabilitada(),
-                configuracion.bizumHabilitado(),
-                configuracion.transferenciaHabilitada(),
-                configuracion.mostradorHabilitado(),
-                configuracion.updatedAt()
+                configuracion.getIdConfiguracion(),
+                normalizarLogo(configuracion.getLogoHeaderUrl(), defaultLogoHeader),
+                normalizarLogo(configuracion.getLogoFooterUrl(), defaultLogoFooter),
+                normalizarLogo(configuracion.getLogoLoginUrl(), defaultLogoLogin),
+                normalizarLogo(configuracion.getLogoHomeUrl(), defaultLogoHome),
+                normalizarLogo(configuracion.getLogoAdminUrl(), defaultLogoAdmin),
+                configuracion.isTarjetaHabilitada(),
+                configuracion.getUpdatedAt()
         );
     }
 
@@ -153,16 +116,7 @@ public class ConfiguracionSitioService {
         configuracion.setLogoLoginUrl(defaultLogoLogin);
         configuracion.setLogoHomeUrl(defaultLogoHome);
         configuracion.setLogoAdminUrl(defaultLogoAdmin);
-        configuracion.setBizumTelefono(defaultBizumTelefono);
-        configuracion.setBizumBancoUrl(defaultBizumBancoUrl);
-        configuracion.setTransferenciaTitular(defaultTransferenciaTitular);
-        configuracion.setTransferenciaIban(defaultTransferenciaIban);
-        configuracion.setTransferenciaConcepto(defaultTransferenciaConcepto);
-        configuracion.setTransferenciaNotas(defaultTransferenciaNotas);
         configuracion.setTarjetaHabilitada(true);
-        configuracion.setBizumHabilitado(true);
-        configuracion.setTransferenciaHabilitada(true);
-        configuracion.setMostradorHabilitado(true);
         configuracion.setUpdatedAt(LocalDateTime.now());
         return configuracion;
     }
@@ -227,24 +181,7 @@ public class ConfiguracionSitioService {
                 normalizarLogo(configuracion.getLogoLoginUrl(), defaultLogoLogin),
                 normalizarLogo(configuracion.getLogoHomeUrl(), defaultLogoHome),
                 normalizarLogo(configuracion.getLogoAdminUrl(), defaultLogoAdmin),
-                normalizarTexto(configuracion.getBizumTelefono(), defaultBizumTelefono),
-                normalizarTexto(configuracion.getBizumBancoUrl(), defaultBizumBancoUrl),
-                normalizarTexto(configuracion.getTransferenciaTitular(), defaultTransferenciaTitular),
-                normalizarTexto(configuracion.getTransferenciaIban(), defaultTransferenciaIban),
-                normalizarTexto(configuracion.getTransferenciaConcepto(), defaultTransferenciaConcepto),
-                normalizarTexto(configuracion.getTransferenciaNotas(), defaultTransferenciaNotas),
-                configuracion.getEmailBienvenidaAsunto(),
-                configuracion.getEmailBienvenidaCuerpo(),
-                configuracion.getEmailPedidoCreadoAsunto(),
-                configuracion.getEmailPedidoCreadoCuerpo(),
-                configuracion.getEmailCambioEstadoAsunto(),
-                configuracion.getEmailCambioEstadoCuerpo(),
-                configuracion.getEmailCambioPasswordAsunto(),
-                configuracion.getEmailCambioPasswordCuerpo(),
                 configuracion.isTarjetaHabilitada(),
-                configuracion.isBizumHabilitado(),
-                configuracion.isTransferenciaHabilitada(),
-                configuracion.isMostradorHabilitado(),
                 configuracion.getUpdatedAt()
         );
     }
@@ -254,7 +191,7 @@ public class ConfiguracionSitioService {
     }
 
     private String normalizarMetodoPago(String metodoPago) {
-        return metodoPago == null ? "" : metodoPago.trim().toLowerCase(Locale.ROOT);
+        return metodoPago == null ? "" : metodoPago.trim().toLowerCase();
     }
 
     @FunctionalInterface
