@@ -231,6 +231,10 @@ input:focus {
     box-shadow: 0 24px 80px rgba(0, 0, 0, 0.22);
 }
 
+.sport-dropdown[hidden] {
+    display: none !important;
+}
+
 .sport-account-panel {
     position: absolute;
     top: calc(100% + 0.7rem);
