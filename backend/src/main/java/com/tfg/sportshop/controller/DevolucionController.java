@@ -67,7 +67,7 @@ public class DevolucionController {
                         item.getDetallePedido().getIdDetalle(),
                         item.getDetallePedido().getProducto().getNombre(),
                         item.getDetallePedido().getTalla() != null ? item.getDetallePedido().getTalla().getNombre() : null,
-                        item.getCantidad(), item.getDetallePedido().getPrecioUnitario(), null))
+                        item.getCantidad(), item.getDetallePedido().getPrecioUnitario(), imagenPrincipal(item)))
                 .toList();
         return new DevolucionResponse(devolucion.getIdDevolucion(), devolucion.getPedido().getIdPedido(),
                 devolucion.getUsuario().getIdUsuario(),  devolucion.getUsuario().getNombre() + " " + devolucion.getUsuario().getApellidos(),
@@ -81,6 +81,20 @@ public class DevolucionController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
         }
         return (Usuario) auth.getPrincipal();
+    }
+
+    private String imagenPrincipal(DevolucionItem item) {
+        if(item.getDetallePedido().getProducto() == null || item.getDetallePedido().getProducto().getImagenes() == null
+                || item.getDetallePedido().getProducto().getImagenes().isEmpty()) {
+            return null;
+        }
+        return item.getDetallePedido().getProducto().getImagenes().stream()
+                .sorted(java.util.Comparator
+                        .comparing((com.tfg.sportshop.model.ProductoImagen imagen) -> !Boolean.TRUE.equals(imagen.getEsPrincipal()))
+                        .thenComparingInt(com.tfg.sportshop.model.ProductoImagen::getOrden))
+                .map(com.tfg.sportshop.model.ProductoImagen::getUrlImagen)
+                .findFirst()
+                .orElse(null);
     }
 
     private void validarAdministrador() {
