@@ -38,7 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.tfg.sportshop.dto.admin.RegistrarEntregaLineaRequest;
 import com.tfg.sportshop.dto.admin.RegistrarEntregaPedidoRequest;
 import com.tfg.sportshop.repository.PedidoEntregaLineaRepository;
-import com.tfg.sportshop.dto.admin.ActualizarEntregasPedidoRequest;
+import com.tfg.sportshop.dto.admin.ActualizarEntregasPedidoRequest;quest;
 
 @Service
 public class PedidoService {
@@ -64,8 +64,6 @@ public class PedidoService {
     private TallaRepository tallaRepository;
     @Autowired
     private UsuarioRepository usuarioRepository;
-    @Autowired
-    private NotificacionService notificacionService;
     @Autowired
     private BackorderPedidoService backorderPedidoService;
 
@@ -168,7 +166,6 @@ public class PedidoService {
         }
         Pedido actualizado = pedidoRepository.save(pedido);
         registrarHistorial(actualizado, "CAMBIO_ESTADO", estadoAnterior, estado, "Estado actualizado manualmente desde el panel de administracion");
-        notificacionService.notificarCambioEstadoPedido(actualizado, estadoAnterior, actualizado.getEstado());
         return actualizado;
     }
 
@@ -186,10 +183,6 @@ public class PedidoService {
         PedidoEntrega entrega = new PedidoEntrega();
         entrega.setPedido(pedido);
         entrega.setFechaEntrega(LocalDateTime.now());
-        aplicarDatosRecepcion(entrega, request.comprobanteEntregaUrl(), request.comprobanteEntregaNombreArchivo(),
-            firmaGuardada == null ? request.firmaRecepcion() : firmaGuardada,
-            request.nombreRecibe(), request.documentoRecibe(), request.tipoReceptor(), request.autorizanteNombre(),
-            request.autorizanteDocumento(), request.textoAutorizacion(), request.observaciones());
         List<PedidoEntregaLinea> lineasEntrega = new ArrayList<>();
         for (RegistrarEntregaLineaRequest lineaRequest : request.lineas()) {
             DetallePedido detalle = detallesPorId.get(lineaRequest.idDetalle());
@@ -232,9 +225,6 @@ public class PedidoService {
         PedidoEntrega entrega = new PedidoEntrega();
         entrega.setPedido(pedido);
         entrega.setFechaEntrega(LocalDateTime.now());
-        aplicarDatosRecepcion(entrega, request.comprobanteEntregaUrl(), request.comprobanteEntregaNombreArchivo(),
-            firmaGuardada == null ? request.firmaRecepcion() : firmaGuardada,
-            request.nombreRecibe(), request.documentoRecibe(), null, null, null, null, request.observaciones());
         List<PedidoEntregaLinea> lineasEntrega = new ArrayList<>();
         for(ActualizarEntregasPedidoRequest.ActualizarEntregaLineaRequest lineaRequest : request.lineas()) {
             DetallePedido detalle = detallesPorId.get(lineaRequest.idDetalle());
@@ -304,10 +294,6 @@ public class PedidoService {
                 pedidoActualizado.getEstado(),
                 "Entregas por prenda actualizadas manualmente desde el panel de administracion"
         );
-
-        if(!pedidoActualizado.getEstado().equals(estadoAnterior)) {
-            notificacionService.notificarCambioEstadoPedido(pedidoActualizado, estadoAnterior, pedidoActualizado.getEstado());
-        }
         return buscarPedidoPorId(id);
     }
 
@@ -335,7 +321,6 @@ public class PedidoService {
         }
         if(!pedido.getEstado().equals(estadoAnterior)) {
             registrarHistorial(pedido, "CAMBIO_ESTADO", estadoAnterior, pedido.getEstado(), "Estado revertido tras eliminar entrega");
-            notificacionService.notificarCambioEstadoPedido(pedido, estadoAnterior, pedido.getEstado());
         }
         pedidoRepository.save(pedido);
         return buscarPedidoPorId(idPedido);
@@ -362,7 +347,6 @@ public class PedidoService {
         if(!pedido.getEstado().equals(estadoAnterior)) {
             registrarHistorial(pedido, "CAMBIO_ESTADO", estadoAnterior, pedido.getEstado(), "Estado actualizado tras registro de entrega");
             pedidoRepository.save(pedido);
-            notificacionService.notificarCambioEstadoPedido(pedido, estadoAnterior, pedido.getEstado());
         }
     }
 
@@ -605,53 +589,12 @@ public class PedidoService {
         pedidoHistorialRepository.save(historial);
     }
 
-    private void aplicarDatosRecepcion(
-        PedidoEntrega entrega,
-        String comprobanteEntregaUrl,
-        String comprobanteEntregaNombreArchivo,
-        String firmaRecepcion,
-        String nombreRecibe,
-        String documentoRecibe,
-        String tipoReceptor,
-        String autorizanteNombre,
-        String autorizanteDocumento,
-        String textoAutorizacion,
-        String observaciones
-    ) {
-        entrega.setComprobanteEntregaUrl(blankToNull(comprobanteEntregaUrl));
-        entrega.setComprobanteEntregaNombreArchivo(blankToNull(comprobanteEntregaNombreArchivo));
-        entrega.setFirmaRecepcion(blankToNull(firmaRecepcion));
-        entrega.setNombreRecibe(blankToNull(nombreRecibe));
-        entrega.setDocumentoRecibe(blankToNull(documentoRecibe));
-        entrega.setTipoReceptor(blankToNull(tipoReceptor));
-        entrega.setAutorizanteNombre(blankToNull(autorizanteNombre));
-        entrega.setAutorizanteDocumento(blankToNull(autorizanteDocumento));
-        entrega.setTextoAutorizacion(blankToNull(textoAutorizacion));
-        entrega.setObservaciones(blankToNull(observaciones));
-    }
-
     private String obtenerFirmaRecepcionGuardada(List<PedidoEntrega> entregas) {
-        if(entregas == null) {
-            return null;
-        }
-
-        for(PedidoEntrega entrega : entregas) {
-            String firma = entrega.getFirmaRecepcion();
-            if(firma != null && !firma.isBlank()) {
-                return firma;
-            }
-        }
         return null;
     }
 
     private String blankToNull(String value) {
         return value == null || value.isBlank() ? null : value.trim();
-    }
-
-    private void notificarCambioEstadoSiAplica(Pedido pedido, String estadoAnterior, String estadoNuevo) {
-        if(estadoAnterior == null || estadoNuevo == null || !estadoAnterior.equals(estadoNuevo)) {
-            notificacionService.notificarCambioEstadoPedido(pedido, estadoAnterior, estadoNuevo);
-        }
     }
 
     private record PedidoDraft(BigDecimal total, List<DetallePedido> detalles, boolean parcial) {

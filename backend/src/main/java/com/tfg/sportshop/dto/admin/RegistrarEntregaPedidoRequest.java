@@ -1,21 +1,11 @@
 package com.tfg.sportshop.dto.admin;
 
+import java.util.List;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
-import java.util.List;
 
 public record RegistrarEntregaPedidoRequest(
     @NotEmpty(message = "Debes seleccionar al menos una linea")
-    List<@Valid RegistrarEntregaLineaRequest> lineas,
-    String comprobanteEntregaUrl,
-    String comprobanteEntregaNombreArchivo,
-    String firmaRecepcion,
-    String nombreRecibe,
-    String documentoRecibe,
-    String tipoReceptor,
-    String autorizanteNombre,
-    String autorizanteDocumento,
-    String textoAutorizacion,
-    String observaciones
+    List<@Valid RegistrarEntregaLineaRequest> lineas
 ) {
 }
