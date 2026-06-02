@@ -1,7 +1,6 @@
 package com.tfg.sportshop.dto;
 
 import java.util.List;
-
 public class LoginResponse {
     private String token;
     private String nombre;

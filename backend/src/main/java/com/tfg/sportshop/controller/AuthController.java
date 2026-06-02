@@ -28,10 +28,12 @@ import org.springframework.security.core.Authentication;
 import com.tfg.sportshop.dto.perfil.PerfilUsuarioResponse;
 import com.tfg.sportshop.dto.perfil.ActualizarPerfilRequest;
 import com.tfg.sportshop.dto.perfil.ActualizarPerfilResponse;
+import com.tfg.sportshop.dto.LoginResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.security.core.context.SecurityContextHolder;
+import jakarta.servlet.http.Cookie;
 
 // Anotación de Spring para indicar que es un controlador
 @Controller
@@ -423,45 +425,6 @@ public class AuthController {
         String direccionCompuesta = sb.toString().trim();
         usuario.setDireccion(direccionCompuesta.isEmpty() ? (direccion != null ? normalizar(direccion) : null) : direccionCompuesta);
     }
-        if(java.util.stream.Stream.of(direccion, calle, numero, piso, ciudad, provincia, codigoPostal).allMatch(valor -> valor == null)) {
-            return;
-        }
-        usuario.setDireccionCalle(normalizar(calle));
-        usuario.setDireccionNumero(normalizar(numero));
-        usuario.setDireccionPiso(normalizar(piso));
-        usuario.setDireccionCiudad(normalizar(ciudad));
-        usuario.setDireccionProvincia(normalizar(provincia));
-        usuario.setCodigoPostal(normalizar(codigoPostal));
-        // Build address string in required format
-        StringBuilder sb = new StringBuilder();
-        if(usuario.getDireccionCalle() != null) {
-            sb.append("Calle ").append(usuario.getDireccionCalle());
-        }
-        if(usuario.getDireccionNumero() != null) {
-            sb.append(", ").append(usuario.getDireccionNumero());
-        }
-        if(usuario.getDireccionPiso() != null) {
-            sb.append(", ").append(usuario.getDireccionPiso());
-        }
-        // location part
-        boolean hasLocation = false;
-        if(usuario.getDireccionCiudad() != null) {
-            sb.append(" - ").append(usuario.getDireccionCiudad());
-            hasLocation = true;
-        }
-        if(usuario.getDireccionProvincia() != null) {
-            if(hasLocation) sb.append(" ");
-            sb.append(usuario.getDireccionProvincia());
-            hasLocation = true;
-        }
-        if(usuario.getCodigoPostal() != null) {
-            if(hasLocation) sb.append(" ");
-            sb.append(usuario.getCodigoPostal());
-        }
-        String direccionCompuesta = sb.toString().trim();
-        usuario.setDireccion(direccionCompuesta.isEmpty() ? (direccion != null ? normalizar(direccion) : null) : direccionCompuesta);
-    }
-
 
     private String normalizar(String valor) {
         if(valor == null) {
