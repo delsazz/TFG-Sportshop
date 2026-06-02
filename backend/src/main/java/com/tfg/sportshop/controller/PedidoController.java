@@ -123,7 +123,7 @@ public class PedidoController {
                 detalle.getProducto() == null ? null : (detalle.getProducto().getNombre() != null ? 
                 detalle.getProducto().getNombre() : "Producto " + detalle.getProducto().getIdProducto()),
                 detalle.getTalla() == null ? null : detalle.getTalla().getNombre(), detalle.getCantidad(), detalle.getPrecioUnitario(),
-                null);
+                imagenPrincipal(detalle));
     }
 
     private AdminPedidoResponse toPedidoAdminResponse(Pedido pedido) {
@@ -207,6 +207,20 @@ public class PedidoController {
                 detalle == null ? null : detalle.getIdDetalle(),
                 detalle == null || detalle.getProducto() == null ? null : detalle.getProducto().getNombre(),
                 cantidadPedida, 0, cantidadEntregada, cantidadEntregada, Math.max(cantidadPedida - cantidadEntregada, 0));
+    }
+
+    private String imagenPrincipal(DetallePedido detalle) {
+        if(detalle.getProducto() == null || detalle.getProducto().getImagenes() == null
+                || detalle.getProducto().getImagenes().isEmpty()) {
+            return null;
+        }
+        return detalle.getProducto().getImagenes().stream()
+                .sorted(java.util.Comparator
+                        .comparing((com.tfg.sportshop.model.ProductoImagen imagen) -> !Boolean.TRUE.equals(imagen.getEsPrincipal()))
+                        .thenComparingInt(com.tfg.sportshop.model.ProductoImagen::getOrden))
+                .map(com.tfg.sportshop.model.ProductoImagen::getUrlImagen)
+                .findFirst()
+                .orElse(null);
     }
 
     private void validarAdministrador() {

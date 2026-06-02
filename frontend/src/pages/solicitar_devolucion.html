@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="/img/sportshop.jpg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solicitar devolucion - SportShop</title>
+  <link rel="stylesheet" href="/css/order-detail.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="layout-container"></div>
+
+  <main class="orders-page">
+    <section class="orders-shell return-request-shell">
+      <header class="orders-header">
+        <div>
+          <p>Cuenta</p>
+          <h1>Solicitar devolucion</h1>
+        </div>
+        <a id="back-to-order" href="mis_pedidos.html" class="orders-link">
+          <i data-lucide="arrow-left"></i>
+          Volver al pedido
+        </a>
+      </header>
+
+      <div id="loading-container" class="orders-state">Cargando producto...</div>
+      <div id="error-container" class="orders-state orders-error hidden"></div>
+
+      <section id="content-container" class="order-card return-request-card hidden">
+        <div class="order-table-heading">
+          <div>
+            <p id="return-order">Pedido</p>
+            <h2>Producto seleccionado</h2>
+          </div>
+        </div>
+        <div id="return-product" class="return-product"></div>
+        <form id="return-form" class="return-form">
+          <label>
+            Cantidad a devolver
+            <input id="return-quantity" type="number" min="1" required />
+          </label>
+          <label>
+            Motivo de la devolucion
+            <textarea id="return-reason" required placeholder="Explica brevemente el motivo"></textarea>
+          </label>
+          <p id="return-message" class="hidden"></p>
+          <button type="submit" class="orders-link">Enviar solicitud</button>
+        </form>
+      </section>
+    </section>
+  </main>
+
+  <script src="/js/components/script_estructura.js"></script>
+  <script src="/js/script_almacenamiento_autenticacion.js"></script>
+  <script src="/js/script_solicitar_devolucion.js"></script>
+  <script src="/js/components/script_footer.js"></script>
+</body>
+</html>
