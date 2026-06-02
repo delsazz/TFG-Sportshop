@@ -48,6 +48,9 @@ public class AuthController {
     @Autowired
     private RolesService rolesService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Value("${app.upload.perfiles-dir:uploads/perfiles}")
     private String perfilesUploadDir;
     @GetMapping("/auth/login")
