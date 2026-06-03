@@ -8,7 +8,7 @@ let catalogCategories = [];
 let selectedSizes = [];
 let editingProductId = null;
 
-const AVAILABLE_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45'];
+const AVAILABLE_SIZES = ['Sin tallas', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45'];
 
 async function initAdminCatalog() {
   const container = document.getElementById('catalogo-container');
@@ -53,9 +53,9 @@ async function initAdminCatalog() {
             <p class="mb-2 text-sm font-medium text-gray-700">Tallas disponibles</p>
             <div id="product-sizes" class="grid grid-cols-4 gap-2 md:grid-cols-8">
               ${AVAILABLE_SIZES.map((size) => `
-                <label class="flex items-center gap-2 text-sm">
+                <label class="flex items-center gap-2 text-sm ${size === 'Sin tallas' ? 'col-span-4 md:col-span-8' : ''}">
                   <input type="checkbox" value="${size}" onchange="toggleProductSize('${size}', this.checked)" />
-                  ${size}
+                  ${size === 'Sin tallas' ? 'Este producto no tiene tallas' : size}
                 </label>
               `).join('')}
             </div>

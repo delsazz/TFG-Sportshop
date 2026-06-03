@@ -2,13 +2,7 @@
   const pagesBase = window.location.pathname.includes('/src/pages/') ? '/src/pages/' : '/';
   const pageHref = (file) => `${pagesBase}${file}`;
 
-  const CATEGORIES = [
-    { label: 'Ropa deportiva', href: `${pageHref('catalogo.html')}?slug=ropa-deportiva` },
-    { label: 'Calzado', href: `${pageHref('catalogo.html')}?slug=calzado` },
-    { label: 'Accesorios', href: `${pageHref('catalogo.html')}?slug=accesorios` },
-    { label: 'Equipamiento', href: `${pageHref('catalogo.html')}?slug=equipamiento` },
-    { label: 'Suplementos', href: `${pageHref('catalogo.html')}?slug=suplementos` },
-  ];
+  // CATEGORIES are now fetched dynamically from the backend
 
   function getAuthRoles() {
     try {
@@ -82,9 +76,25 @@
     }
   }
 
-  function renderLayout() {
+  async function renderLayout() {
     const target = document.getElementById('layout-container');
     if (!target) return;
+
+    let categoriesHtml = '';
+    try {
+      const response = await fetch('/api/categorias');
+      if (response.ok) {
+        const categories = await response.json();
+        // Sort by visual order if available, otherwise by id
+        categories.sort((a, b) => (a.ordenVisualizacion || a.idCategoria) - (b.ordenVisualizacion || b.idCategoria));
+        categoriesHtml = categories.map(c => `<a href="${pageHref('catalogo.html')}?slug=${c.slug}">${c.nombreCategoria}</a>`).join('');
+      } else {
+        categoriesHtml = '<span class="sport-nav-links-error">Error cargando categorías</span>';
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      categoriesHtml = '';
+    }
 
     const token = sessionStorage.getItem('token');
     const userName = sessionStorage.getItem('userName') || 'Mi cuenta';
@@ -98,7 +108,7 @@
             <span>SportShop</span>
           </a>
           <div class="sport-nav-links">
-            ${CATEGORIES.map((category) => `<a href="${category.href}">${category.label}</a>`).join('')}
+            ${categoriesHtml}
           </div>
           <div class="sport-nav-actions">
             <button type="button" class="sport-nav-button" data-cart-toggle>

@@ -100,7 +100,6 @@ public class PedidoService {
         }
         detallePedidoRepository.saveAll(draft.detalles());
         pedidoGuardado.setDetalles(draft.detalles());
-        aplicarStock(draft.detalles(), -1);
         registrarBackorders(pedidoGuardado, draft.detalles());
         registrarPagoInicial(pedidoGuardado, request.metodoPago());
         String descripcion = draft.parcial() ? "Pedido creado parcialmente por usuario" : "Pedido creado por usuario";
@@ -118,7 +117,10 @@ public class PedidoService {
         PedidoDraft draft = construirPedidoDraft(request);
         List<DetallePedido> detallesActuales = detallePedidoRepository.findByPedidoIdPedido(pedido.getIdPedido());
         String estadoAnterior = pedido.getEstado();
-        aplicarStock(detallesActuales, 1);
+        boolean teniaStockAplicado = retieneStock(EstadoPedido.fromValor(estadoAnterior));
+        if (teniaStockAplicado) {
+            aplicarStock(detallesActuales, 1);
+        }
         backorderPedidoService.eliminarPorPedido(pedido.getIdPedido());
         detallePedidoRepository.deleteAll(detallesActuales);
         try {
@@ -134,7 +136,10 @@ public class PedidoService {
         }
         detallePedidoRepository.saveAll(draft.detalles());
         pedidoActualizado.setDetalles(draft.detalles());
-        aplicarStock(draft.detalles(), -1);
+        boolean tendraStockAplicado = retieneStock(EstadoPedido.fromValor(estado));
+        if (tendraStockAplicado) {
+            aplicarStock(draft.detalles(), -1);
+        }
         registrarBackorders(pedidoActualizado, draft.detalles());
         registrarHistorial(
             pedidoActualizado,
@@ -159,6 +164,15 @@ public class PedidoService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Transicion no valida de " + pedido.getEstado() + " a " + estado);
             }
+            
+            boolean teniaStockAplicado = retieneStock(EstadoPedido.fromValor(estadoAnterior));
+            boolean tendraStockAplicado = retieneStock(nuevoEstado);
+            if (teniaStockAplicado && !tendraStockAplicado) {
+                aplicarStock(pedido.getDetalles(), 1);
+            } else if (!teniaStockAplicado && tendraStockAplicado) {
+                aplicarStock(pedido.getDetalles(), -1);
+            }
+            
             pedido.setEstadoEnum(nuevoEstado);
         } catch(IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado no valido: " + estado);
@@ -425,7 +439,14 @@ public class PedidoService {
             Integer idTalla = talla.getIdTalla();
             ProductoTalla productoTalla = productoTallaRepository.findByProductoIdProductoAndTallaIdTalla(
                 item.idProducto(), idTalla);
-            int disponible = (productoTalla == null || productoTalla.getStock() == null) ? 0 : productoTalla.getStock();
+            
+            int disponible = 0;
+            if (productoTalla != null && productoTalla.getStock() != null) {
+                disponible = productoTalla.getStock();
+            } else if (producto.getStock() != null) {
+                disponible = producto.getStock();
+            }
+            
             int cantidadSatisfecha = Math.min(disponible, item.cantidad());
             int cantidadPendiente = item.cantidad() - cantidadSatisfecha;
             if(cantidadPendiente > 0) {
@@ -490,23 +511,38 @@ public class PedidoService {
         pagoRepository.save(pago);
     }
 
-    private void aplicarStock(List<DetallePedido> detalles, int factor) {
+    private boolean retieneStock(EstadoPedido estado) {
+        if (estado == null) return false;
+        return estado == EstadoPedido.PAGADO ||
+               estado == EstadoPedido.EN_PREPARACION ||
+               estado == EstadoPedido.ENVIADO ||
+               estado == EstadoPedido.ENTREGADO_PARCIAL ||
+               estado == EstadoPedido.ENTREGADO_COMPLETO;
+    }
+
+    @Transactional
+    public void marcarComoPagadoPorPago(Long idPedido) {
+        actualizarEstado(idPedido, EstadoPedido.PAGADO.getValor());
+    }
+
+    public void aplicarStock(List<DetallePedido> detalles, int factor) {
         for(DetallePedido detalle : detalles) {
-            ProductoTalla productoTalla = productoTallaRepository.findByProductoIdProductoAndTallaIdTalla(
-                detalle.getProducto().getIdProducto(), detalle.getIdTalla());
-            if(productoTalla == null) {
-                // Si no existe el registro de stock para esta talla, lo ignoramos (stock 0) 
-                // en lugar de lanzar un error, para permitir pedidos bajo demanda
-                continue; 
-            }
-            int stockActual = productoTalla.getStock() == null ? 0 : productoTalla.getStock();
             int cantidadStock = detalle.getCantidadSatisfecha() == null ? detalle.getCantidad() : detalle.getCantidadSatisfecha();
-            int nuevoStock = stockActual + (cantidadStock * factor);
-            if (nuevoStock < 0) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stock insuficiente para actualizar el pedido");
+            
+            if (detalle.getIdTalla() != null) {
+                ProductoTalla productoTalla = productoTallaRepository.findByProductoIdProductoAndTallaIdTalla(
+                    detalle.getProducto().getIdProducto(), detalle.getIdTalla());
+                if(productoTalla != null) {
+                    int stockActual = productoTalla.getStock() == null ? 0 : productoTalla.getStock();
+                    int nuevoStock = stockActual + (cantidadStock * factor);
+                    if (nuevoStock < 0) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stock insuficiente para actualizar el pedido");
+                    }
+                    productoTalla.setStock(nuevoStock);
+                    productoTallaRepository.save(productoTalla);
+                }
             }
-            productoTalla.setStock(nuevoStock);
-            productoTallaRepository.save(productoTalla);
+            
             Producto producto = detalle.getProducto();
             int stockGeneral = (producto.getStock() == null ? 0 : producto.getStock()) + (cantidadStock * factor);
             producto.setStock(Math.max(0, stockGeneral));
