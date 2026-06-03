@@ -99,13 +99,12 @@ public class ProductoImagenService {
     }
 
     private Path resolveUploadPath(String configuredPath, String rootRelativeFallback) {
-        Path configured = Paths.get(configuredPath);
-        if(configured.isAbsolute()) {
-            return configured;
-        }
-        Path relativeToBackend = configured.toAbsolutePath().normalize();
-        if(Files.exists(relativeToBackend.getParent()) || Files.exists(relativeToBackend)) {
-            return relativeToBackend;
+        Path current = Paths.get("").toAbsolutePath();
+        while (current != null) {
+            if (Files.exists(current.resolve("frontend/public/img"))) {
+                return current.resolve(rootRelativeFallback);
+            }
+            current = current.getParent();
         }
         return Paths.get(rootRelativeFallback).toAbsolutePath().normalize();
     }
