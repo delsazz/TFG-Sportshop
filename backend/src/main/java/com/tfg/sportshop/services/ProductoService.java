@@ -15,9 +15,13 @@ import com.tfg.sportshop.repository.TallaRepository;
 import com.tfg.sportshop.repository.ProductoRepository;
 import com.tfg.sportshop.dto.admin.AdminProductoRequest;
 import com.tfg.sportshop.repository.ProductoTallaRepository;
+import com.tfg.sportshop.repository.CarritoItemRepository;
+import com.tfg.sportshop.repository.DetallePedidoRepository;
+import com.tfg.sportshop.repository.DetalleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.transaction.annotation.Transactional;
+import com.tfg.sportshop.services.BackorderPedidoService;
 
 @Service
 public class ProductoService {
@@ -26,6 +30,8 @@ public class ProductoService {
 
     @Autowired
     private CategoriaService categoriaService;
+    @Autowired
+    private BackorderPedidoService backorderPedidoService;
 
     @Autowired
     private TallaRepository tallaRepository;
@@ -35,6 +41,20 @@ public class ProductoService {
 
     @Autowired
     private ProductoImagenService productoImagenService;
+
+    @Autowired
+    private CarritoItemRepository carritoItemRepository;
+
+    @Autowired
+    private DetallePedidoRepository detallePedidoRepository;
+
+    @Autowired
+    private DetalleRepository detalleRepository;
+
+    public boolean productoTienePedidos(Integer idProducto) {
+        return detallePedidoRepository.existsByProductoIdProducto(idProducto) || 
+               detalleRepository.existsByProductoIdProducto(idProducto);
+    }
 
     public List<Producto> verProductos() {
         return productoRepository.findAll();
@@ -132,6 +152,17 @@ public class ProductoService {
     public void eliminarProducto(Long id) {
         Producto producto = buscarProductoPorId(id);
         
+        // Validar que el producto pueda eliminarse
+        if (producto.getStock() != null && producto.getStock() > 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se puede eliminar un producto con stock mayor a 0");
+        }
+        if (productoTienePedidos(producto.getIdProducto())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se puede eliminar un producto que tiene pedidos asociados");
+        }
+        
+        // Eliminar del carrito
+        carritoItemRepository.deleteByProductoIdProducto(producto.getIdProducto());
+        
         productoTallaRepository.deleteByProductoIdProducto(producto.getIdProducto());
         
         List<ProductoImagen> imagenes = productoImagenService.obtenerImagenesProducto(id);
@@ -139,6 +170,12 @@ public class ProductoService {
             productoImagenService.eliminarImagen(img.getIdImagen());
         }
         
+        // Eliminar detalle records asociados al producto
+        detalleRepository.deleteByProductoIdProducto(producto.getIdProducto());
+        detallePedidoRepository.deleteByProductoIdProducto(producto.getIdProducto());
+        backorderPedidoService.eliminarPorProducto(producto.getIdProducto());
+
+        // Eliminar el producto después de limpiar relaciones
         productoRepository.delete(producto);
     }
 }

@@ -20,6 +20,7 @@ async function initAdminAnalytics() {
           <select id="analytics-source" class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
             <option value="pedidos">Pedidos</option>
             <option value="productos">Productos</option>
+            <option value="categorias">Categorías</option>
             <option value="clientes">Clientes</option>
             <option value="devoluciones">Devoluciones</option>
           </select>
@@ -55,14 +56,15 @@ async function initAdminAnalytics() {
 async function fetchAnalyticsData() {
   try {
     const headers = { Authorization: `Bearer ${getToken()}` };
-    const [productosRes, pedidosRes, usuariosRes, devolucionesRes] = await Promise.all([
+    const [productosRes, pedidosRes, usuariosRes, devolucionesRes, categoriasRes] = await Promise.all([
       fetch('/api/catalogo', { headers }),
       fetch('/api/pedidos', { headers }),
       fetch('/api/usuarios', { headers }),
       fetch('/api/admin/devoluciones', { headers }),
+      fetch('/api/categorias', { headers }),
     ]);
 
-    if (!productosRes.ok || !pedidosRes.ok || !usuariosRes.ok || !devolucionesRes.ok) {
+    if (!productosRes.ok || !pedidosRes.ok || !usuariosRes.ok || !devolucionesRes.ok || !categoriasRes.ok) {
       throw new Error('No se pudieron cargar las estadísticas');
     }
 
@@ -71,6 +73,7 @@ async function fetchAnalyticsData() {
       pedidos: await pedidosRes.json(),
       usuarios: await usuariosRes.json(),
       devoluciones: await devolucionesRes.json(),
+      categorias: await categoriasRes.json(),
     };
     document.getElementById('analytics-error').classList.add('hidden');
     renderAnalytics();
@@ -117,8 +120,19 @@ function getAnalyticsGroups(source) {
   const filteredOrders = filterByDate(analyticsData.pedidos, 'fechaPedido');
   const filteredReturns = filterByDate(analyticsData.devoluciones, 'fechaSolicitud');
 
+  if (source === 'categorias') {
+    return (analyticsData.categorias || []).map((cat) => ({
+      label: cat.nombreCategoria,
+      value: 1,
+    }));
+  }
   if (source === 'productos') {
-    return countBy(analyticsData.productos, (item) => item.categoria?.nombreCategoria || 'Sin categoría');
+    return countBy(analyticsData.productos, (item) => {
+      const stock = Number(item.stock || 0);
+      if (stock === 0) return 'Agotado';
+      if (stock <= 5) return 'Bajo stock';
+      return 'Disponible';
+    });
   }
   if (source === 'clientes') {
     return countBy(analyticsData.usuarios, (item) => {
