@@ -24,4 +24,5 @@ public interface DetallePedidoRepository extends JpaRepository<DetallePedido, In
     void deleteByProductoIdProducto(@Param("productoId") Integer productoId);
 
     @Query("SELECT COUNT(d) > 0 FROM DetallePedido d WHERE d.producto.idProducto = :productoId")
-    boolean existsByProductoIdProducto(@Param("productoId") Integer idProducto);
+    boolean existsByProductoIdProducto(@Param("productoId") Integer idProducto);
+}
