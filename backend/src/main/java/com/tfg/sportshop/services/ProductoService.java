@@ -8,6 +8,7 @@ import com.tfg.sportshop.model.Producto;
 import com.tfg.sportshop.model.Categoria;
 import org.springframework.http.HttpStatus;
 import com.tfg.sportshop.model.ProductoTalla;
+import com.tfg.sportshop.model.ProductoImagen;
 import org.springframework.stereotype.Service;
 import com.tfg.sportshop.model.ProductoTallaId;
 import com.tfg.sportshop.repository.TallaRepository;
@@ -31,6 +32,9 @@ public class ProductoService {
 
     @Autowired
     private ProductoTallaRepository productoTallaRepository;
+
+    @Autowired
+    private ProductoImagenService productoImagenService;
 
     public List<Producto> verProductos() {
         return productoRepository.findAll();
@@ -127,6 +131,14 @@ public class ProductoService {
     @Transactional
     public void eliminarProducto(Long id) {
         Producto producto = buscarProductoPorId(id);
+        
+        productoTallaRepository.deleteByProductoIdProducto(producto.getIdProducto());
+        
+        List<ProductoImagen> imagenes = productoImagenService.obtenerImagenesProducto(id);
+        for (ProductoImagen img : imagenes) {
+            productoImagenService.eliminarImagen(img.getIdImagen());
+        }
+        
         productoRepository.delete(producto);
     }
 }

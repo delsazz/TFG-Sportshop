@@ -205,9 +205,11 @@ function renderCatalog() {
 }
 
 function getProductImageUrl(product) {
-  const url = product.imagen || product.imagenUrl || product.urlImagen;
+  const url = String(product.imagen || product.imagenUrl || product.urlImagen || '').trim();
   if (!url) return '';
   if (/^(https?:)?\/\//.test(url) || url.startsWith('/')) return url;
+  if (url.includes('/')) return `/${url}`;
+  if (/\.(png|jpe?g|webp|gif)$/i.test(url)) return `/img/productos/${url}`;
   return `/${url}`;
 }
 
