@@ -164,20 +164,39 @@ function renderBarChart(groups, total) {
     return;
   }
 
-  chart.innerHTML = groups.map((item) => {
-    const width = total ? Math.max((item.value / total) * 100, 6) : 0;
+  const colors = ['#2563eb', '#16a34a', '#dc2626', '#f59e0b', '#7c3aed', '#0891b2'];
+  const max = Math.max(...groups.map(g => g.value));
+
+  const barsHtml = groups.map((item, index) => {
+    const hPx = max ? Math.max((item.value / max) * 180, 5) : 0;
+    const color = colors[index % colors.length];
+    
     return `
-      <div>
-        <div class="mb-1 flex justify-between text-sm">
-          <span class="font-medium text-gray-700">${item.label}</span>
-          <span class="text-gray-500">${item.value}</span>
-        </div>
-        <div class="h-3 overflow-hidden rounded-full bg-gray-100">
-          <div class="h-full rounded-full bg-blue-600" style="width: ${width}%"></div>
-        </div>
+      <div class="flex flex-1 flex-col items-center justify-end">
+        <span class="mb-1 text-sm font-bold text-gray-700">${item.value}</span>
+        <div class="w-full max-w-[4rem] border-2 border-b-0 border-gray-800 transition-all duration-300" style="height: ${hPx}px; background-color: ${color};"></div>
       </div>
     `;
   }).join('');
+
+  const labelsHtml = groups.map((item) => `
+    <div class="flex flex-1 justify-center">
+      <span class="text-[10px] sm:text-xs font-semibold text-gray-800 text-center leading-tight px-1 break-words">${item.label}</span>
+    </div>
+  `).join('');
+
+  chart.innerHTML = `
+    <div class="flex flex-col w-full h-80 pt-4 px-2">
+      <!-- Axes and Bars -->
+      <div class="flex flex-1 items-end gap-2 border-b-2 border-l-2 border-gray-800 pl-2 pb-0">
+        ${barsHtml}
+      </div>
+      <!-- X-axis Labels -->
+      <div class="flex gap-2 pl-2 mt-2">
+        ${labelsHtml}
+      </div>
+    </div>
+  `;
 }
 
 function renderPieChart(groups, total) {

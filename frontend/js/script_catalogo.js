@@ -328,7 +328,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     addItemToCheckoutDraft({
       productoId: Number(btn.dataset.id),
       nombre: btn.dataset.name,
-      talla: 'M',
+      talla: null,
       cantidad: 1,
       precioUnitario: Number(btn.dataset.price),
       imagen: btn.dataset.image,

@@ -24,15 +24,18 @@ public class PagoService {
     private final PagoRepository pagoRepository;
     private final PedidoRepository pedidoRepository;
     private final ConfiguracionSitioService configuracionSitioService;
+    private final PedidoService pedidoService;
 
     public PagoService(
         PagoRepository pagoRepository,
         PedidoRepository pedidoRepository,
-        ConfiguracionSitioService configuracionSitioService
+        ConfiguracionSitioService configuracionSitioService,
+        PedidoService pedidoService
     ) {
         this.pagoRepository = pagoRepository;
         this.pedidoRepository = pedidoRepository;
         this.configuracionSitioService = configuracionSitioService;
+        this.pedidoService = pedidoService;
     }
 
     public List<Pago> buscarPagoPorPedido(int idPedido) {
@@ -141,8 +144,7 @@ public class PagoService {
         pago.setEstado("pagado");
         Pedido pedido = pago.getPedido();
         if(pedido != null) {
-            pedido.setEstadoEnum(EstadoPedido.PAGADO);
-            pedidoRepository.save(pedido);
+            pedidoService.marcarComoPagadoPorPago(pedido.getIdPedido().longValue());
         }
     }
 

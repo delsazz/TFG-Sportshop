@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
           metodoPago: 'tarjeta',
           items: orderItems.map((item) => ({
             idProducto: item.productoId,
-            talla: item.talla,
+            talla: item.talla || 'Sin tallas',
             cantidad: item.cantidad,
           })),
         }),
