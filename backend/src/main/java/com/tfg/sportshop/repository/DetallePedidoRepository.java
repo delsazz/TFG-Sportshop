@@ -18,7 +18,7 @@ public interface DetallePedidoRepository extends JpaRepository<DetallePedido, In
     List<DetallePedido> findByProductoIdProducto(@Param("productoId") int productoId);
     @Query("SELECT detalle FROM DetallePedido detalle WHERE detalle.pedido.idPedido = :pedidoId AND detalle.producto.idProducto = :productoId")
     DetallePedido findByPedidoIdPedidoAndProductoIdProducto(@Param("pedidoId") int pedidoId, @Param("productoId") int productoId);
-    @Query("SELECT COUNT(detalle) > 0 FROM DetallePedido detalle WHERE detalle.producto.idProducto = :productoId")
+
     @Modifying
     @Query("DELETE FROM DetallePedido d WHERE d.producto.idProducto = :productoId")
     void deleteByProductoIdProducto(@Param("productoId") Integer productoId);

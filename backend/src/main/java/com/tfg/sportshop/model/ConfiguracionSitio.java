@@ -42,4 +42,21 @@ public class ConfiguracionSitio {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-}
+    // Getters and Setters
+    public Integer getIdConfiguracion() { return idConfiguracion; }
+    public void setIdConfiguracion(Integer idConfiguracion) { this.idConfiguracion = idConfiguracion; }
+    public String getLogoHeaderUrl() { return logoHeaderUrl; }
+    public void setLogoHeaderUrl(String logoHeaderUrl) { this.logoHeaderUrl = logoHeaderUrl; }
+    public String getLogoFooterUrl() { return logoFooterUrl; }
+    public void setLogoFooterUrl(String logoFooterUrl) { this.logoFooterUrl = logoFooterUrl; }
+    public String getLogoLoginUrl() { return logoLoginUrl; }
+    public void setLogoLoginUrl(String logoLoginUrl) { this.logoLoginUrl = logoLoginUrl; }
+    public String getLogoHomeUrl() { return logoHomeUrl; }
+    public void setLogoHomeUrl(String logoHomeUrl) { this.logoHomeUrl = logoHomeUrl; }
+    public String getLogoAdminUrl() { return logoAdminUrl; }
+    public void setLogoAdminUrl(String logoAdminUrl) { this.logoAdminUrl = logoAdminUrl; }
+    public boolean isTarjetaHabilitada() { return tarjetaHabilitada; }
+    public void setTarjetaHabilitada(boolean tarjetaHabilitada) { this.tarjetaHabilitada = tarjetaHabilitada; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+}
