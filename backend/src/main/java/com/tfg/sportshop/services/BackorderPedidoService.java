@@ -61,6 +61,15 @@ public class BackorderPedidoService {
         backorderRepository.deleteByIdPedido(idPedido);
     }
 
+    /**
+     * Elimina todos los backorders asociados a un producto dado.
+     *
+     * @param idProducto identificador del producto cuyos backorders deben ser eliminados
+     */
+    public void eliminarPorProducto(Integer idProducto) {
+        backorderRepository.deleteByIdProducto(idProducto);
+    }
+
     public BackorderResponse toResponse(BackorderPedido backorder) {
         String nombreProducto = productoRepository.findById(backorder.getIdProducto()).map(p -> p.getNombre())
                 .orElse("Producto desconocido");

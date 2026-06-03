@@ -13,6 +13,8 @@ public interface BackorderPedidoRepository extends JpaRepository<BackorderPedido
 
     List<BackorderPedido> findByIdProducto(Integer idProducto);
 
+    void deleteByIdProducto(Integer idProducto);
+
     List<BackorderPedido> findByIdPedido(Integer idPedido);
 
     void deleteByIdPedido(Integer idPedido);

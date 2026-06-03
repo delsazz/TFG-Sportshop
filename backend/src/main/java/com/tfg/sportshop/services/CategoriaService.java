@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -26,6 +27,9 @@ public class CategoriaService {
     private CategoriaRepository categoriaRepository;
     @Autowired
     private ProductoRepository productoRepository;
+    @Lazy
+    @Autowired
+    private ProductoService productoService;
     @Value("${app.upload.categorias-dir:../frontend/public/img/categorias}")
     private String categoriasUploadDir;
     @Value("${app.upload.max-size:5242880}")
@@ -75,16 +79,32 @@ public class CategoriaService {
     }
 
     @Transactional
+    public Categoria actualizarCategoria(Integer id, Categoria nuevo) {
+        Categoria existente = categoriaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Categoria no encontrada"));
+        existente.setNombreCategoria(nuevo.getNombreCategoria());
+        // actualizar otros campos si es necesario
+        return categoriaRepository.save(existente);
+    }
+
+    @Transactional
     public void eliminarCategoria(Integer idCategoria) {
         Categoria categoria = categoriaRepository.findById(idCategoria)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoria no encontrada"));
-        List<Producto> productosAsignados = productoRepository.findByCategoriaIdCategoria(idCategoria);
-        if(!productosAsignados.isEmpty()) {
-            for(Producto producto : productosAsignados) {
-                producto.setCategoria(null);
+        // Eliminar productos asociados (o desasociar si han sido pedidos)
+        List<Producto> productosAsignados = productoService.verProductosPorCategoria(idCategoria);
+        if (!productosAsignados.isEmpty()) {
+            for (Producto producto : productosAsignados) {
+                if (productoService.productoTienePedidos(producto.getIdProducto())) {
+                    producto.setCategoria(null);
+                    productoRepository.save(producto);
+                } else {
+                    // eliminarProducto maneja backorders, tallas e imágenes
+                    productoService.eliminarProducto(producto.getIdProducto().longValue());
+                }
             }
-            productoRepository.saveAll(productosAsignados);
         }
+        // Finalmente eliminar la categoría
         categoriaRepository.delete(categoria);
     }
 

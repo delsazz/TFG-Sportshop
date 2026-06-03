@@ -95,7 +95,10 @@ function renderCategories() {
         ${category.imagenUrl ? `<img src="${category.imagenUrl}" alt="${category.nombreCategoria}" class="h-14 w-20 rounded object-cover" />` : '<span class="text-sm text-gray-400">Sin foto</span>'}
       </td>
       <td class="px-4 py-3">
-        <button onclick="editCategory(${category.idCategoria})" class="rounded-md bg-blue-50 px-3 py-1.5 text-sm text-blue-700 hover:bg-blue-100">Editar</button>
+        <div class="flex gap-2">
+          <button onclick="editCategory(${category.idCategoria})" class="rounded-md bg-blue-50 px-3 py-1.5 text-sm text-blue-700 hover:bg-blue-100">Editar</button>
+          <button onclick="deleteCategory(${category.idCategoria}, '${escapeHtml(category.nombreCategoria)}')" class="rounded-md bg-red-50 px-3 py-1.5 text-sm text-red-700 hover:bg-red-100">Eliminar</button>
+        </div>
       </td>
     </tr>
   `).join('');
@@ -214,3 +217,23 @@ function escapeHtml(value) {
     "'": '&#039;',
   })[char]);
 }
+
+window.deleteCategory = async function(id, name) {
+  if (!confirm(`¿Estás seguro de que deseas eliminar la categoría "${name}"? Los productos no comprados de esta categoría también se eliminarán.`)) return;
+
+  try {
+    const response = await fetch(`/api/categorias/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'No se pudo eliminar la categoría');
+    }
+    await fetchCategoriesData();
+  } catch (error) {
+    showCategoriesError(error.message);
+  }
+};
