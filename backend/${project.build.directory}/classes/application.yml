@@ -1,0 +1,106 @@
+spring:
+  application:
+    name: Dotex
+  profiles:
+    default: dev
+  mail:
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:true}
+          connectiontimeout: ${MAIL_SMTP_CONNECTION_TIMEOUT:5000}
+          timeout: ${MAIL_SMTP_TIMEOUT:5000}
+          writetimeout: ${MAIL_SMTP_WRITE_TIMEOUT:5000}
+          starttls:
+            enable: ${MAIL_SMTP_STARTTLS_ENABLE:true}
+            required: ${MAIL_SMTP_STARTTLS_REQUIRED:true}
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+app:
+  frontend:
+    url: ${APP_FRONTEND_URL:http://localhost:5173}
+  upload:
+    productos-dir: ../frontend/public/img/productos
+    categorias-dir: ../frontend/public/img/categorias
+    max-size: 5242880
+  notifications:
+    email:
+      enabled: ${NOTIFICATIONS_EMAIL_ENABLED:true}
+      from: ${NOTIFICATIONS_EMAIL_FROM:${MAIL_USERNAME:}}
+  payments:
+    bizum:
+      phone: ${PAYMENTS_BIZUM_PHONE:+34 600 000 000}
+      bank-url: ${PAYMENTS_BIZUM_BANK_URL:https://www.bizum.es/bancos-bizum/}
+    transfer:
+      account-holder: ${PAYMENTS_TRANSFER_ACCOUNT_HOLDER:Sportshop}
+      iban: ${PAYMENTS_TRANSFER_IBAN:ES00 0000 0000 0000 0000 0000}
+      concept: ${PAYMENTS_TRANSFER_CONCEPT:Pedido {pedidoId} - Sportshop}
+      notes: ${PAYMENTS_TRANSFER_NOTES:Envia el justificante desde la pantalla de confirmacion del pedido.}
+  registration:
+    email:
+      enabled: ${REGISTRATION_EMAIL_ENABLED:true}
+      from: ${REGISTRATION_EMAIL_FROM:${MAIL_USERNAME:}}
+  password-reset:
+    email:
+      enabled: ${PASSWORD_RESET_EMAIL_ENABLED:true}
+      from: ${PASSWORD_RESET_EMAIL_FROM:${MAIL_USERNAME:}}
+
+jwt:
+  secret: ${JWT_SECRET:esta_es_una_clave_secreta_muy_larga_que_debe_tener_al_menos_64_caracteres_para_evitar_errores_de_algoritmo_hs512_123456}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/sportshop}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:curso}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  thymeleaf:
+    cache: false
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  thymeleaf:
+    cache: true
+
