@@ -69,9 +69,9 @@ public class PedidoController {
     }
 
     @GetMapping("/api/pedidos/usuario/{idUsuario}")
-    public List<AdminPedidoResponse> verPedidosPorUsuario(@PathVariable Integer idUsuario) {
+    public List<AdminPedidoDetalleResponse> verPedidosPorUsuario(@PathVariable Integer idUsuario) {
         validarAdministrador();
-        return pedidoService.buscarPedidosPorUsuario(idUsuario).stream().map(this::toPedidoAdminResponse).toList();
+        return pedidoService.buscarPedidosPorUsuario(idUsuario).stream().map(this::toPedidoDetalleResponse).toList();
     }
 
     @GetMapping("/api/pedidos/{idPedido}")
@@ -184,7 +184,7 @@ public class PedidoController {
                 : "Producto " + detalle.getProducto().getIdProducto()), detalle.getIdTalla(),
                 detalle.getTalla() == null ? null : detalle.getTalla().getNombre(),
                 estadosEntrega.getOrDefault(detalle.getIdDetalle(), "SIN_ENTREGAR"),
-                null);
+                imagenPrincipal(detalle));
     }
 
     private AdminPagoResponse toPagoResponse(Pago pago) {

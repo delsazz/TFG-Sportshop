@@ -119,6 +119,7 @@ function renderStudents() {
               ${expandedStudentId === u.idUsuario ? 'Ocultar' : 'Ver'} pedidos
             </button>
             <button onclick="openStudentModal('view', ${u.idUsuario})" class="rounded-md bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200 transition-colors cursor-pointer">Detalles</button>
+            <button onclick="deleteStudent(${u.idUsuario})" class="rounded-md bg-red-50 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors cursor-pointer">Eliminar</button>
           </td>
         </tr>
         ${expandedRows}
@@ -138,15 +139,43 @@ function renderExpandedStudentOrders(idUsuario) {
     return `<tr class="bg-indigo-50/40"><td colspan="6" class="px-6 py-4"><p class="text-sm text-gray-500">Este cliente no tiene pedidos.</p></td></tr>`;
   }
 
-  const rows = pedidos.map(p => `
-    <tr>
-      <td class="py-2 pr-6 font-mono text-gray-700">#${p.idPedido}</td>
-      <td class="py-2 pr-6 text-gray-600">${new Date(p.fechaPedido).toLocaleDateString('es-ES')}</td>
-      <td class="py-2 pr-6 text-gray-600">${p.totalLineas || 0}</td>
-      <td class="py-2 pr-6 text-gray-700">${Number(p.total).toFixed(2)} €</td>
-      <td class="py-2">${badgeEstado(p.estado)}</td>
+  const rows = pedidos.map(p => {
+    let detallesHtml = '';
+    if (p.detalles && p.detalles.length > 0) {
+      detallesHtml = p.detalles.map(d => {
+        const imgSrc = d.imagen ? (d.imagen.startsWith('/') ? d.imagen : `/${d.imagen}`) : '/img/sportshop.jpg';
+        const img = `<img src="${imgSrc}" class="w-12 h-12 object-cover rounded-md border border-gray-200">`;
+        const tallaStr = d.tallaNombre ? `<span class="text-xs text-gray-500 block">Talla: ${d.tallaNombre}</span>` : '';
+        return `
+          <div class="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0 min-w-[250px]">
+            ${img}
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-800 truncate">${d.productoNombre}</p>
+              ${tallaStr}
+            </div>
+            <div class="text-sm text-gray-600 text-right whitespace-nowrap">
+              ${d.cantidad} x ${Number(d.precioUnitario).toFixed(2)} €
+            </div>
+          </div>
+        `;
+      }).join('');
+    } else {
+      detallesHtml = '<p class="text-sm text-gray-500 py-2">Sin productos</p>';
+    }
+
+    return `
+    <tr class="border-t border-indigo-100/50">
+      <td class="py-3 pr-4 font-mono text-gray-700 align-top">#${p.idPedido}</td>
+      <td class="py-3 pr-4 text-gray-600 align-top">${new Date(p.fechaPedido).toLocaleDateString('es-ES')}</td>
+      <td class="py-3 pr-4 align-top">
+        <div class="flex flex-col">
+          ${detallesHtml}
+        </div>
+      </td>
+      <td class="py-3 pr-4 text-gray-700 font-medium align-top">${Number(p.total).toFixed(2)} €</td>
+      <td class="py-3 align-top">${badgeEstado(p.estado)}</td>
     </tr>
-  `).join('');
+  `}).join('');
 
   return `
     <tr class="bg-indigo-50/40">
@@ -155,14 +184,14 @@ function renderExpandedStudentOrders(idUsuario) {
           <table class="min-w-full text-left text-sm">
             <thead>
               <tr class="text-xs font-semibold uppercase text-gray-500">
-                <th class="pb-2 pr-6">ID Pedido</th>
-                <th class="pb-2 pr-6">Fecha</th>
-                <th class="pb-2 pr-6">Líneas</th>
-                <th class="pb-2 pr-6">Total</th>
-                <th class="pb-2">Estado</th>
+                <th class="pb-3 pr-4">ID Pedido</th>
+                <th class="pb-3 pr-4">Fecha</th>
+                <th class="pb-3 pr-4">Productos</th>
+                <th class="pb-3 pr-4">Total</th>
+                <th class="pb-3">Estado</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-indigo-100">
+            <tbody class="divide-y divide-indigo-100/30">
               ${rows}
             </tbody>
           </table>
@@ -175,12 +204,16 @@ function renderExpandedStudentOrders(idUsuario) {
 function badgeEstado(estado) {
   const styles = {
     'PENDIENTE': 'bg-yellow-100 text-yellow-800',
-    'EN_PROCESO': 'bg-blue-100 text-blue-800',
-    'COMPLETADO': 'bg-green-100 text-green-800',
+    'PAGADO': 'bg-blue-100 text-blue-800',
+    'EN_PREPARACION': 'bg-indigo-100 text-indigo-800',
+    'ENVIADO': 'bg-purple-100 text-purple-800',
+    'ENTREGADO_PARCIAL': 'bg-teal-100 text-teal-800',
+    'ENTREGADO_COMPLETO': 'bg-green-100 text-green-800',
+    'COMPLETADO': 'bg-green-100 text-green-800', // legacy support
     'CANCELADO': 'bg-red-100 text-red-800',
   };
   const cls = styles[estado] ?? 'bg-gray-100 text-gray-700';
-  return `<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${cls}">${estado}</span>`;
+  return `<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${cls}">${estado.replace('_', ' ')}</span>`;
 }
 
 window.toggleStudentOrders = async function(idUsuario) {
