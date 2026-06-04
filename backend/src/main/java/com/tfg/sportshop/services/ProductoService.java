@@ -152,10 +152,8 @@ public class ProductoService {
     public void eliminarProducto(Long id) {
         Producto producto = buscarProductoPorId(id);
         
-        // Validar que el producto pueda eliminarse
-        if (productoTienePedidos(producto.getIdProducto())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se puede eliminar un producto que tiene pedidos asociados");
-        }
+        // El administrador puede eliminar el producto incluso si tiene pedidos.
+        // Se borrarán en cascada los detalles asociados.
         
         // Eliminar del carrito
         carritoItemRepository.deleteByProductoIdProducto(producto.getIdProducto());
