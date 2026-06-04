@@ -39,8 +39,7 @@
 
 #categoria-img {
   width: 100%;
-  height: clamp(220px, 32vw, 360px);
-  object-fit: cover;
+  height: auto;
   display: block;
 }
 
