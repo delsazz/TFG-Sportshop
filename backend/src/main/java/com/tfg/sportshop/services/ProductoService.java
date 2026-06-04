@@ -153,9 +153,6 @@ public class ProductoService {
         Producto producto = buscarProductoPorId(id);
         
         // Validar que el producto pueda eliminarse
-        if (producto.getStock() != null && producto.getStock() > 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se puede eliminar un producto con stock mayor a 0");
-        }
         if (productoTienePedidos(producto.getIdProducto())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se puede eliminar un producto que tiene pedidos asociados");
         }
