@@ -19,7 +19,7 @@ async function initAdminStudents() {
     container.innerHTML = `
       <div class="space-y-6">
         <div>
-          <p class="mt-1 text-sm text-gray-600">Gestión de clientes con sus pedidos activos y datos personales.</p>
+          <p class="mt-1 text-sm text-gray-600">Gestión de clientes con sus pedidos y datos personales.</p>
         </div>
 
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -119,8 +119,6 @@ function renderStudents() {
               ${expandedStudentId === u.idUsuario ? 'Ocultar' : 'Ver'} pedidos
             </button>
             <button onclick="openStudentModal('view', ${u.idUsuario})" class="rounded-md bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200 transition-colors cursor-pointer">Detalles</button>
-            <button onclick="openStudentModal('edit', ${u.idUsuario})" class="rounded-md bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors cursor-pointer">Editar</button>
-            <button onclick="deleteStudent(${u.idUsuario})" class="rounded-md bg-red-50 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors cursor-pointer">Eliminar</button>
           </td>
         </tr>
         ${expandedRows}
@@ -137,7 +135,7 @@ function renderExpandedStudentOrders(idUsuario) {
   }
   const pedidos = pedidosMap[idUsuario] || [];
   if (pedidos.length === 0) {
-    return `<tr class="bg-indigo-50/40"><td colspan="6" class="px-6 py-4"><p class="text-sm text-gray-500">Este cliente no tiene pedidos activos.</p></td></tr>`;
+    return `<tr class="bg-indigo-50/40"><td colspan="6" class="px-6 py-4"><p class="text-sm text-gray-500">Este cliente no tiene pedidos.</p></td></tr>`;
   }
 
   const rows = pedidos.map(p => `
@@ -338,8 +336,7 @@ function renderStudentModal() {
           <p class="text-lg font-semibold text-gray-900">${s.direccion || '—'}</p>
         </div>
         <div class="flex gap-3 pt-6 border-t border-gray-200">
-          <button onclick="closeStudentModal()" class="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer">Cerrar</button>
-          <button onclick="openStudentModal('edit', ${s.idUsuario})" class="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 cursor-pointer">Editar</button>
+          <button onclick="closeStudentModal()" class="w-full rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 cursor-pointer">Cerrar</button>
         </div>
       </div>
     `;

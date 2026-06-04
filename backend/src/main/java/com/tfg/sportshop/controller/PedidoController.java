@@ -68,6 +68,12 @@ public class PedidoController {
         return pedidoService.verPedidos().stream().map(this::toPedidoAdminResponse).toList();
     }
 
+    @GetMapping("/api/pedidos/usuario/{idUsuario}")
+    public List<AdminPedidoResponse> verPedidosPorUsuario(@PathVariable Integer idUsuario) {
+        validarAdministrador();
+        return pedidoService.buscarPedidosPorUsuario(idUsuario).stream().map(this::toPedidoAdminResponse).toList();
+    }
+
     @GetMapping("/api/pedidos/{idPedido}")
     public Object verPedido(@PathVariable Long idPedido) {
         Pedido pedido = pedidoService.buscarPedidoPorId(idPedido);
