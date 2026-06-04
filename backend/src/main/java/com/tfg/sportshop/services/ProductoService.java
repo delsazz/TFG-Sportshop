@@ -18,6 +18,8 @@ import com.tfg.sportshop.repository.ProductoTallaRepository;
 import com.tfg.sportshop.repository.CarritoItemRepository;
 import com.tfg.sportshop.repository.DetallePedidoRepository;
 import com.tfg.sportshop.repository.DetalleRepository;
+import com.tfg.sportshop.repository.PedidoEntregaLineaRepository;
+import com.tfg.sportshop.repository.DevolucionItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +52,12 @@ public class ProductoService {
 
     @Autowired
     private DetalleRepository detalleRepository;
+
+    @Autowired
+    private PedidoEntregaLineaRepository pedidoEntregaLineaRepository;
+
+    @Autowired
+    private DevolucionItemRepository devolucionItemRepository;
 
     public boolean productoTienePedidos(Integer idProducto) {
         return detallePedidoRepository.existsByProductoIdProducto(idProducto) || 
@@ -166,6 +174,8 @@ public class ProductoService {
         }
         
         // Eliminar detalle records asociados al producto
+        devolucionItemRepository.deleteByProductoId(producto.getIdProducto());
+        pedidoEntregaLineaRepository.deleteByProductoId(producto.getIdProducto());
         detalleRepository.deleteByProductoIdProducto(producto.getIdProducto());
         detallePedidoRepository.deleteByProductoIdProducto(producto.getIdProducto());
         backorderPedidoService.eliminarPorProducto(producto.getIdProducto());

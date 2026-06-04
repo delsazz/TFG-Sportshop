@@ -23,4 +23,9 @@ public interface PedidoEntregaLineaRepository extends JpaRepository<PedidoEntreg
         WHERE linea.detalle.pedido.idPedido = :pedidoId
         """)
     boolean existsByPedidoId(@Param("pedidoId") Integer pedidoId);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.transaction.annotation.Transactional
+    @Query("DELETE FROM PedidoEntregaLinea pel WHERE pel.detalle.producto.idProducto = :productoId")
+    void deleteByProductoId(@Param("productoId") Integer productoId);
 }

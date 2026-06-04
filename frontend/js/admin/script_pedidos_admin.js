@@ -230,9 +230,13 @@ window.saveOrderStatus = async function(id) {
 
   try {
     const token = getToken();
-    const res = await fetch(`/api/pedidos/${id}/estado?nuevoEstado=${nuevoEstado}`, {
+    const res = await fetch(`/api/pedidos/${id}/estado`, {
       method: 'PUT',
-      headers: { 'Authorization': `Bearer ${token}` }
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ estado: nuevoEstado })
     });
     if (!res.ok) throw new Error('No se pudo actualizar el estado');
     const actualizado = await res.json();
@@ -298,9 +302,13 @@ window.handleQuickStatus = async function(estadoStr) {
   
   try {
     const token = getToken();
-    const res = await fetch(`/api/pedidos/${id}/estado?nuevoEstado=${estadoStr.toUpperCase()}`, {
+    const res = await fetch(`/api/pedidos/${id}/estado`, {
       method: 'PUT',
-      headers: { 'Authorization': `Bearer ${token}` }
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ estado: estadoStr.toUpperCase() })
     });
     if (!res.ok) throw new Error('No se pudo actualizar el estado');
     
