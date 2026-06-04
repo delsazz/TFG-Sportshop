@@ -195,7 +195,7 @@ function renderCatalog() {
         <td class="px-4 py-3">
           <div class="flex gap-2">
             <button onclick="editCatalogProduct(${product.idProducto})" class="rounded-md bg-blue-50 px-3 py-1.5 text-sm text-blue-700 hover:bg-blue-100">Editar</button>
-            <button onclick="deleteCatalogProduct(${product.idProducto})" ${stock === 0 ? '' : 'disabled'} class="rounded-md bg-red-50 px-3 py-1.5 text-sm text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-40">Eliminar</button>
+            <button onclick="deleteCatalogProduct(${product.idProducto})" class="rounded-md bg-red-50 px-3 py-1.5 text-sm text-red-700 hover:bg-red-100">Eliminar</button>
           </div>
         </td>
       </tr>
@@ -341,11 +341,9 @@ window.handleProductPhotoChange = function(event) {
 
 window.deleteCatalogProduct = async function(id) {
   const product = catalogProducts.find((item) => item.idProducto === id);
-  if (!product || Number(product.stock || 0) !== 0) {
-    showCatalogError('Solo se pueden eliminar productos con stock 0');
-    return;
-  }
-  if (!confirm('Se eliminará el producto sin stock. ¿Continuar?')) return;
+  if (!product) return;
+
+  if (!confirm('Se eliminará el producto. ¿Continuar?')) return;
 
   try {
     const response = await fetch(`/api/catalogo/${id}`, {
