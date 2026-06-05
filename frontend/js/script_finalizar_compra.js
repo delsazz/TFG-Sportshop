@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(payload.error || payload.message || 'No se pudo crear el pedido');
+        throw new Error(payload.message || payload.error || 'No se pudo crear el pedido');
       }
 
       sessionStorage.setItem('lastOrder', JSON.stringify({ ...payload, paymentMethod: 'tarjeta', total }));

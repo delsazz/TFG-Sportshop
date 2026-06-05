@@ -435,8 +435,8 @@ public class PedidoService {
             Producto producto = productoRepository.findById(item.idProducto())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Producto " + item.idProducto() + " no encontrado"));
-            Talla talla = resolverTalla(item);
-            Integer idTalla = talla.getIdTalla();
+            Talla talla = resolverTalla(item, producto);
+            Integer idTalla = talla == null ? null : talla.getIdTalla();
             ProductoTalla productoTalla = productoTallaRepository.findByProductoIdProductoAndTallaIdTalla(
                 item.idProducto(), idTalla);
             
@@ -482,19 +482,32 @@ public class PedidoService {
         }
     }
 
-    private Talla resolverTalla(CrearPedidoItemRequest item) {
-        if(item.idTalla() != null) {
+    private Talla resolverTalla(CrearPedidoItemRequest item, Producto producto) {
+        boolean productoTieneTallas = !productoTallaRepository.findByProductoIdProducto(producto.getIdProducto()).isEmpty();
+        if (!productoTieneTallas || esTallaGenerica(item.talla())) {
+            if (item.idTalla() != null) {
+                return tallaRepository.findById(item.idTalla())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Talla " + item.idTalla() + " no encontrada"));
+            }
+            return null;
+        }
+        if (item.idTalla() != null) {
             return tallaRepository.findById(item.idTalla())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Talla " + item.idTalla() + " no encontrada"));
         }
-        if(item.talla() == null || item.talla().isBlank()) {
+        if (item.talla() == null || item.talla().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La talla es requerida");
         }
         String nombreTalla = item.talla().trim();
         return tallaRepository.findByNombreIgnoreCase(nombreTalla)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                 "Talla " + nombreTalla + " no encontrada"));
+    }
+
+    private boolean esTallaGenerica(String talla) {
+        return talla == null || talla.isBlank() || "sin tallas".equalsIgnoreCase(talla.trim());
     }
 
     private void registrarPagoInicial(Pedido pedido, String metodoPago) {
