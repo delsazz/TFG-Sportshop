@@ -388,22 +388,41 @@ function renderOrderDetail() {
   }).join('');
 
   const productosHtml = p.detalles.map(d => {
+    const imgSrc = d.imagen ? (d.imagen.startsWith('/') ? d.imagen : `/${d.imagen}`) : '/img/sportshop.jpg';
+    const subtotal = (Number(d.cantidad) * Number(d.precioUnitario || 0)).toFixed(2);
+    const allDelivered = d.cantidadPendiente === 0;
+    const borderColor = allDelivered ? '#d1fae5' : (d.cantidadEntregada > 0 ? '#fef3c7' : '#fee2e2');
+
     return `
-      <div class="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-xl hover:border-blue-300 transition-colors">
-        <div class="mb-4 md:mb-0">
-          <p class="font-bold text-gray-900">${d.productoNombre}</p>
-          <p class="text-xs text-gray-500">Talla: ${d.tallaNombre} | Pedido: ${d.cantidad}</p>
-          <div class="mt-2 flex gap-4">
-            <span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">ENTREGADO: ${d.cantidadEntregada}</span>
-            <span class="text-[10px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold">FALTA: ${d.cantidadPendiente}</span>
-            ${d.esBackorder ? '<span class="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold">BACKORDER</span>' : ''}
+      <div style="display:flex;gap:16px;align-items:stretch;padding:16px;border:1.5px solid ${borderColor};border-radius:12px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.05);transition:box-shadow 0.2s;" onmouseenter="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseleave="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
+        <!-- Product Image -->
+        <div style="flex-shrink:0;">
+          <img src="${imgSrc}" alt="${d.productoNombre || 'Producto'}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid #e5e7eb;">
+        </div>
+
+        <!-- Product Info -->
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:6px;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="font-weight:700;font-size:15px;color:#111827;">${d.productoNombre || 'Producto'}</span>
+            ${d.tallaNombre && d.tallaNombre !== 'null' ? `<span style="background:#f3f4f6;color:#6b7280;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;">Talla: ${d.tallaNombre}</span>` : ''}
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <span style="font-size:13px;color:#6b7280;">${d.cantidad} ud. × ${Number(d.precioUnitario || 0).toFixed(2)} €</span>
+            <span style="font-size:13px;font-weight:700;color:#1e293b;">= ${subtotal} €</span>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;">
+            <span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:9999px;font-size:10px;font-weight:700;background:${d.cantidadEntregada > 0 ? '#d1fae5' : '#f3f4f6'};color:${d.cantidadEntregada > 0 ? '#065f46' : '#9ca3af'};border:1px solid ${d.cantidadEntregada > 0 ? '#34d399' : '#e5e7eb'};">✓ Entregado: ${d.cantidadEntregada}</span>
+            ${d.cantidadPendiente > 0 ? `<span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:9999px;font-size:10px;font-weight:700;background:#fef3c7;color:#92400e;border:1px solid #fbbf24;">⏳ Pendiente: ${d.cantidadPendiente}</span>` : ''}
+            ${d.esBackorder ? '<span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:9999px;font-size:10px;font-weight:700;background:#fee2e2;color:#991b1b;border:1px solid #f87171;">⚠ Backorder</span>' : ''}
           </div>
         </div>
-        <div class="flex items-center gap-4 bg-gray-50 p-2 rounded-lg">
-          <input type="checkbox" onchange="toggleLinea(${d.idDetalle}, this.checked)" ${selectedLineas[d.idDetalle] ? 'checked' : ''} ${d.cantidadPendiente === 0 ? 'disabled' : ''} class="w-5 h-5 text-blue-600 rounded cursor-pointer" />
-          <div class="flex flex-col">
-            <span class="text-[10px] font-bold text-gray-400">CANT. A ENTREGAR</span>
-            <input type="number" min="1" max="${d.cantidadPendiente}" value="${deliveryQuantities[d.idDetalle] || 0}" onchange="changeDeliveryQuantity(${d.idDetalle}, this.value)" ${!selectedLineas[d.idDetalle] ? 'disabled' : ''} class="w-20 p-1 border rounded font-bold text-sm bg-white" />
+
+        <!-- Delivery Controls -->
+        <div style="flex-shrink:0;display:flex;align-items:center;gap:12px;padding:8px 12px;background:#f9fafb;border-radius:10px;">
+          <input type="checkbox" onchange="toggleLinea(${d.idDetalle}, this.checked)" ${selectedLineas[d.idDetalle] ? 'checked' : ''} ${allDelivered ? 'disabled' : ''} style="width:20px;height:20px;accent-color:#2563eb;cursor:pointer;" />
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <span style="font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;">Cant. a entregar</span>
+            <input type="number" min="1" max="${d.cantidadPendiente}" value="${deliveryQuantities[d.idDetalle] || 0}" onchange="changeDeliveryQuantity(${d.idDetalle}, this.value)" ${!selectedLineas[d.idDetalle] ? 'disabled' : ''} style="width:64px;padding:4px 6px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;font-weight:700;text-align:center;background:${!selectedLineas[d.idDetalle] ? '#f3f4f6' : '#fff'};" />
           </div>
         </div>
       </div>
