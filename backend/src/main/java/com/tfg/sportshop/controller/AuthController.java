@@ -11,6 +11,10 @@ import java.nio.file.StandardCopyOption;
 import org.springframework.ui.Model;
 import com.tfg.sportshop.model.Roles;
 import com.tfg.sportshop.model.Usuario;
+import com.tfg.sportshop.model.Provincia;
+import com.tfg.sportshop.model.ComunidadAutonoma;
+import com.tfg.sportshop.repository.ProvinciaRepository;
+import com.tfg.sportshop.repository.ComunidadAutonomaRepository;
 import jakarta.servlet.http.HttpSession;
 import com.tfg.sportshop.dto.LoginRequest;
 import org.springframework.http.HttpHeaders;
@@ -42,6 +46,12 @@ public class AuthController {
     // Anotación de Spring para inyección de dependencias
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private ProvinciaRepository provinciaRepository;
+
+    @Autowired
+    private ComunidadAutonomaRepository comunidadAutonomaRepository;
     @Autowired
     private JWTTokenProvider jwtTokenProvider;
 
@@ -175,9 +185,6 @@ public class AuthController {
     @ResponseBody
     public ResponseEntity<?> actualizarPerfil(@RequestBody ActualizarPerfilRequest request, HttpServletRequest httpRequest) {
         Usuario usuario = getUsuarioDesdeToken(httpRequest);
-        if(request.avatarUrl() != null) {
-            usuario.setAvatarUrl(request.avatarUrl().trim());
-        }
         if(request.email() != null) {
             String nuevoEmail = request.email().trim();
             usuarioService.buscarUsuarioPorEmail(nuevoEmail)
@@ -216,27 +223,7 @@ public class AuthController {
     @PostMapping("/api/auth/me/avatar")
     @ResponseBody
     public ResponseEntity<?> subirAvatar(@RequestParam("file") MultipartFile file, HttpServletRequest httpRequest) {
-        Usuario usuario = getUsuarioDesdeToken(httpRequest);
-        if(file == null || file.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Selecciona una imagen"));
-        }
-        String contentType = file.getContentType() == null ? "" : file.getContentType().toLowerCase();
-        if(!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Solo se permiten archivos jpg o png"));
-        }
-        try {
-            Path uploadPath = Paths.get(perfilesUploadDir);
-            Files.createDirectories(uploadPath);
-            String extension = contentType.equals("image/png") ? ".png" : ".jpg";
-            String filename = "perfil-" + usuario.getIdUsuario() + "-" + UUID.randomUUID() + extension;
-            Path destino = uploadPath.resolve(filename);
-            Files.copy(file.getInputStream(), destino, StandardCopyOption.REPLACE_EXISTING);
-            usuario.setAvatarUrl("/uploads/perfiles/" + filename);
-            usuarioService.registrarUsuario(usuario);
-            return ResponseEntity.ok(Map.of("avatarUrl", usuario.getAvatarUrl(), "usuario", toPerfilResponse(usuario)));
-        } catch(Exception e) {
-            return ResponseEntity.status(500).body(Map.of("message", "No se pudo subir la foto de perfil"));
-        }
+        return ResponseEntity.badRequest().body(Map.of("message", "La funcionalidad de avatar ha sido deshabilitada."));
     }
 
     @GetMapping("/auth/register")
@@ -265,7 +252,7 @@ public class AuthController {
         usuario.setEmail(email);
         usuario.setPassword(passwordEncoder.encode(password));
         usuario.setTelefono(telefono);
-        aplicarDireccion(usuario, direccion, direccionCalle, direccionNumero, direccionPiso, direccionCiudad, direccionProvincia, codigoPostal);
+        aplicarDireccion(usuario, direccion, direccionCalle, direccionNumero, direccionPiso, direccionCiudad, direccionProvincia, codigoPostal, null);
         
         // Asignar rol por defecto
         rolesService.bucarPorNombre("cliente").ifPresent(rol -> usuario.setRoles(List.of(rol)));
@@ -290,9 +277,9 @@ public class AuthController {
                 return ResponseEntity.status(400).body(Map.of("message", "El email ya está registrado."));
             }
             usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-            aplicarDireccion(usuario, usuario.getDireccion(), usuario.getDireccionCalle(), usuario.getDireccionNumero(),
+            aplicarDireccion(usuario, null, usuario.getDireccionCalle(), usuario.getDireccionNumero(),
                     usuario.getDireccionPiso(), usuario.getDireccionCiudad(), usuario.getDireccionProvincia(),
-                    usuario.getCodigoPostal());
+                    usuario.getCodigoPostal(), usuario.getDireccionComunidad());
            
             // Asignar rol por defecto cliente
             rolesService.bucarPorNombre("cliente").ifPresent(rol -> usuario.setRoles(List.of(rol)));
@@ -372,61 +359,79 @@ public class AuthController {
     private PerfilUsuarioResponse toPerfilResponse(Usuario usuario) {
         return new PerfilUsuarioResponse(usuario.getIdUsuario(), usuario.getNombre(), usuario.getApellidos(),
                 usuario.getEmail(), usuario.getTelefono() != null ? usuario.getTelefono() : "",
-                usuario.getDireccion() != null ? usuario.getDireccion() : "",
+                construirDireccion(usuario),
                 usuario.getDireccionCalle() != null ? usuario.getDireccionCalle() : "",
                 usuario.getDireccionNumero() != null ? usuario.getDireccionNumero() : "",
                 usuario.getDireccionPiso() != null ? usuario.getDireccionPiso() : "",
                 usuario.getDireccionCiudad() != null ? usuario.getDireccionCiudad() : "",
                 usuario.getDireccionProvincia() != null ? usuario.getDireccionProvincia() : "",
                 usuario.getCodigoPostal() != null ? usuario.getCodigoPostal() : "",
-                usuario.getAvatarUrl() != null ? usuario.getAvatarUrl() : "",
+                "",
                 Math.toIntExact(usuarioService.contarPedidosUsuario(usuario.getIdUsuario())),
                 usuario.getRoles() == null ? List.of() : usuario.getRoles().stream().map(Roles::getNombreRol).toList());                     
     }
 
     private void aplicarDireccion(Usuario usuario, String direccion, String calle, String numero, String piso, String ciudad,
-            String provincia, String codigoPostal) {
+            String provincia, String codigoPostal, String direccionComunidad) {
         // If all address components are null, do nothing
-        if (java.util.stream.Stream.of(direccion, calle, numero, piso, ciudad, provincia, codigoPostal)
+        if (java.util.stream.Stream.of(direccion, calle, numero, piso, ciudad, provincia, codigoPostal, direccionComunidad)
                 .allMatch(v -> v == null)) {
             return;
         }
+
+        // Handle case where only a single address string 'direccion' is passed (e.g., from old forms/admin)
+        if (calle == null && numero == null && piso == null && ciudad == null && provincia == null && codigoPostal == null) {
+            usuario.setDireccionCalle(normalizar(direccion));
+            return;
+        }
+
         // Normalize and set individual fields
-        usuario.setDireccionCalle(normalizar(calle));
+        if (calle != null) {
+            String cleanCalle = calle.trim();
+            if (cleanCalle.toLowerCase().startsWith("calle ")) {
+                usuario.setDireccionCalle("Calle " + cleanCalle.substring(6).trim());
+            } else if (cleanCalle.toLowerCase().startsWith("calle")) {
+                usuario.setDireccionCalle("Calle " + cleanCalle.substring(5).trim());
+            } else {
+                usuario.setDireccionCalle("Calle " + cleanCalle);
+            }
+        } else {
+            usuario.setDireccionCalle(null);
+        }
+
         usuario.setDireccionNumero(normalizar(numero));
         usuario.setDireccionPiso(normalizar(piso));
         usuario.setDireccionCiudad(normalizar(ciudad));
-        usuario.setDireccionProvincia(normalizar(provincia));
+        usuario.setCiudad(normalizar(ciudad));
         usuario.setCodigoPostal(normalizar(codigoPostal));
 
-        // Build address string in required format: "Calle <calle>, <numero>, <piso> - <ciudad> <provincia> <codigoPostal>"
-        StringBuilder sb = new StringBuilder();
-        if (usuario.getDireccionCalle() != null) {
-            sb.append("Calle ").append(usuario.getDireccionCalle());
+        // Look up community name by ID or keep as text
+        String comunidadNombre = null;
+        if (direccionComunidad != null && !direccionComunidad.isBlank()) {
+            try {
+                Integer idComunidad = Integer.parseInt(direccionComunidad);
+                comunidadNombre = comunidadAutonomaRepository.findById(idComunidad)
+                        .map(ComunidadAutonoma::getNombre)
+                        .orElse(direccionComunidad);
+            } catch (NumberFormatException e) {
+                comunidadNombre = direccionComunidad;
+            }
         }
-        if (usuario.getDireccionNumero() != null) {
-            sb.append(", ").append(usuario.getDireccionNumero());
+        usuario.setComunidadAutonoma(comunidadNombre);
+
+        // Look up province name by ID or keep as text
+        String provinciaNombre = null;
+        if (provincia != null && !provincia.isBlank()) {
+            try {
+                Integer idProvincia = Integer.parseInt(provincia);
+                provinciaNombre = provinciaRepository.findById(idProvincia)
+                        .map(Provincia::getNombre)
+                        .orElse(provincia);
+            } catch (NumberFormatException e) {
+                provinciaNombre = provincia;
+            }
         }
-        if (usuario.getDireccionPiso() != null) {
-            sb.append(", ").append(usuario.getDireccionPiso());
-        }
-        // location part
-        boolean hasLocation = false;
-        if (usuario.getDireccionCiudad() != null) {
-            sb.append(" - ").append(usuario.getDireccionCiudad());
-            hasLocation = true;
-        }
-        if (usuario.getDireccionProvincia() != null) {
-            if (hasLocation) sb.append(" ");
-            sb.append(usuario.getDireccionProvincia());
-            hasLocation = true;
-        }
-        if (usuario.getCodigoPostal() != null) {
-            if (hasLocation) sb.append(" ");
-            sb.append(usuario.getCodigoPostal());
-        }
-        String direccionCompuesta = sb.toString().trim();
-        usuario.setDireccion(direccionCompuesta.isEmpty() ? (direccion != null ? normalizar(direccion) : null) : direccionCompuesta);
+        usuario.setDireccionProvincia(provinciaNombre);
     }
 
     private String normalizar(String valor) {
