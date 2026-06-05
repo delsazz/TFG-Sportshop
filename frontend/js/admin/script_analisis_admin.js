@@ -135,10 +135,12 @@ function getAnalyticsGroups(source) {
     });
   }
   if (source === 'clientes') {
-    return countBy(analyticsData.usuarios, (item) => {
-      const roles = item.roles || [];
-      return roles.includes('ADMIN') ? 'Admin' : 'Cliente';
-    });
+    return analyticsData.usuarios
+      .map(u => ({
+        label: `${u.nombre} ${u.apellidos}`,
+        value: u.totalPedidos || 0,
+      }))
+      .sort((a, b) => b.value - a.value);
   }
   if (source === 'devoluciones') {
     return countBy(filteredReturns, (item) => item.estado || 'Sin estado');
@@ -178,7 +180,7 @@ function renderBarChart(groups, total) {
     return;
   }
 
-  const colors = ['#2563eb', '#16a34a', '#dc2626', '#f59e0b', '#7c3aed', '#0891b2'];
+  const colors = ['#2563eb', '#16a34a', '#dc2626', '#f59e0b', '#7c3aed', '#0891b2', '#e11d48', '#65a30d', '#0d9488', '#c026d3', '#ea580c', '#4f46e5', '#059669', '#d97706', '#9333ea', '#0284c7'];
   const max = Math.max(...groups.map(g => g.value));
 
   const barsHtml = groups.map((item, index) => {
@@ -220,7 +222,7 @@ function renderPieChart(groups, total) {
     return;
   }
 
-  const colors = ['#2563eb', '#16a34a', '#dc2626', '#f59e0b', '#7c3aed', '#0891b2'];
+  const colors = ['#2563eb', '#16a34a', '#dc2626', '#f59e0b', '#7c3aed', '#0891b2', '#e11d48', '#65a30d', '#0d9488', '#c026d3', '#ea580c', '#4f46e5', '#059669', '#d97706', '#9333ea', '#0284c7'];
   let start = 0;
   const gradient = groups.map((item, index) => {
     const end = start + (item.value / total) * 100;

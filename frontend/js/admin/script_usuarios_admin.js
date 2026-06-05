@@ -36,13 +36,17 @@ async function initAdminStudents() {
                 <th class="px-4 py-3 text-sm font-medium text-gray-500">Nombre</th>
                 <th class="px-4 py-3 text-sm font-medium text-gray-500">Email</th>
                 <th class="px-4 py-3 text-sm font-medium text-gray-500">Teléfono</th>
+                <th class="px-4 py-3 text-sm font-medium text-gray-500">Comunidad Autónoma</th>
+                <th class="px-4 py-3 text-sm font-medium text-gray-500">Provincia</th>
+                <th class="px-4 py-3 text-sm font-medium text-gray-500">Ciudad</th>
+                <th class="px-4 py-3 text-sm font-medium text-gray-500">Dirección</th>
                 <th class="px-4 py-3 text-sm font-medium text-gray-500">Roles</th>
                 <th class="px-4 py-3 text-sm font-medium text-gray-500">Pedidos</th>
                 <th class="px-4 py-3 text-sm font-medium text-gray-500">Acciones</th>
               </tr>
             </thead>
             <tbody id="students-tbody">
-              <tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">Cargando clientes...</td></tr>
+              <tr><td colspan="10" class="px-4 py-8 text-center text-gray-500">Cargando clientes...</td></tr>
             </tbody>
           </table>
         </div>
@@ -98,20 +102,25 @@ function renderStudents() {
   const tbody = document.getElementById('students-tbody');
 
   if (paginated.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">No se encontraron clientes.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10" class="px-4 py-8 text-center text-gray-500">No se encontraron clientes.</td></tr>`;
   } else {
     tbody.innerHTML = paginated.map(u => {
       const rolesStr = u.roles.length ? u.roles.map(r => r.nombreRol).join(', ') : 'Sin rol';
       const expandedRows = expandedStudentId === u.idUsuario ? renderExpandedStudentOrders(u.idUsuario) : '';
 
+      const direccionParts = [u.direccionCalle, u.direccionNumero, u.direccionPiso].filter(v => v && v.trim()).join(', ');
+
       return `
         <tr class="border-t border-gray-100 hover:bg-gray-50">
           <td class="px-4 py-3">
             <div class="font-medium text-gray-900">${u.nombre} ${u.apellidos}</div>
-            <div class="text-sm text-gray-500">${u.direccion || 'Sin dirección'}</div>
           </td>
           <td class="px-4 py-3 text-sm text-gray-700">${u.email}</td>
-          <td class="px-4 py-3 text-sm text-gray-700">${u.telefono || 'Sin teléfono'}</td>
+          <td class="px-4 py-3 text-sm text-gray-700">${u.telefono || '—'}</td>
+          <td class="px-4 py-3 text-sm text-gray-700">${u.comunidadAutonoma || '—'}</td>
+          <td class="px-4 py-3 text-sm text-gray-700">${u.provincia || '—'}</td>
+          <td class="px-4 py-3 text-sm text-gray-700">${u.ciudad || '—'}</td>
+          <td class="px-4 py-3 text-sm text-gray-700">${direccionParts || '—'}</td>
           <td class="px-4 py-3 text-sm text-gray-700">${rolesStr}</td>
           <td class="px-4 py-3 text-sm text-gray-700">${u.totalPedidos || 0}</td>
           <td class="px-4 py-3 flex gap-2">
@@ -132,67 +141,88 @@ function renderStudents() {
 
 function renderExpandedStudentOrders(idUsuario) {
   if (loadingPedidosMap[idUsuario]) {
-    return `<tr class="bg-indigo-50/40"><td colspan="6" class="px-6 py-4"><p class="text-sm text-gray-500">Cargando pedidos...</p></td></tr>`;
+    return `<tr class="bg-indigo-50/40"><td colspan="10" class="px-6 py-4"><p class="text-sm text-gray-500">Cargando pedidos...</p></td></tr>`;
   }
   const pedidos = pedidosMap[idUsuario] || [];
   if (pedidos.length === 0) {
-    return `<tr class="bg-indigo-50/40"><td colspan="6" class="px-6 py-4"><p class="text-sm text-gray-500">Este cliente no tiene pedidos.</p></td></tr>`;
+    return `<tr class="bg-indigo-50/40"><td colspan="10" class="px-6 py-4"><p class="text-sm text-gray-500">Este cliente no tiene pedidos.</p></td></tr>`;
   }
 
-  const rows = pedidos.map(p => {
-    let detallesHtml = '';
-    if (p.detalles && p.detalles.length > 0) {
-      detallesHtml = p.detalles.map(d => {
+  const orderBlocks = pedidos.map(p => {
+    const detalles = p.detalles || [];
+    const tieneMultiplesProductos = detalles.length > 1;
+
+    // Calculate total from line items as fallback when p.total is 0 or missing
+    const totalCalculado = detalles.reduce((sum, d) => sum + (Number(d.cantidad) * Number(d.precioUnitario)), 0);
+    const totalFinal = (Number(p.total) > 0 ? Number(p.total) : totalCalculado).toFixed(2);
+
+    let productRows = '';
+    if (detalles.length > 0) {
+      productRows = detalles.map((d, idx) => {
         const imgSrc = d.imagen ? (d.imagen.startsWith('/') ? d.imagen : `/${d.imagen}`) : '/img/sportshop.jpg';
-        const img = `<img src="${imgSrc}" class="w-12 h-12 object-cover rounded-md border border-gray-200">`;
-        const tallaStr = d.tallaNombre ? `<span class="text-xs text-gray-500 block">Talla: ${d.tallaNombre}</span>` : '';
+        const subtotal = (Number(d.cantidad) * Number(d.precioUnitario)).toFixed(2);
+        const isFirst = idx === 0;
+        const rowspan = tieneMultiplesProductos ? `rowspan="${detalles.length}"` : '';
         return `
-          <div class="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0 min-w-[250px]">
-            ${img}
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-800 truncate">${d.productoNombre}</p>
-              ${tallaStr}
-            </div>
-            <div class="text-sm text-gray-600 text-right whitespace-nowrap">
-              ${d.cantidad} x ${Number(d.precioUnitario).toFixed(2)} €
-            </div>
-          </div>
+          <tr class="border-t border-gray-100">
+            ${isFirst ? `<td class="px-3 py-3 font-mono text-gray-700 align-middle text-center" ${rowspan}>#${p.idPedido}</td>` : ''}
+            <td class="px-3 py-3 align-middle text-center">
+              <img src="${imgSrc}" alt="${d.productoNombre || 'Producto'}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;display:inline-block;">
+            </td>
+            <td class="px-3 py-3 text-sm text-gray-800 align-middle">${d.productoNombre || 'Producto'}</td>
+            <td class="px-3 py-3 text-sm text-gray-600 align-middle text-center">${d.tallaNombre || '—'}</td>
+            <td class="px-3 py-3 text-sm text-gray-600 align-middle text-center">${d.cantidad}</td>
+            <td class="px-3 py-3 text-sm text-gray-700 align-middle text-right font-medium">${subtotal} €</td>
+            ${isFirst ? `<td class="px-3 py-3 align-middle text-center" ${rowspan}>${badgeEstado(p.estado)}</td>` : ''}
+          </tr>
         `;
       }).join('');
     } else {
-      detallesHtml = '<p class="text-sm text-gray-500 py-2">Sin productos</p>';
+      productRows = `
+        <tr class="border-t border-gray-100">
+          <td class="px-3 py-3 font-mono text-gray-700 align-middle text-center">#${p.idPedido}</td>
+          <td colspan="5" class="px-3 py-3 text-sm text-gray-500 text-center">Sin productos</td>
+          <td class="px-3 py-3 align-middle text-center">${badgeEstado(p.estado)}</td>
+        </tr>
+      `;
     }
 
-    return `
-    <tr class="border-t border-indigo-100/50">
-      <td class="py-3 pr-4 font-mono text-gray-700 align-top">#${p.idPedido}</td>
-      <td class="py-3 pr-4 text-gray-600 align-top">${new Date(p.fechaPedido).toLocaleDateString('es-ES')}</td>
-      <td class="py-3 pr-4 align-top">
-        <div class="flex flex-col">
-          ${detallesHtml}
-        </div>
-      </td>
-      <td class="py-3 pr-4 text-gray-700 font-medium align-top">${Number(p.total).toFixed(2)} €</td>
-      <td class="py-3 align-top">${badgeEstado(p.estado)}</td>
-    </tr>
-  `}).join('');
+    // Total row aligned under Precio column
+    const totalRow = `
+      <tr class="border-t border-gray-200" style="background:rgba(249,250,251,0.6);">
+        <td colspan="5" class="px-3 py-2 text-right">
+          <span class="text-xs text-gray-400">Fecha: ${new Date(p.fechaPedido).toLocaleDateString('es-ES')}</span>
+        </td>
+        <td class="px-3 py-2 text-right">
+          <div style="background:linear-gradient(135deg,#1e293b,#334155);color:#fff;padding:5px 12px;border-radius:8px;font-size:13px;font-weight:600;display:inline-block;box-shadow:0 1px 3px rgba(0,0,0,0.12);white-space:nowrap;">
+            Total: ${totalFinal} €
+          </div>
+        </td>
+        <td class="px-3 py-2"></td>
+      </tr>
+    `;
+
+    return productRows + totalRow;
+  }).join('');
 
   return `
     <tr class="bg-indigo-50/40">
-      <td colspan="6" class="px-6 py-4">
-        <div class="overflow-x-auto">
-          <table class="min-w-full text-left text-sm">
+      <td colspan="10" class="px-4 py-4">
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:14px;text-align:left;">
             <thead>
-              <tr class="text-xs font-semibold uppercase text-gray-500">
-                <th class="pb-3 pr-4">ID Pedido</th>
-                <th class="pb-3 pr-4">Fecha</th>
-                <th class="pb-3 pr-4">Productos</th>
-                <th class="pb-3 pr-4">Total</th>
-                <th class="pb-3">Estado</th>
+              <tr style="border-bottom:2px solid #e0e7ff;">
+                <th class="px-3 pb-3 text-xs font-semibold uppercase text-gray-500 text-center" style="width:80px;">ID Pedido</th>
+                <th class="px-3 pb-3 text-xs font-semibold uppercase text-gray-500 text-center" style="width:64px;">Imagen</th>
+                <th class="px-3 pb-3 text-xs font-semibold uppercase text-gray-500">Producto</th>
+                <th class="px-3 pb-3 text-xs font-semibold uppercase text-gray-500 text-center" style="width:70px;">Talla</th>
+                <th class="px-3 pb-3 text-xs font-semibold uppercase text-gray-500 text-center" style="width:80px;">Unidades</th>
+                <th class="px-3 pb-3 text-xs font-semibold uppercase text-gray-500 text-right" style="width:90px;">Precio</th>
+                <th class="px-3 pb-3 text-xs font-semibold uppercase text-gray-500 text-center" style="width:120px;">Estado</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-indigo-100/30">
-              ${rows}
+            <tbody>
+              ${orderBlocks}
             </tbody>
           </table>
         </div>
@@ -202,18 +232,19 @@ function renderExpandedStudentOrders(idUsuario) {
 }
 
 function badgeEstado(estado) {
-  const styles = {
-    'PENDIENTE': 'bg-yellow-100 text-yellow-800',
-    'PAGADO': 'bg-blue-100 text-blue-800',
-    'EN_PREPARACION': 'bg-indigo-100 text-indigo-800',
-    'ENVIADO': 'bg-purple-100 text-purple-800',
-    'ENTREGADO_PARCIAL': 'bg-teal-100 text-teal-800',
-    'ENTREGADO_COMPLETO': 'bg-green-100 text-green-800',
-    'COMPLETADO': 'bg-green-100 text-green-800', // legacy support
-    'CANCELADO': 'bg-red-100 text-red-800',
+  const config = {
+    'PENDIENTE':          { bg: '#fef3c7', color: '#92400e', border: '#fbbf24' },
+    'PAGADO':             { bg: '#dbeafe', color: '#1e40af', border: '#60a5fa' },
+    'EN_PREPARACION':     { bg: '#e0e7ff', color: '#3730a3', border: '#818cf8' },
+    'ENVIADO':            { bg: '#ede9fe', color: '#5b21b6', border: '#a78bfa' },
+    'ENTREGADO_PARCIAL':  { bg: '#ccfbf1', color: '#115e59', border: '#2dd4bf' },
+    'ENTREGADO_COMPLETO': { bg: '#d1fae5', color: '#065f46', border: '#34d399' },
+    'COMPLETADO':         { bg: '#d1fae5', color: '#065f46', border: '#34d399' },
+    'CANCELADO':          { bg: '#fee2e2', color: '#991b1b', border: '#f87171' },
   };
-  const cls = styles[estado] ?? 'bg-gray-100 text-gray-700';
-  return `<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${cls}">${estado.replace('_', ' ')}</span>`;
+  const s = config[estado] || { bg: '#f3f4f6', color: '#374151', border: '#d1d5db' };
+  const label = (estado || '').replace(/_/g, ' ');
+  return `<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600;background:${s.bg};color:${s.color};border:1px solid ${s.border};white-space:nowrap;">${label}</span>`;
 }
 
 window.toggleStudentOrders = async function(idUsuario) {
@@ -291,7 +322,7 @@ window.deleteStudent = async function(idUsuario) {
 
   try {
     const token = getToken();
-    const res = await fetch(`/api/usuarios/${idUsuario}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+    const res = await fetch(`/api/admin/usuarios/${idUsuario}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
     if (!res.ok) throw new Error('No se pudo eliminar el cliente');
     
     studentsData = studentsData.filter(u => u.idUsuario !== idUsuario);

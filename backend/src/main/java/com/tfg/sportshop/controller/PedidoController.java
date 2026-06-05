@@ -120,7 +120,7 @@ public class PedidoController {
                 ? List.of() : pedido.getPagos().stream().map(this::toPagoResponse).toList();       
         List<EntregaResponse> entregas = pedidoService.verEntregas(pedido.getIdPedido()).stream()
                 .map(entrega -> toEntregaResponse(entrega, pedido.getEstado())).toList();        
-        return new PedidoResponse(pedido.getIdPedido(), pedido.getFechaPedido(), pedido.getTotal(), pedido.getEstado(), detalles, pagos, entregas);  
+        return new PedidoResponse(pedido.getIdPedido(), pedido.getFechaPedido(), calcularTotal(pedido), pedido.getEstado(), detalles, pagos, entregas);  
     }
 
     private PedidoLineaResponse toPedidoLineaResponse(DetallePedido detalle) {
@@ -145,7 +145,7 @@ public class PedidoController {
             }
         }
 
-        return new AdminPedidoResponse(pedido.getIdPedido(), pedido.getFechaPedido(), pedido.getTotal(), pedido.getEstado(),
+        return new AdminPedidoResponse(pedido.getIdPedido(), pedido.getFechaPedido(), calcularTotal(pedido), pedido.getEstado(),
                 toPedidoUsuarioResponse(pedido.getUsuario()),
                 pedido.getDetalles() == null ? 0 : pedido.getDetalles().size(), totalUnidades, unidadesEntregadas,
                 Math.max(totalUnidades - unidadesEntregadas, 0));
@@ -161,7 +161,7 @@ public class PedidoController {
                 : pedido.getPagos().stream().map(this::toPagoResponse).toList();
         List<AdminPedidoHistorialResponse> historial = pedidoService.verHistorial(pedido.getIdPedido().longValue())
                 .stream().map(this::toPedidoHistorialResponse).toList();
-        return new AdminPedidoDetalleResponse(pedido.getIdPedido(), pedido.getFechaPedido(), pedido.getTotal(), pedido.getEstado(),
+        return new AdminPedidoDetalleResponse(pedido.getIdPedido(), pedido.getFechaPedido(), calcularTotal(pedido), pedido.getEstado(),
                 toPedidoUsuarioResponse(pedido.getUsuario()), detalles, pagos, historial, 
                 pedidoService.verEntregas(pedido.getIdPedido()).stream()
                         .map(entrega -> toEntregaResponse(entrega, pedido.getEstado())).toList());
@@ -229,6 +229,20 @@ public class PedidoController {
                 .map(com.tfg.sportshop.model.ProductoImagen::getUrlImagen)
                 .findFirst()
                 .orElse(null);
+    }
+
+    private java.math.BigDecimal calcularTotal(Pedido pedido) {
+        if (pedido.getTotal() != null && pedido.getTotal().compareTo(java.math.BigDecimal.ZERO) > 0) {
+            return pedido.getTotal();
+        }
+        if (pedido.getDetalles() == null || pedido.getDetalles().isEmpty()) {
+            return pedido.getTotal() != null ? pedido.getTotal() : java.math.BigDecimal.ZERO;
+        }
+        return pedido.getDetalles().stream()
+                .map(d -> d.getPrecioUnitario() != null && d.getCantidad() != null 
+                        ? d.getPrecioUnitario().multiply(java.math.BigDecimal.valueOf(d.getCantidad())) 
+                        : java.math.BigDecimal.ZERO)
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
     }
 
     private void validarAdministrador() {
