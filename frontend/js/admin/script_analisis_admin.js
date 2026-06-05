@@ -16,31 +16,49 @@ async function initAdminAnalytics() {
   if (!container.dataset.initialized) {
     container.innerHTML = `
       <div class="space-y-6">
-        <div class="grid gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm md:grid-cols-4">
-          <select id="analytics-source" class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
-            <option value="pedidos">Pedidos</option>
-            <option value="productos">Productos</option>
-            <option value="categorias">Categorías</option>
-            <option value="clientes">Clientes</option>
-            <option value="devoluciones">Devoluciones</option>
-          </select>
-          <input id="analytics-from" type="date" class="rounded-lg border border-gray-300 px-3 py-2 text-sm" />
-          <input id="analytics-to" type="date" class="rounded-lg border border-gray-300 px-3 py-2 text-sm" />
-          <button id="analytics-apply" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Aplicar filtros</button>
+        <!-- Filter Bar -->
+        <div style="display:flex;gap:12px;align-items:center;padding:16px 20px;background:linear-gradient(135deg,#1e293b,#334155);border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,0.15);flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:180px;">
+            <span style="color:#94a3b8;font-size:13px;font-weight:600;white-space:nowrap;">📊 Vista:</span>
+            <select id="analytics-source" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:13px;font-weight:500;outline:none;cursor:pointer;">
+              <option value="pedidos">Pedidos</option>
+              <option value="productos">Productos</option>
+              <option value="categorias">Categorías</option>
+              <option value="clientes">Clientes</option>
+              <option value="devoluciones">Devoluciones</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:#94a3b8;font-size:13px;font-weight:600;">Desde:</span>
+            <input id="analytics-from" type="date" style="padding:7px 12px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:13px;outline:none;" />
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:#94a3b8;font-size:13px;font-weight:600;">Hasta:</span>
+            <input id="analytics-to" type="date" style="padding:7px 12px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:13px;outline:none;" />
+          </div>
+          <button id="analytics-apply" style="padding:9px 24px;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:transform 0.15s;box-shadow:0 2px 8px rgba(37,99,235,0.4);" onmouseenter="this.style.transform='scale(1.03)'" onmouseleave="this.style.transform='scale(1)'">Aplicar filtros</button>
         </div>
 
         <div id="analytics-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
 
-        <div class="grid gap-4 md:grid-cols-4" id="analytics-kpis"></div>
+        <!-- KPI Cards -->
+        <div class="grid gap-4 md:grid-cols-3 lg:grid-cols-6" id="analytics-kpis"></div>
 
+        <!-- Charts -->
         <div class="grid gap-6 lg:grid-cols-2">
-          <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h3 class="mb-4 text-lg font-semibold text-gray-900">Gráfico de barras</h3>
-            <div id="bar-chart" class="space-y-3"></div>
+          <section style="border-radius:14px;border:1px solid #e2e8f0;background:#fff;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+              <span style="font-size:20px;">📊</span>
+              <h3 style="font-size:17px;font-weight:700;color:#111827;margin:0;">Gráfico de barras</h3>
+            </div>
+            <div id="bar-chart"></div>
           </section>
-          <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h3 class="mb-4 text-lg font-semibold text-gray-900">Gráfico circular</h3>
-            <div id="pie-chart" class="flex flex-col items-center gap-4"></div>
+          <section style="border-radius:14px;border:1px solid #e2e8f0;background:#fff;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+              <span style="font-size:20px;">🍩</span>
+              <h3 style="font-size:17px;font-weight:700;color:#111827;margin:0;">Distribución</h3>
+            </div>
+            <div id="pie-chart" style="display:flex;flex-direction:column;align-items:center;gap:20px;"></div>
           </section>
         </div>
       </div>
@@ -100,18 +118,22 @@ function renderAnalyticsKpis(source) {
   const devolucionesPendientes = analyticsData.devoluciones.filter((item) => item.estado === 'SOLICITADA').length;
 
   const kpis = [
-    ['Clientes', analyticsData.usuarios.length],
-    ['Pedidos', analyticsData.pedidos.length],
-    ['Ventas', `${totalVentas.toFixed(2)} EUR`],
-    ['Devoluciones pendientes', devolucionesPendientes],
-    ['Productos sin stock', productosSinStock],
-    ['Vista activa', source],
+    { icon: '👥', label: 'Clientes', value: analyticsData.usuarios.length, gradient: 'linear-gradient(135deg,#3b82f6,#1d4ed8)' },
+    { icon: '📦', label: 'Pedidos', value: analyticsData.pedidos.length, gradient: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' },
+    { icon: '💰', label: 'Ventas', value: `${totalVentas.toFixed(2)} €`, gradient: 'linear-gradient(135deg,#10b981,#059669)' },
+    { icon: '🔄', label: 'Devoluciones', value: devolucionesPendientes, gradient: 'linear-gradient(135deg,#f59e0b,#d97706)' },
+    { icon: '⚠️', label: 'Productos sin stock', value: productosSinStock, gradient: 'linear-gradient(135deg,#ef4444,#dc2626)' },
+    { icon: '📋', label: 'Vista activa', value: source.charAt(0).toUpperCase() + source.slice(1), gradient: 'linear-gradient(135deg,#6366f1,#4f46e5)' },
   ];
 
-  document.getElementById('analytics-kpis').innerHTML = kpis.map(([label, value]) => `
-    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-      <p class="text-xs font-medium uppercase text-gray-500">${label}</p>
-      <p class="mt-2 text-2xl font-bold text-gray-900">${value}</p>
+  document.getElementById('analytics-kpis').innerHTML = kpis.map(k => `
+    <div style="position:relative;overflow:hidden;border-radius:14px;padding:18px 16px;background:#fff;border:1px solid #e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+      <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:${k.gradient};"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="font-size:18px;">${k.icon}</span>
+        <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#6b7280;">${k.label}</span>
+      </div>
+      <p style="font-size:22px;font-weight:800;color:#111827;margin:0;">${k.value}</p>
     </div>
   `).join('');
 }
@@ -127,12 +149,10 @@ function getAnalyticsGroups(source) {
     }));
   }
   if (source === 'productos') {
-    return countBy(analyticsData.productos, (item) => {
-      const stock = Number(item.stock || 0);
-      if (stock === 0) return 'Agotado';
-      if (stock <= 5) return 'Bajo stock';
-      return 'Disponible';
-    });
+    return analyticsData.productos.map(p => ({
+      label: p.nombre || 'Producto',
+      value: 1,
+    }));
   }
   if (source === 'clientes') {
     return analyticsData.usuarios
@@ -176,39 +196,45 @@ function countBy(items, getKey) {
 function renderBarChart(groups, total) {
   const chart = document.getElementById('bar-chart');
   if (!groups.length) {
-    chart.innerHTML = '<p class="text-sm text-gray-500">Sin datos para mostrar.</p>';
+    chart.innerHTML = '<p style="text-align:center;color:#9ca3af;font-size:14px;padding:40px 0;">Sin datos para mostrar.</p>';
     return;
   }
 
   const colors = ['#2563eb', '#16a34a', '#dc2626', '#f59e0b', '#7c3aed', '#0891b2', '#e11d48', '#65a30d', '#0d9488', '#c026d3', '#ea580c', '#4f46e5', '#059669', '#d97706', '#9333ea', '#0284c7'];
+  const gradients = [
+    ['#3b82f6','#1d4ed8'],['#22c55e','#16a34a'],['#ef4444','#dc2626'],['#fbbf24','#f59e0b'],
+    ['#a78bfa','#7c3aed'],['#22d3ee','#0891b2'],['#fb7185','#e11d48'],['#84cc16','#65a30d'],
+    ['#2dd4bf','#0d9488'],['#e879f9','#c026d3'],['#fb923c','#ea580c'],['#818cf8','#4f46e5'],
+    ['#34d399','#059669'],['#fbbf24','#d97706'],['#a855f7','#9333ea'],['#38bdf8','#0284c7']
+  ];
   const max = Math.max(...groups.map(g => g.value));
 
   const barsHtml = groups.map((item, index) => {
-    const hPx = max ? Math.max((item.value / max) * 180, 5) : 0;
-    const color = colors[index % colors.length];
+    const hPx = max ? Math.max(Math.round((item.value / max) * 250), 8) : 0;
+    const pctRaw = total ? (item.value / total) * 100 : 0;
+    const pct = pctRaw % 1 === 0 ? pctRaw.toFixed(0) : pctRaw.toFixed(1).replace('.', ',');
+    const [c1, c2] = gradients[index % gradients.length];
     
     return `
-      <div class="flex flex-1 flex-col items-center justify-end">
-        <span class="mb-1 text-sm font-bold text-gray-700">${item.value}</span>
-        <div class="w-full max-w-[4rem] border-2 border-b-0 border-gray-800 transition-all duration-300" style="height: ${hPx}px; background-color: ${color};"></div>
+      <div style="display:flex;flex:1;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;min-width:32px;">
+        <span style="font-size:12px;font-weight:800;color:#374151;">${item.value}</span>
+        <div style="width:100%;max-width:48px;height:${hPx}px;min-height:8px;background:linear-gradient(180deg,${c1},${c2});border-radius:6px 6px 0 0;transition:all 0.4s ease;cursor:pointer;" onmouseenter="this.style.transform='scaleY(1.05)';this.style.boxShadow='0 -4px 12px ${c1}55'" onmouseleave="this.style.transform='scaleY(1)';this.style.boxShadow='none'" title="${item.label}: ${item.value} (${pct}%)"></div>
       </div>
     `;
   }).join('');
 
   const labelsHtml = groups.map((item) => `
-    <div class="flex flex-1 justify-center">
-      <span class="text-[10px] sm:text-xs font-semibold text-gray-800 text-center leading-tight px-1 break-words">${item.label}</span>
+    <div style="display:flex;flex:1;justify-content:center;min-width:32px;">
+      <span style="font-size:10px;font-weight:600;color:#6b7280;text-align:center;line-height:1.2;padding:0 2px;word-break:break-word;">${item.label}</span>
     </div>
   `).join('');
 
   chart.innerHTML = `
-    <div class="flex flex-col w-full h-80 pt-4 px-2">
-      <!-- Axes and Bars -->
-      <div class="flex flex-1 items-end gap-2 border-b-2 border-l-2 border-gray-800 pl-2 pb-0">
+    <div style="display:flex;flex-direction:column;width:100%;height:320px;padding:16px 8px 0;">
+      <div style="display:flex;flex:1;align-items:flex-end;gap:6px;border-bottom:2px solid #e2e8f0;border-left:2px solid #e2e8f0;padding-left:8px;padding-bottom:0;">
         ${barsHtml}
       </div>
-      <!-- X-axis Labels -->
-      <div class="flex gap-2 pl-2 mt-2">
+      <div style="display:flex;gap:6px;padding-left:8px;margin-top:8px;">
         ${labelsHtml}
       </div>
     </div>
@@ -218,7 +244,7 @@ function renderBarChart(groups, total) {
 function renderPieChart(groups, total) {
   const chart = document.getElementById('pie-chart');
   if (!groups.length || !total) {
-    chart.innerHTML = '<p class="text-sm text-gray-500">Sin datos para mostrar.</p>';
+    chart.innerHTML = '<p style="text-align:center;color:#9ca3af;font-size:14px;padding:40px 0;">Sin datos para mostrar.</p>';
     return;
   }
 
@@ -231,15 +257,31 @@ function renderPieChart(groups, total) {
     return segment;
   }).join(', ');
 
+  const topItem = groups[0];
+  const topPct = ((topItem.value / total) * 100).toFixed(0);
+
   chart.innerHTML = `
-    <div class="h-48 w-48 rounded-full" style="background: conic-gradient(${gradient})"></div>
-    <div class="grid w-full gap-2 sm:grid-cols-2">
-      ${groups.map((item, index) => `
-        <div class="flex items-center gap-2 text-sm text-gray-700">
-          <span class="h-3 w-3 rounded-full" style="background:${colors[index % colors.length]}"></span>
-          <span>${item.label}: ${item.value}</span>
-        </div>
-      `).join('')}
+    <div style="position:relative;width:220px;height:220px;">
+      <div style="width:100%;height:100%;border-radius:50%;background:conic-gradient(${gradient});box-shadow:0 4px 20px rgba(0,0,0,0.1);"></div>
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:110px;height:110px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 2px 8px rgba(0,0,0,0.06);">
+        <span style="font-size:28px;font-weight:800;color:#111827;line-height:1;">${total}</span>
+        <span style="font-size:11px;color:#6b7280;font-weight:600;">Total</span>
+      </div>
+    </div>
+    <div style="width:100%;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;">
+      ${groups.map((item, index) => {
+        const pctRaw = (item.value / total) * 100;
+        const pct = pctRaw % 1 === 0 ? pctRaw.toFixed(0) : pctRaw.toFixed(1).replace('.', ',');
+        return `
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;background:#f9fafb;border:1px solid #f3f4f6;">
+            <span style="width:12px;height:12px;border-radius:4px;flex-shrink:0;background:${colors[index % colors.length]};box-shadow:0 1px 3px ${colors[index % colors.length]}44;"></span>
+            <div style="flex:1;min-width:0;">
+              <span style="font-size:13px;font-weight:600;color:#374151;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.label}</span>
+              <span style="font-size:11px;color:#9ca3af;">${item.value} · ${pct}%</span>
+            </div>
+          </div>
+        `;
+      }).join('')}
     </div>
   `;
 }
