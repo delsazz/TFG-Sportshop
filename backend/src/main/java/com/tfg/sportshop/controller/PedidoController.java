@@ -184,7 +184,9 @@ public class PedidoController {
                 : "Producto " + detalle.getProducto().getIdProducto()), detalle.getIdTalla(),
                 detalle.getTalla() == null ? null : detalle.getTalla().getNombre(),
                 estadosEntrega.getOrDefault(detalle.getIdDetalle(), "SIN_ENTREGAR"),
-                imagenPrincipal(detalle));
+                imagenPrincipal(detalle),
+                detalle.getCantidadSatisfecha(),
+                detalle.getEsBackorder());
     }
 
     private AdminPagoResponse toPagoResponse(Pago pago) {

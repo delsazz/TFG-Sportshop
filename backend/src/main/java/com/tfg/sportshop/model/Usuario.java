@@ -32,17 +32,14 @@ public class Usuario {
     @Column(name = "comunidad_autonoma", length = 100)
     private String comunidadAutonoma;
 
-    @Column(name = "direccion_provincia", length = 100)
-    private String direccionProvincia;
+    @Column(name = "provincia", length = 100)
+    private String provincia;
 
     @Column(length = 100)
     private String ciudad;
 
     @Column(name = "codigo_postal", length = 10)
     private String codigoPostal;
-
-    @Column(length = 100)
-    private String pais;
 
     @Column(name = "direccion_calle", length = 150)
     private String direccionCalle;
@@ -93,14 +90,14 @@ public class Usuario {
     public void setNif(String nif) { this.nif = nif; }
     public String getComunidadAutonoma() { return comunidadAutonoma; }
     public void setComunidadAutonoma(String comunidadAutonoma) { this.comunidadAutonoma = comunidadAutonoma; }
-    public String getDireccionProvincia() { return direccionProvincia; }
-    public void setDireccionProvincia(String direccionProvincia) { this.direccionProvincia = direccionProvincia; }
+    public String getDireccionProvincia() { return provincia; }
+    public void setDireccionProvincia(String direccionProvincia) { this.provincia = direccionProvincia; }
+    public String getProvincia() { return provincia; }
+    public void setProvincia(String provincia) { this.provincia = provincia; }
     public String getCiudad() { return ciudad; }
     public void setCiudad(String ciudad) { this.ciudad = ciudad; }
     public String getCodigoPostal() { return codigoPostal; }
     public void setCodigoPostal(String codigoPostal) { this.codigoPostal = codigoPostal; }
-    public String getPais() { return pais; }
-    public void setPais(String pais) { this.pais = pais; }
     public String getDireccionCalle() { return direccionCalle; }
     public void setDireccionCalle(String direccionCalle) { this.direccionCalle = direccionCalle; }
     public String getDireccionNumero() { return direccionNumero; }

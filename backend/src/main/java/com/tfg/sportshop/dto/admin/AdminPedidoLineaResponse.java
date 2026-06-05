@@ -13,6 +13,8 @@ public record AdminPedidoLineaResponse(
     Integer idTalla,
     String tallaNombre,
     String estadoEntrega,
-    String imagen
+    String imagen,
+    Integer cantidadSatisfecha,
+    Boolean esBackorder
 ) {
 }

@@ -30,6 +30,12 @@ public class DetallePedido {
     @Column(name = "precio_unitario", nullable = false, precision = 10, scale = 2)
     private BigDecimal precioUnitario;
 
+    @Column(name = "precio")
+    private Integer precio;
+
+    @Column(name = "unidades")
+    private Integer unidades;
+
     @Column(name = "id_talla")
     private Integer idTalla;
 
