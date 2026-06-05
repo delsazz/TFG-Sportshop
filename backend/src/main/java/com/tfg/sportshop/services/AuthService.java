@@ -40,7 +40,16 @@ public class AuthService {
         usuario.setEmail(email);
         usuario.setPassword(passwordEncoder.encode(password));
         usuario.setTelefono(telefono);
-        usuario.setDireccion(direccion);
+        if (direccion != null) {
+            String cleanCalle = direccion.trim();
+            if (cleanCalle.toLowerCase().startsWith("calle ")) {
+                usuario.setDireccionCalle("Calle " + cleanCalle.substring(6).trim());
+            } else if (cleanCalle.toLowerCase().startsWith("calle")) {
+                usuario.setDireccionCalle("Calle " + cleanCalle.substring(5).trim());
+            } else {
+                usuario.setDireccionCalle("Calle " + cleanCalle);
+            }
+        }
 
         List<Roles> roles = new ArrayList<>();
         Roles userRole = rolesRepository.findByNombreRol("USER")

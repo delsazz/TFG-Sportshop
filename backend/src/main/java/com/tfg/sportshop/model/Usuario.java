@@ -29,14 +29,20 @@ public class Usuario {
     @Column(length = 20)
     private String nif;
 
+    @Column(name = "comunidad_autonoma", length = 100)
+    private String comunidadAutonoma;
+
+    @Column(name = "direccion_provincia", length = 100)
+    private String direccionProvincia;
+
     @Column(length = 100)
     private String ciudad;
 
+    @Column(name = "codigo_postal", length = 10)
+    private String codigoPostal;
+
     @Column(length = 100)
     private String pais;
-
-    @Column(length = 255)
-    private String direccion;
 
     @Column(name = "direccion_calle", length = 150)
     private String direccionCalle;
@@ -50,20 +56,14 @@ public class Usuario {
     @Column(name = "direccion_ciudad", length = 100)
     private String direccionCiudad;
 
-    @Column(name = "direccion_provincia", length = 100)
-    private String direccionProvincia;
-
-    @Column(name = "codigo_postal", length = 10)
-    private String codigoPostal;
-
-    @Column(name = "avatar_url", length = 255)
-    private String avatarUrl;
-
     @Column(length = 50)
     private String rol;
 
     @Transient
     private Boolean captchaVerified;
+
+    @Transient
+    private String direccionComunidad;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -91,12 +91,16 @@ public class Usuario {
     public void setTelefono(String telefono) { this.telefono = telefono; }
     public String getNif() { return nif; }
     public void setNif(String nif) { this.nif = nif; }
+    public String getComunidadAutonoma() { return comunidadAutonoma; }
+    public void setComunidadAutonoma(String comunidadAutonoma) { this.comunidadAutonoma = comunidadAutonoma; }
+    public String getDireccionProvincia() { return direccionProvincia; }
+    public void setDireccionProvincia(String direccionProvincia) { this.direccionProvincia = direccionProvincia; }
     public String getCiudad() { return ciudad; }
     public void setCiudad(String ciudad) { this.ciudad = ciudad; }
+    public String getCodigoPostal() { return codigoPostal; }
+    public void setCodigoPostal(String codigoPostal) { this.codigoPostal = codigoPostal; }
     public String getPais() { return pais; }
     public void setPais(String pais) { this.pais = pais; }
-    public String getDireccion() { return direccion; }
-    public void setDireccion(String direccion) { this.direccion = direccion; }
     public String getDireccionCalle() { return direccionCalle; }
     public void setDireccionCalle(String direccionCalle) { this.direccionCalle = direccionCalle; }
     public String getDireccionNumero() { return direccionNumero; }
@@ -105,16 +109,12 @@ public class Usuario {
     public void setDireccionPiso(String direccionPiso) { this.direccionPiso = direccionPiso; }
     public String getDireccionCiudad() { return direccionCiudad; }
     public void setDireccionCiudad(String direccionCiudad) { this.direccionCiudad = direccionCiudad; }
-    public String getDireccionProvincia() { return direccionProvincia; }
-    public void setDireccionProvincia(String direccionProvincia) { this.direccionProvincia = direccionProvincia; }
-    public String getCodigoPostal() { return codigoPostal; }
-    public void setCodigoPostal(String codigoPostal) { this.codigoPostal = codigoPostal; }
-    public String getAvatarUrl() { return avatarUrl; }
-    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
     public String getRol() { return rol; }
     public void setRol(String rol) { this.rol = rol; }
     public Boolean getCaptchaVerified() { return captchaVerified; }
     public void setCaptchaVerified(Boolean captchaVerified) { this.captchaVerified = captchaVerified; }
+    public String getDireccionComunidad() { return direccionComunidad; }
+    public void setDireccionComunidad(String direccionComunidad) { this.direccionComunidad = direccionComunidad; }
     public List<Roles> getRoles() { return roles; }
     public void setRoles(List<Roles> roles) { this.roles = roles; }
     public List<Pedido> getPedidos() { return pedidos; }
