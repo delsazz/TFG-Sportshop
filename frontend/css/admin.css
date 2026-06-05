@@ -273,6 +273,8 @@ textarea {
 
 .admin-section-heading {
     margin-bottom: 1.35rem;
+    padding-bottom: 1.15rem;
+    border-bottom: 2px solid rgba(184, 255, 0, 0.18);
 }
 
 .admin-section-heading p {
@@ -288,6 +290,17 @@ textarea {
     color: var(--text-white);
     font-size: clamp(2rem, 4vw, 3.4rem);
     line-height: 0.95;
+}
+
+.admin-section-desc {
+    display: block;
+    margin-top: 0.6rem;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.88rem;
+    font-weight: 500;
+    font-style: normal;
+    text-transform: none;
+    letter-spacing: 0;
 }
 
 .admin-content h3,
@@ -618,6 +631,7 @@ textarea {
 @media (min-width: 768px) {
     .md\:hidden { display: none !important; }
     .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .md\:grid-cols-8 { grid-template-columns: repeat(8, minmax(0, 1fr)); }
     .md\:flex-row { flex-direction: row; }
@@ -629,6 +643,7 @@ textarea {
 
 @media (min-width: 1024px) {
     .lg\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .lg\:grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
 
 @media (min-width: 1280px) {
