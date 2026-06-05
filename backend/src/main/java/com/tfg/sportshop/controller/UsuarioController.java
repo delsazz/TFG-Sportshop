@@ -179,7 +179,10 @@ public class UsuarioController {
     private AdminUsuarioResponse toUsuarioResponse(Usuario usuario) {
         return new AdminUsuarioResponse(usuario.getIdUsuario(), usuario.getNombre(), usuario.getApellidos(), usuario.getEmail(),
                 usuario.getTelefono(), construirDireccion(usuario), usuario.getPedidos() == null ? 0 : usuario.getPedidos().size(),
-                usuario.getRoles() == null ? List.of() : usuario.getRoles().stream().map(this::toRolResponse).toList()           
+                usuario.getRoles() == null ? List.of() : usuario.getRoles().stream().map(this::toRolResponse).toList(),
+                usuario.getComunidadAutonoma(), usuario.getDireccionProvincia(), 
+                usuario.getDireccionCiudad() != null ? usuario.getDireccionCiudad() : usuario.getCiudad(),
+                usuario.getDireccionCalle(), usuario.getDireccionNumero(), usuario.getDireccionPiso()
         );
     }
 
@@ -273,11 +276,11 @@ public class UsuarioController {
     }
 
     private String construirDireccion(Usuario usuario) {
-        String via = List.of(usuario.getDireccionCalle(), usuario.getDireccionNumero(), usuario.getDireccionPiso()).stream()
+        String via = java.util.stream.Stream.of(usuario.getDireccionCalle(), usuario.getDireccionNumero(), usuario.getDireccionPiso())
                 .filter(valor -> valor != null && !valor.isBlank()).reduce((actual, siguiente) -> actual + ", " + siguiente).orElse("");
-        String localidad = List.of(usuario.getCodigoPostal(), usuario.getDireccionCiudad(), usuario.getDireccionProvincia()).stream()
+        String localidad = java.util.stream.Stream.of(usuario.getCodigoPostal(), usuario.getDireccionCiudad(), usuario.getDireccionProvincia())
                 .filter(valor -> valor != null && !valor.isBlank()).reduce((actual, siguiente) -> actual + " " + siguiente).orElse("");
-        return List.of(via, localidad).stream().filter(valor -> valor != null && !valor.isBlank())
+        return java.util.stream.Stream.of(via, localidad).filter(valor -> valor != null && !valor.isBlank())
                 .reduce((actual, siguiente) -> actual + " - " + siguiente).orElse("");
                 
     }
