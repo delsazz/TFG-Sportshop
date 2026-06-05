@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="order-summary">
           <div>
             <h2>Pedido #${escapeHtml(pedido.idPedido)}</h2>
-            <p class="order-meta">${formatDate(pedido.fecha)} · ${totalUnidades} unidades · ${money(pedido.total)}</p>
+            <p class="order-meta">${formatDate(pedido.fechaPedido || pedido.fecha)} · ${totalUnidades} unidades · ${money(pedido.total)}</p>
           </div>
           <span class="status-badge ${statusClass(pedido.estado)}">${escapeHtml(pedido.estado || 'Sin estado')}</span>
         </div>

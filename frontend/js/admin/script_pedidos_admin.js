@@ -396,6 +396,7 @@ function renderOrderDetail() {
           <div class="mt-2 flex gap-4">
             <span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">ENTREGADO: ${d.cantidadEntregada}</span>
             <span class="text-[10px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold">FALTA: ${d.cantidadPendiente}</span>
+            ${d.esBackorder ? '<span class="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold">BACKORDER</span>' : ''}
           </div>
         </div>
         <div class="flex items-center gap-4 bg-gray-50 p-2 rounded-lg">

@@ -12,11 +12,13 @@ public class Pago {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idPago;
-    @Column(name = "fecha_pago", nullable = false)
+    @Column(name = "stripe_session_id", length = 255)
+    private String stripeSessionId;
+    @Column(name = "fecha_pago")
     private LocalDateTime fechaPago;
     @Column(name = "monto", nullable = false)
     private BigDecimal monto;
-    @Column(name = "estado", nullable = false, length = 50)
+    @Column(name = "estado", length = 50)
     private String estado;
     @ManyToOne
     @JoinColumn(name = "id_pedido")

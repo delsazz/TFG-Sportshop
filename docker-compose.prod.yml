@@ -53,7 +53,7 @@ services:
       DB_USERNAME: root
       DB_PASSWORD: ${DB_PASSWORD:-curso}
       JWT_SECRET: ${JWT_SECRET:-change-in-production}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
       database:
         condition: service_healthy
