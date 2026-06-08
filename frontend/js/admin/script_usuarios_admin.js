@@ -18,35 +18,44 @@ async function initAdminStudents() {
   if (!container.dataset.initialized) {
     container.innerHTML = `
       <div class="space-y-6">
-        <div>
-          <p class="mt-1 text-sm text-gray-600">Gestión de clientes con sus pedidos y datos personales.</p>
-        </div>
 
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <input type="text" id="student-filter" placeholder="Buscar por nombre, email o teléfono..." class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:flex-1" />
-          <span id="student-count" class="text-sm text-gray-500">0 clientes</span>
+        <!-- Dark filter bar -->
+        <div style="display:flex;gap:12px;align-items:center;padding:16px 20px;background:linear-gradient(135deg,#1e293b,#334155);border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,0.15);flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px;">
+            <span style="color:#94a3b8;font-size:13px;font-weight:600;white-space:nowrap;">🔍 Buscar:</span>
+            <input id="student-filter" type="text" placeholder="Nombre, email o teléfono..." style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:13px;font-weight:500;outline:none;" />
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:#94a3b8;font-size:13px;font-weight:600;white-space:nowrap;">👤 Rol:</span>
+            <select id="student-filter-role" style="padding:8px 12px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:13px;font-weight:500;outline:none;cursor:pointer;min-width:130px;">
+              <option value="">Todos</option>
+              <option value="cliente">Cliente</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <button id="student-apply-filters" style="padding:9px 24px;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:transform 0.15s;box-shadow:0 2px 8px rgba(37,99,235,0.4);white-space:nowrap;" onmouseenter="this.style.transform='scale(1.03)'" onmouseleave="this.style.transform='scale(1)'">Aplicar filtros</button>
+            <span id="student-count" style="color:#94a3b8;font-size:12px;font-weight:600;">0 clientes</span>
+          </div>
         </div>
 
         <div id="student-error" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 hidden"></div>
 
-        <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-          <table class="min-w-full text-left">
-            <thead class="bg-gray-50">
+        <div class="catalog-table-wrapper">
+          <table style="min-width:900px;width:100%;border-collapse:collapse;">
+            <thead>
               <tr>
-                <th class="px-4 py-3 text-sm font-medium text-gray-500">Nombre</th>
-                <th class="px-4 py-3 text-sm font-medium text-gray-500">Email</th>
-                <th class="px-4 py-3 text-sm font-medium text-gray-500">Teléfono</th>
-                <th class="px-4 py-3 text-sm font-medium text-gray-500">Comunidad Autónoma</th>
-                <th class="px-4 py-3 text-sm font-medium text-gray-500">Provincia</th>
-                <th class="px-4 py-3 text-sm font-medium text-gray-500">Ciudad</th>
-                <th class="px-4 py-3 text-sm font-medium text-gray-500">Dirección</th>
-                <th class="px-4 py-3 text-sm font-medium text-gray-500">Roles</th>
-                <th class="px-4 py-3 text-sm font-medium text-gray-500">Pedidos</th>
-                <th class="px-4 py-3 text-sm font-medium text-gray-500">Acciones</th>
+                <th style="padding:11px 14px;background:linear-gradient(to bottom,#f8fafc,#f1f5f9);border-bottom:1.5px solid #e2e8f0;font-size:0.71rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#64748b;text-align:left;">Cliente</th>
+                <th style="padding:11px 14px;background:linear-gradient(to bottom,#f8fafc,#f1f5f9);border-bottom:1.5px solid #e2e8f0;font-size:0.71rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#64748b;text-align:left;">Email</th>
+                <th style="padding:11px 14px;background:linear-gradient(to bottom,#f8fafc,#f1f5f9);border-bottom:1.5px solid #e2e8f0;font-size:0.71rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#64748b;text-align:left;">Teléfono</th>
+                <th style="padding:11px 14px;background:linear-gradient(to bottom,#f8fafc,#f1f5f9);border-bottom:1.5px solid #e2e8f0;font-size:0.71rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#64748b;text-align:left;">Localización</th>
+                <th style="padding:11px 14px;background:linear-gradient(to bottom,#f8fafc,#f1f5f9);border-bottom:1.5px solid #e2e8f0;font-size:0.71rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#64748b;text-align:left;">Rol</th>
+                <th style="padding:11px 14px;background:linear-gradient(to bottom,#f8fafc,#f1f5f9);border-bottom:1.5px solid #e2e8f0;font-size:0.71rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#64748b;text-align:center;">Pedidos</th>
+                <th style="padding:11px 14px;background:linear-gradient(to bottom,#f8fafc,#f1f5f9);border-bottom:1.5px solid #e2e8f0;font-size:0.71rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#64748b;text-align:left;">Acciones</th>
               </tr>
             </thead>
             <tbody id="students-tbody">
-              <tr><td colspan="10" class="px-4 py-8 text-center text-gray-500">Cargando clientes...</td></tr>
+              <tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">Cargando clientes...</td></tr>
             </tbody>
           </table>
         </div>
@@ -63,10 +72,9 @@ async function initAdminStudents() {
       </div>
     `;
     container.dataset.initialized = "true";
-    document.getElementById('student-filter').addEventListener('input', (e) => {
-      currentPage = 1;
-      renderStudents();
-    });
+    document.getElementById('student-filter').addEventListener('input', () => { currentPage = 1; renderStudents(); });
+    document.getElementById('student-filter-role').addEventListener('change', () => { currentPage = 1; renderStudents(); });
+    document.getElementById('student-apply-filters').addEventListener('click', () => { currentPage = 1; renderStudents(); });
   }
 
   await fetchStudents();
@@ -87,9 +95,13 @@ async function fetchStudents() {
 
 function renderStudents() {
   const filterVal = document.getElementById('student-filter').value.toLowerCase();
+  const roleVal = document.getElementById('student-filter-role').value.toLowerCase();
+
   filteredStudents = studentsData.filter(u => {
     const term = `${u.nombre} ${u.apellidos} ${u.email} ${u.telefono || ''}`.toLowerCase();
-    return term.includes(filterVal);
+    const matchesText = term.includes(filterVal);
+    const matchesRole = !roleVal || u.roles.some(r => r.nombreRol.toLowerCase().includes(roleVal));
+    return matchesText && matchesRole;
   });
 
   document.getElementById('student-count').textContent = `${filteredStudents.length} cliente${filteredStudents.length !== 1 ? 's' : ''}`;
@@ -98,37 +110,54 @@ function renderStudents() {
   if (currentPage > totalPages) currentPage = totalPages;
 
   const paginated = filteredStudents.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-  
   const tbody = document.getElementById('students-tbody');
 
   if (paginated.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="10" class="px-4 py-8 text-center text-gray-500">No se encontraron clientes.</td></tr>`;
+    tbody.innerHTML = `
+      <tr><td colspan="7">
+        <div class="catalog-empty-state">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>
+          <p>No se encontraron clientes</p>
+        </div>
+      </td></tr>`;
   } else {
     tbody.innerHTML = paginated.map(u => {
-      const rolesStr = u.roles.length ? u.roles.map(r => r.nombreRol).join(', ') : 'Sin rol';
+      const rolesStr = u.roles.length ? u.roles.map(r => r.nombreRol).join(', ') : 'sin-rol';
+      const isAdmin = u.roles.some(r => r.nombreRol.toLowerCase() === 'admin');
       const expandedRows = expandedStudentId === u.idUsuario ? renderExpandedStudentOrders(u.idUsuario) : '';
-
-      const direccionParts = [u.direccionCalle, u.direccionNumero, u.direccionPiso].filter(v => v && v.trim()).join(', ');
+      const ciudad = [u.ciudad, u.provincia].filter(Boolean).join(', ') || '—';
+      const initials = `${(u.nombre || '?')[0]}${(u.apellidos || '?')[0]}`.toUpperCase();
+      const avatarColor = isAdmin ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 'linear-gradient(135deg,#6366f1,#4f46e5)';
+      const roleBadge = isAdmin
+        ? `<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:#fef3c7;color:#92400e;border:1px solid #fbbf24;">Admin</span>`
+        : `<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:#ede9fe;color:#4c1d95;border:1px solid #a78bfa;">Cliente</span>`;
+      const ordersBadge = Number(u.totalPedidos || 0) > 0
+        ? `<span style="display:inline-flex;align-items:center;justify-content:center;min-width:26px;padding:3px 8px;border-radius:999px;font-size:12px;font-weight:700;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;">${u.totalPedidos}</span>`
+        : `<span style="display:inline-flex;align-items:center;justify-content:center;min-width:26px;padding:3px 8px;border-radius:999px;font-size:12px;font-weight:700;background:#f1f5f9;color:#94a3b8;border:1px solid #e2e8f0;">0</span>`;
 
       return `
-        <tr class="border-t border-gray-100 hover:bg-gray-50">
-          <td class="px-4 py-3">
-            <div class="font-medium text-gray-900">${u.nombre} ${u.apellidos}</div>
+        <tr style="border-top:1px solid #f1f5f9;transition:background 0.15s;" onmouseenter="this.style.background='#fafbff'" onmouseleave="this.style.background='';">
+          <td style="padding:12px 14px;vertical-align:middle;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:38px;height:38px;border-radius:50%;background:${avatarColor};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;">${initials}</div>
+              <div>
+                <div style="font-weight:700;font-size:0.875rem;color:#0f172a;line-height:1.3;">${u.nombre} ${u.apellidos}</div>
+              </div>
+            </div>
           </td>
-          <td class="px-4 py-3 text-sm text-gray-700">${u.email}</td>
-          <td class="px-4 py-3 text-sm text-gray-700">${u.telefono || '—'}</td>
-          <td class="px-4 py-3 text-sm text-gray-700">${u.comunidadAutonoma || '—'}</td>
-          <td class="px-4 py-3 text-sm text-gray-700">${u.provincia || '—'}</td>
-          <td class="px-4 py-3 text-sm text-gray-700">${u.ciudad || '—'}</td>
-          <td class="px-4 py-3 text-sm text-gray-700">${direccionParts || '—'}</td>
-          <td class="px-4 py-3 text-sm text-gray-700">${rolesStr}</td>
-          <td class="px-4 py-3 text-sm text-gray-700">${u.totalPedidos || 0}</td>
-          <td class="px-4 py-3 flex gap-2">
-            <button onclick="toggleStudentOrders(${u.idUsuario})" class="rounded-md bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100 transition-colors cursor-pointer">
-              ${expandedStudentId === u.idUsuario ? 'Ocultar' : 'Ver'} pedidos
-            </button>
-            <button onclick="openStudentModal('view', ${u.idUsuario})" class="rounded-md bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200 transition-colors cursor-pointer">Detalles</button>
-            <button onclick="deleteStudent(${u.idUsuario})" class="rounded-md bg-red-50 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors cursor-pointer">Eliminar</button>
+          <td style="padding:12px 14px;vertical-align:middle;font-size:0.82rem;color:#475569;">${u.email}</td>
+          <td style="padding:12px 14px;vertical-align:middle;font-size:0.82rem;color:#475569;">${u.telefono || '—'}</td>
+          <td style="padding:12px 14px;vertical-align:middle;font-size:0.82rem;color:#475569;">${ciudad}</td>
+          <td style="padding:12px 14px;vertical-align:middle;">${roleBadge}</td>
+          <td style="padding:12px 14px;vertical-align:middle;text-align:center;">${ordersBadge}</td>
+          <td style="padding:12px 14px;vertical-align:middle;">
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button onclick="toggleStudentOrders(${u.idUsuario})" class="catalog-btn-edit" style="font-size:0.75rem;padding:0.3rem 0.65rem;">
+                ${expandedStudentId === u.idUsuario ? '🔼 Ocultar' : '📦 Pedidos'}
+              </button>
+              <button onclick="openStudentModal('view', ${u.idUsuario})" style="display:inline-flex;align-items:center;gap:4px;padding:0.3rem 0.65rem;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;font-size:0.75rem;font-weight:700;color:#475569;cursor:pointer;transition:background 0.15s;">👁 Detalles</button>
+              <button onclick="deleteStudent(${u.idUsuario})" class="catalog-btn-delete" style="font-size:0.75rem;padding:0.3rem 0.65rem;">🗑️ Eliminar</button>
+            </div>
           </td>
         </tr>
         ${expandedRows}
