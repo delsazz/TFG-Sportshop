@@ -16,22 +16,25 @@ async function initAdminCatalog() {
   if (!container.dataset.initialized) {
     container.innerHTML = `
       <div class="space-y-6">
-        <div class="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-          <p class="text-sm text-gray-500">Productos de la tienda. Solo se pueden eliminar cuando el stock llega a 0.</p>
-          <button onclick="openCatalogForm()" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Nuevo producto</button>
+        <div class="catalog-top-row">
+          <p class="catalog-info-text">Productos de la tienda. Solo se pueden eliminar cuando el stock llega a 0.</p>
+          <button onclick="openCatalogForm()" class="catalog-btn-new">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nuevo producto
+          </button>
         </div>
 
         <div id="catalog-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
 
-        <form id="catalog-form" onsubmit="submitCatalogForm(event)" class="hidden space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 id="catalog-form-title" class="text-lg font-semibold text-gray-900">Nuevo producto</h3>
+        <form id="catalog-form" onsubmit="submitCatalogForm(event)" class="catalog-form-panel hidden space-y-4">
+          <h3 id="catalog-form-title">Nuevo producto</h3>
           <div class="grid gap-4 md:grid-cols-2">
             <label class="block text-sm font-medium text-gray-700">
               Nombre
               <input id="product-name" type="text" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" />
             </label>
             <label class="block text-sm font-medium text-gray-700">
-              Precio
+              Precio (€)
               <input id="product-price" type="number" min="0" step="0.01" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" />
             </label>
             <label class="block text-sm font-medium text-gray-700">
@@ -67,25 +70,35 @@ async function initAdminCatalog() {
           </label>
           <div id="product-photo-preview" class="admin-image-preview hidden"></div>
 
-          <div class="flex gap-3 border-t pt-4">
-            <button type="submit" id="product-submit" class="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Guardar producto</button>
-            <button type="button" onclick="closeCatalogForm()" class="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancelar</button>
+          <div class="catalog-form-footer">
+            <button type="submit" id="product-submit" class="catalog-btn-submit">Guardar producto</button>
+            <button type="button" onclick="closeCatalogForm()" class="catalog-btn-cancel">Cancelar</button>
           </div>
         </form>
 
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap">
-          <input id="product-filter-name" type="text" placeholder="Buscar por nombre" class="rounded-lg border border-gray-300 px-3 py-2 text-sm sm:flex-1" />
-          <select id="product-filter-category" class="rounded-lg border border-gray-300 px-3 py-2 text-sm sm:w-52">
-            <option value="">Todas las categorías</option>
-          </select>
-          <select id="product-filter-stock" class="rounded-lg border border-gray-300 px-3 py-2 text-sm sm:w-44">
-            <option value="">Todo el stock</option>
-            <option value="con-stock">Con stock</option>
-            <option value="sin-stock">Sin stock</option>
-          </select>
+        <div style="display:flex;gap:12px;align-items:center;padding:16px 20px;background:linear-gradient(135deg,#1e293b,#334155);border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,0.15);flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px;">
+            <span style="color:#94a3b8;font-size:13px;font-weight:600;white-space:nowrap;">🔍 Buscar:</span>
+            <input id="product-filter-name" type="text" placeholder="Nombre del producto..." style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:13px;font-weight:500;outline:none;" />
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:#94a3b8;font-size:13px;font-weight:600;white-space:nowrap;">📂 Categoría:</span>
+            <select id="product-filter-category" style="padding:8px 12px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:13px;font-weight:500;outline:none;cursor:pointer;min-width:150px;">
+              <option value="">Todas</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:#94a3b8;font-size:13px;font-weight:600;white-space:nowrap;">📦 Stock:</span>
+            <select id="product-filter-stock" style="padding:8px 12px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:13px;font-weight:500;outline:none;cursor:pointer;min-width:130px;">
+              <option value="">Todo el stock</option>
+              <option value="con-stock">Con stock</option>
+              <option value="sin-stock">Sin stock</option>
+            </select>
+          </div>
+          <button id="catalog-apply-filters" style="padding:9px 24px;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:transform 0.15s;box-shadow:0 2px 8px rgba(37,99,235,0.4);white-space:nowrap;" onmouseenter="this.style.transform='scale(1.03)'" onmouseleave="this.style.transform='scale(1)'">Aplicar filtros</button>
         </div>
 
-        <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div class="catalog-table-wrapper">
           <table class="admin-products-table text-left">
             <colgroup>
               <col class="admin-products-col-image" />
@@ -96,15 +109,15 @@ async function initAdminCatalog() {
               <col class="admin-products-col-stock" />
               <col class="admin-products-col-actions" />
             </colgroup>
-            <thead class="bg-gray-50">
+            <thead>
               <tr>
-                <th class="px-4 py-3 text-sm font-medium text-gray-500">Imagen</th>
-                <th class="px-4 py-3 text-sm font-medium text-gray-500">Producto</th>
-                <th class="px-4 py-3 text-sm font-medium text-gray-500">Categoría</th>
-                <th class="px-4 py-3 text-sm font-medium text-gray-500">Descripción</th>
-                <th class="px-4 py-3 text-sm font-medium text-gray-500">Precio</th>
-                <th class="px-4 py-3 text-sm font-medium text-gray-500">Stock</th>
-                <th class="px-4 py-3 text-sm font-medium text-gray-500">Acciones</th>
+                <th>Imagen</th>
+                <th>Producto</th>
+                <th>Categoría</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody id="products-table-body">
@@ -118,6 +131,7 @@ async function initAdminCatalog() {
     document.getElementById('product-filter-name').addEventListener('input', renderCatalog);
     document.getElementById('product-filter-category').addEventListener('change', renderCatalog);
     document.getElementById('product-filter-stock').addEventListener('change', renderCatalog);
+    document.getElementById('catalog-apply-filters').addEventListener('click', renderCatalog);
   }
 
   await fetchCatalogData();
@@ -164,7 +178,13 @@ function renderCatalog() {
   });
 
   if (!products.length) {
-    tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">No hay productos.</td></tr>';
+    tbody.innerHTML = `
+      <tr><td colspan="7">
+        <div class="catalog-empty-state">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>
+          <p>No hay productos con los filtros seleccionados</p>
+        </div>
+      </td></tr>`;
     return;
   }
 
@@ -174,28 +194,42 @@ function renderCatalog() {
     const productName = escapeHtml(product.nombre || 'Sin nombre');
     const productDescription = escapeHtml(product.descripcion || 'Sin descripción');
     const categoryName = escapeHtml(product.categoria?.nombreCategoria || 'Sin categoría');
+    const stockClass = stock === 0 ? 'no-stock' : stock <= 5 ? 'low-stock' : 'in-stock';
+    const stockLabel = stock === 0 ? 'Sin stock' : stock <= 5 ? `Bajo (${stock})` : stock;
     return `
-      <tr class="border-t border-gray-100 align-top hover:bg-gray-50">
-        <td class="px-4 py-3">
+      <tr>
+        <td>
           ${imageUrl ? `
-            <img src="${escapeHtml(imageUrl)}" alt="${productName}" class="admin-product-thumb rounded-lg border border-gray-200 object-cover" loading="lazy" />
+            <img src="${escapeHtml(imageUrl)}" alt="${productName}" class="admin-product-thumb" loading="lazy" />
           ` : `
-            <div class="admin-product-thumb flex items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-400">
-              <i data-lucide="image" class="h-5 w-5"></i>
+            <div class="admin-product-thumb flex items-center justify-center" style="background:#f8fafc;color:#cbd5e1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9l4-4 4 4 4-4 4 4"/><circle cx="8.5" cy="13.5" r="1.5"/></svg>
             </div>
           `}
         </td>
-        <td class="px-4 py-3 font-medium text-gray-900">${productName}</td>
-        <td class="px-4 py-3 text-sm text-gray-700">${categoryName}</td>
-        <td class="px-4 py-3">
-          <div class="admin-product-description text-sm leading-6 text-gray-500">${productDescription}</div>
+        <td>
+          <div class="catalog-product-name">${productName}</div>
         </td>
-        <td class="px-4 py-3 text-sm text-gray-700">${Number(product.precio || 0).toFixed(2)} EUR</td>
-        <td class="px-4 py-3 text-sm text-gray-700">${stock}</td>
-        <td class="px-4 py-3">
+        <td>
+          <span class="catalog-category-badge">${categoryName}</span>
+        </td>
+        <td>
+          <div class="admin-product-description">${productDescription}</div>
+        </td>
+        <td>
+          <div class="catalog-price">${Number(product.precio || 0).toFixed(2)}<span>EUR</span></div>
+        </td>
+        <td>
+          <span class="catalog-stock-badge ${stockClass}">${stockLabel}</span>
+        </td>
+        <td>
           <div class="flex gap-2">
-            <button onclick="editCatalogProduct(${product.idProducto})" class="rounded-md bg-blue-50 px-3 py-1.5 text-sm text-blue-700 hover:bg-blue-100">Editar</button>
-            <button onclick="deleteCatalogProduct(${product.idProducto})" class="rounded-md bg-red-50 px-3 py-1.5 text-sm text-red-700 hover:bg-red-100">Eliminar</button>
+            <button onclick="editCatalogProduct(${product.idProducto})" class="catalog-btn-edit">
+              ✏️ Editar
+            </button>
+            <button onclick="deleteCatalogProduct(${product.idProducto})" class="catalog-btn-delete">
+              🗑️ Eliminar
+            </button>
           </div>
         </td>
       </tr>
